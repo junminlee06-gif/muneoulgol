@@ -11,6 +11,7 @@
 
   let enabled = false;
   let current = null;
+  let lastKind = 'day';
 
   const panel = document.createElement('button');
   panel.textContent = '음악 켜기';
@@ -28,23 +29,49 @@
     font: '14px system-ui, -apple-system, Segoe UI, sans-serif',
     boxShadow: '0 6px 20px rgba(0,0,0,.45)'
   });
-  document.addEventListener('DOMContentLoaded', () => document.body.appendChild(panel));
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.appendChild(panel);
+    updateMusicLabel();
+  });
 
   function readTimeOfDay() {
-    const text = document.body.innerText || '';
-    return text.includes('밤') ? 'night' : 'day';
+    const hud = document.getElementById('hud');
+    const phase = document.getElementById('phaseText');
+    const hudText = hud ? hud.innerText : '';
+    const phaseText = phase ? phase.innerText : '';
+    const source = `${hudText}\n${phaseText}`;
+
+    if (/·\s*밤\b|\/\s*밤\b|\b밤\s*\//.test(source)) return 'night';
+    if (/·\s*낮\b|\/\s*낮\b|\b낮\s*\//.test(source)) return 'day';
+    if (/·\s*새벽\b|\/\s*새벽\b|\b새벽\s*\//.test(source)) return 'day';
+
+    return lastKind;
+  }
+
+  function updateMusicLabel() {
+    if (!enabled) {
+      panel.textContent = '음악 켜기';
+      return;
+    }
+    const kind = readTimeOfDay();
+    panel.textContent = kind === 'night' ? '밤 음악 재생 중' : '낮 음악 재생 중';
   }
 
   async function playTrack(kind) {
+    lastKind = kind;
     const target = kind === 'night' ? night : day;
     const other = kind === 'night' ? day : night;
-    if (current === target && !target.paused) return;
+    if (current === target && !target.paused) {
+      updateMusicLabel();
+      return;
+    }
     other.pause();
     other.currentTime = 0;
     current = target;
     try {
       await target.play();
-      panel.textContent = kind === 'night' ? '밤 음악 재생 중' : '낮 음악 재생 중';
+      updateMusicLabel();
     } catch (e) {
       panel.textContent = '음악 켜기';
     }
