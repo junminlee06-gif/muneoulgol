@@ -1,1 +1,1393 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>마지막 산제 - 1장~5장 원형 · 종이 질감판</title><style>body{margin:0;background:radial-gradient(circle at 50% 0,#2a2118,#050403);color:#ded4c1;font-family:system-ui,-apple-system,Segoe UI,sans-serif}.wrap{max-width:1220px;margin:auto;padding:18px;display:grid;grid-template-columns:720px 1fr;gap:16px}header{grid-column:1/-1;display:flex;justify-content:space-between;align-items:end;border-bottom:1px solid #2b3434;padding-bottom:10px}h1{margin:0;font-size:24px}.sub{font-size:13px;color:#958c7e}.gamebox{position:relative;background:#1a130d;border:1px solid #3f3327;box-shadow:0 10px 34px #0009}.gamebox:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:4;opacity:.17;background-image:linear-gradient(90deg,#fff4cd24 0 1px,transparent 1px 19px),radial-gradient(circle,#ffebb930 0 1px,transparent 1px);background-size:19px 100%,23px 23px;mix-blend-mode:screen}.gamebox:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;background:linear-gradient(#fff2 50%,#0002 50%);background-size:100% 4px;opacity:.15}canvas{display:block;width:720px;height:480px;image-rendering:pixelated;background:#22170f;filter:saturate(.94) contrast(1.08)}.hud,.hint,.card{background:#1c171edd;border:1px solid #4a3b2c}.hud{position:absolute;left:10px;top:10px;min-width:315px;padding:8px 10px;font-size:13px;z-index:6}.hint{position:absolute;right:10px;top:10px;padding:8px 10px;font-size:12px;color:#958c7e;text-align:right;z-index:6}.dialog{position:absolute;left:16px;right:16px;bottom:16px;background:#1f1914f7;border:2px solid #5b4a38;box-shadow:0 8px 0 #0005,0 18px 34px #0009;padding:14px;z-index:7}.speaker{font-weight:800;color:#b7925d;margin-bottom:6px}.text{white-space:pre-wrap;font-size:15px;margin-bottom:10px}.options{display:grid;gap:7px}button{font-family:inherit;color:#ded4c1;background:#35291f;border:1px solid #6e5a40;padding:8px 10px;text-align:left;cursor:pointer}aside{display:flex;flex-direction:column;gap:12px}.card{padding:12px}.card h2{font-size:16px;margin:0 0 8px;color:#b7925d}.small{font-size:12px;color:#958c7e}.meters{display:grid;grid-template-columns:1fr 36px 1fr 36px;gap:6px 12px;font-size:13px;line-height:1.55}.val{text-align:right;color:#eadfc9}ul{margin:6px 0 0 18px;padding:0}li{margin:3px 0;font-size:13px}.pill{display:inline-block;border:1px solid #4a3b2c;padding:2px 6px;margin:2px 2px 0 0;font-size:12px;color:#c8b89a}@media(max-width:980px){.wrap{grid-template-columns:1fr;padding:10px}.gamebox canvas{width:100%;height:auto}.hint{display:none}}</style></head><body><div class="wrap"><header><div><h1>마지막 산제: 1장~5장 원형</h1><div class="sub">종이 오려붙이기풍 · 고구려 변경 취락 색감 · 마지막 산제 완결판</div></div><div class="sub">이동: WASD/방향키 · 상호작용: Enter/Space/Z · 대화: 클릭/숫자키</div></header><section class="gamebox"><canvas id="game" width="1440" height="960"></canvas><div class="hud" id="hud"></div><div class="hint" id="hint"></div><div class="dialog" id="dialog"><div class="speaker" id="speaker"></div><div class="text" id="dialogText"></div><div class="options" id="options"></div></div></section><aside><div class="card"><h2>진행 상태</h2><div id="phaseText" class="small"></div><div class="meters" id="meters"></div></div><div class="card"><h2>공식 기록</h2><ul id="official"></ul></div><div class="card"><h2>비공식 기록</h2><ul id="unofficial"></ul></div><div class="card"><h2>단서 / 의례 조각</h2><div id="cluePills"></div></div></aside></div><script>(()=>{const c=document.getElementById('game'),g=c.getContext('2d'),T=16,W=45,H=30,S=2;g.setTransform(S,0,0,S,0,0);g.imageSmoothingEnabled=false;const $=i=>document.getElementById(i),D={hud:$('hud'),hint:$('hint'),dia:$('dialog'),sp:$('speaker'),tx:$('dialogText'),op:$('options'),ph:$('phaseText'),me:$('meters'),of:$('official'),un:$('unofficial'),cl:$('cluePills')};const C={grass:'#5e7354',grass2:'#4c6248',path:'#967f5d',water:'#516f77',hill:'#415541',stone:'#797970',roof:'#2f4f5e',wall:'#907f65',beam:'#6a3d36',dark:'#211713'};let st={map:'pass',chapter:1,phase:'고갯길 조사',time:'낮',day:0,night:false,dialog:true,keys:{},p:{x:22,y:21.5},tick:0,shoe:false,stats:{기록:0,조사:0,결이해:0,애도:0,마을신뢰:0,을파신뢰:0,막례신뢰:0,해루공포:0,한:0,경계:3},of:[],un:[],clues:[]};function A(t='.'){return Array.from({length:H},()=>Array.from({length:W},()=>t))}function F(m,x1,y1,x2,y2,t){for(let y=y1;y<=y2;y++)for(let x=x1;x<=x2;x++)if(x>=0&&x<W&&y>=0&&y<H)m[y][x]=t}function P(m,x,y,t){if(x>=0&&x<W&&y>=0&&y<H)m[y][x]=t}let maps={pass:A('h'),village:A('.'),north:A('.')};F(maps.pass,15,7,29,23,'.');F(maps.pass,21,8,23,22,'p');F(maps.pass,19,13,25,14,'p');F(maps.pass,20,18,24,19,'p');[[17,10],[28,11],[16,16],[28,18],[19,22],[25,22],[13,11],[31,19]].forEach(a=>P(maps.pass,a[0],a[1],'r'));F(maps.village,0,0,W-1,4,'h');for(let i=0;i<W;i++)P(maps.village,i,H-1,'h');for(let i=0;i<H;i++){P(maps.village,0,i,'h');P(maps.village,W-1,i,'h')}F(maps.village,21,4,23,29,'p');F(maps.village,4,14,40,15,'p');F(maps.village,7,18,40,20,'p');F(maps.village,12,24,32,25,'p');F(maps.village,40,5,41,28,'w');F(maps.village,37,19,41,21,'p');[[4,7],[6,8],[28,7],[30,8],[5,22],[7,24],[39,24],[42,22],[13,23],[30,23],[12,27],[32,26],[27,5],[31,5],[17,27],[37,8]].forEach(a=>P(maps.village,a[0],a[1],'g'));F(maps.north,0,0,W-1,5,'h');F(maps.north,0,25,W-1,H-1,'h');F(maps.north,21,5,23,29,'p');F(maps.north,13,12,32,14,'p');F(maps.north,18,6,28,9,'p');F(maps.north,8,17,25,19,'p');for(let y=6;y<24;y++){P(maps.north,28,y,'w');if(y%4)P(maps.north,29,y,'w')}const loc={pass:[['shoe','피 묻은 짚신',22,18,1.8],['toVillage','무너울골 방향',22,8.5,1.6]],village:[['toPass','남쪽 고갯길',22,28,1.6],['toNorth','북쪽 산길',22,5,1.5],['chief','촌장집',10,16,3],['well','마을 우물',23,12,2],['shaman','무당집',15,10,3],['mill','방앗간',35,18,2.5],['office','관아 임시처소',23,24,3]],north:[['toVillage','무너울골 남쪽 길',22,28,1.6],['valley','물소리 골짜기',22,13,2.3],['shrine','무너진 산제단',22,8,3]]};function name(){return st.map==='pass'?'남쪽 고갯길':st.map==='village'?'무너울골':'북쪽 산길'}function add(arr,v){if(!arr.includes(v))arr.push(v);ref()}function say(s,t,o=[]){st.dialog=true;D.dia.style.display='block';D.sp.textContent=s;D.tx.textContent=t;D.op.innerHTML='';o.forEach((q,i)=>{let b=document.createElement('button');b.textContent=(i+1)+'. '+q[0];b.onclick=q[1];D.op.appendChild(b)})}function close(){st.dialog=false;D.dia.style.display='none'}function res(t){say('결과',t,[['닫는다',close]])}function near(){for(const l of loc[st.map]||[]){let dx=st.p.x-l[2],dy=st.p.y-l[3];if(Math.hypot(dx,dy)<l[4])return l}return null}function go(map,x,y){st.map=map;st.p.x=x;st.p.y=y;ref()}function inter(){let l=near();if(!l)return res('조사할 것이 없다.');let id=l[0];if(id==='toVillage'){go('village',22,26);return res('무너울골에 들어섰다. 마을은 살아 있지만 산 쪽을 보는 눈들이 많다.')}if(id==='toPass'){go('pass',22,9.5);return}if(id==='toNorth'){go('north',22,27);st.chapter=2;st.phase='북쪽 산길 조사';return res('북쪽 산길이 열린다. 물소리 골짜기와 무너진 산제단을 조사할 수 있다.')}if(id==='shoe'){st.shoe=true;st.stats.조사++;st.stats.기록++;add(st.clues,'단서: 아이의 짚신');add(st.clues,'단서: 끊긴 금줄 조각');add(st.of,'아이 실종 흔적');return res('작은 짚신이다. 피는 말랐고, 발자국은 마을에서 산 쪽으로 향한다. 근처 가지에는 낡은 금줄 조각이 걸려 있다.')}if(id==='chief'){st.stats.조사++;add(st.of,'산제 비용 유예');add(st.clues,'단서: 산제 장부');return res('을파의 장부에는 세 해째 비어 있는 산제 비용 칸이 있다.')}if(id==='well'){st.stats.조사++;add(st.clues,'단서: 도리의 이름');add(st.un,'우물가에서 도리 목소리 목격');return res('우물 안쪽이 검게 가라앉는다. 월선은 결국 아이의 이름을 말한다. 도리.')}if(id==='shaman'){st.stats.결이해++;add(st.clues,'의례: 찢어진 제문');add(st.un,'산제는 문을 닫는 의례');return res('막례는 말한다. 산제는 산을 부르는 일이 아니라 산이 마을로 내려오지 않게 문을 닫는 일이었다.')}if(id==='mill'){add(st.clues,'단서: 물레 밑 물소리');return res('물레는 멈춰 있는데 물소리가 난다. 돌확에는 오래된 제물 자국이 남아 있다.')}if(id==='office')return res('낮 조사 3개를 채운 뒤 보고서를 정리할 수 있다.');if(id==='valley')return res('같은 나무를 두 번 지나쳤다. 물소리가 사람 말처럼 부풀어 오른다.');if(id==='shrine')return res('무너진 산제단은 서북쪽을 향해 있다. 어딘가에서 낮은 소리가 난다. 문을 닫아라.')}function rgba(h,a){let n=parseInt(h.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}function R(a,b,w,h,c){g.fillStyle=c;g.fillRect(Math.round(a),Math.round(b),Math.round(w),Math.round(h))}function tile(i,j,t){let ox=i*T,oy=j*T,base=t==='p'?C.path:t==='w'?C.water:t==='h'?C.hill:t==='g'?C.grass2:t==='r'?C.stone:C.grass;R(ox,oy,T,T,base);if(t==='.'){R(ox+2,oy+3,2,1,rgba('#253b28',.26));R(ox+10,oy+6,2,1,rgba('#172a1d',.34));if((i+j)%5===0)R(ox+7,oy+10,1,1,rgba('#e2d09b',.18))}if(t==='g'){R(ox+3,oy+4,3,1,rgba('#263d2a',.34));R(ox+8,oy+9,4,1,rgba('#75835c',.22))}if(t==='p'){R(ox+1,oy+1,14,1,rgba('#b09a76',.18));R(ox+2,oy+13,12,1,rgba('#35281f',.2));if((i+j)%3===0)R(ox+5,oy+7,3,2,rgba('#5b432f',.24))}if(t==='w'){R(ox+2+(i+j)%3,oy+4,10,1,rgba('#89a4aa',.2));R(ox+5,oy+11,8,1,rgba('#45636d',.18))}}function roof(ox,oy,w,c){R(ox+10,oy+1,w-20,4,'#263743');R(ox+8,oy+5,w-16,7,'#1c3340');R(ox+4,oy+10,w-8,8,'#263f4e');R(ox,oy+17,w,11,c);R(ox+12,oy+7,w-24,2,'#6f8290');for(let xx=ox+8;xx<ox+w-8;xx+=10)R(xx,oy+18,2,9,rgba('#edf0da',.08));R(ox-3,oy+26,w+6,3,'#162833')}function win(a,b){R(a-2,b-2,16,12,C.dark);R(a,b,12,8,'#4f3b2e');R(a+5,b,1,8,'#0006');R(a,b+4,12,1,'#0006');R(a+1,b+1,2,2,'#b6a16b')}function house(i,j,w,h,c='#2f4f5e',wall=C.wall){let ox=i*T,oy=j*T,Wd=w*T,Hh=h*T;R(ox+4,oy+Hh-2,Wd-4,6,'#0004');R(ox+7,oy+Hh-24,Wd-14,11,C.stone);R(ox+10,oy+24,Wd-20,Hh-37,wall);R(ox+8,oy+21,Wd-16,4,C.beam);[ox+12,ox+Wd/2-2,ox+Wd-16].forEach(v=>R(v,oy+24,4,Hh-30,C.beam));roof(ox,oy,Wd,c);R(ox+Wd/2-11,oy+Hh-38,22,26,'#1b1210');win(ox+18,oy+Hh-45);if(Wd>=96)win(ox+Wd-31,oy+Hh-45)}function tree(i,j){let ox=i*T,oy=j*T;R(ox+4,oy+14,10,2,'#0003');R(ox+7,oy+8,3,8,'#513116');R(ox+3,oy+4,10,8,'#233b2a');R(ox+1,oy+7,14,5,'#233b2a');R(ox+4,oy+2,8,8,'#345236');R(ox+6,oy+3,3,1,'#5c7051')}function stone(i,j){let ox=i*T,oy=j*T;R(ox+2,oy+9,12,5,'#6f706a');R(ox+4,oy+6,8,4,'#85857e')}function well(i,j){let ox=i*T,oy=j*T;R(ox+1,oy+10,14,3,'#55534d');R(ox+2,oy+6,12,8,'#7d7a71');R(ox+4,oy+8,8,4,'#203642');R(ox+3,oy+2,2,8,'#4f3826');R(ox+11,oy+2,2,8,'#4f3826');R(ox+2,oy+2,12,2,'#6a4a2f')}function person(px,py,c='#3f5965',hair='#211712',small=false){let ox=px*T,oy=py*T,s=small?.82:1;R(ox+3,oy+13,10*s,3,'#0004');R(ox+4,oy+1,8*s,4,hair);R(ox+5,oy+3,7*s,6,'#c99c70');R(ox+4,oy+9,9*s,8*s,c);R(ox+4,oy+17,3,4,'#2b211b');R(ox+10*s,oy+17,3,4,'#2b211b')}function props(){if(st.map==='village'){house(6,10,8,7,'#2e5262');house(12,5,7,5,'#6b5d48','#7f6d56');house(18,19,10,8,'#263f4e','#9a8365');house(32,14,7,7,'#5b4532','#816b50');well(23,12);[[4,7],[6,8],[28,7],[30,8],[5,22],[7,24],[39,24],[42,22],[13,23],[30,23],[12,27],[32,26]].forEach(a=>tree(a[0],a[1]));person(10.8,16.2,'#4e6680');person(16.2,10.2,'#705f86','#d7d0be');person(25.5,12.3,'#76546e');person(28+Math.sin(st.tick/55)*.25,19.3,'#9a7d4c','#211712',true);person(31+Math.cos(st.tick/65)*.25,18.7,'#8d6f49','#211712',true)}else if(st.map==='north'){[[6,8],[8,9],[10,10],[35,7],[38,8],[5,22],[7,23],[34,22],[40,22],[14,6],[31,5]].forEach(a=>tree(a[0],a[1]));house(17,5,12,5,'#6e5645','#797970');stone(18,15);stone(26,12)}else{[[8,8],[10,16],[34,12],[32,21],[16,23],[28,6],[13,11],[31,18]].forEach(a=>tree(a[0],a[1]));stone(17,10);stone(28,18);if(!st.shoe){R(22*T+5,18*T+7,8,4,'#9a7c56');R(22*T+6,18*T+8,6,3,'#d6c39b');R(22*T+10,18*T+8,4,1,'#8b3d36')}}}function draw(){g.setTransform(S,0,0,S,0,0);g.clearRect(0,0,720,480);let m=maps[st.map];for(let j=0;j<H;j++)for(let i=0;i<W;i++)tile(i,j,m[j][i]);props();person(st.p.x,st.p.y);person(st.p.x-1.2,st.p.y+.7,'#53625e');let l=near();if(l){R(l[2]*T+5,l[3]*T-16,7,10,'#d7b66d');R(l[2]*T+7,l[3]*T-14,2,5,'#261a10')}for(let n=0;n<70;n++)R((n*97+st.tick)%720,(n*43)%480,1,1,rgba('#fff0c8',.07));D.hud.innerHTML='<b>'+name()+'</b> · '+st.chapter+'장 '+st.phase+' · '+st.time+'<br>'+(st.map==='village'?'낮 조사: '+st.day+'/3 · 밤 행동: '+(st.night?'완료':'미완료'):(l?'상호작용: '+l[1]:'이동 중'));D.hint.innerHTML='WASD/방향키: 이동<br>Enter/Space/Z: 상호작용<br>대화 선택: 숫자키 또는 클릭'}function ref(){D.ph.textContent=name()+' / '+st.time+' / '+st.chapter+'장 '+st.phase;let a=Object.entries(st.stats),h='';for(let i=0;i<a.length;i+=2){let p=a[i],q=a[i+1]||['',''];h+='<span>'+p[0]+'</span><span class="val">'+p[1]+'</span><span>'+q[0]+'</span><span class="val">'+q[1]+'</span>'}D.me.innerHTML=h;D.of.innerHTML=st.of.length?st.of.map(v=>'<li>'+v+'</li>').join(''):'<li class="small">없음</li>';D.un.innerHTML=st.un.length?st.un.map(v=>'<li>'+v+'</li>').join(''):'<li class="small">없음</li>';D.cl.innerHTML=st.clues.length?st.clues.map(v=>'<span class="pill">'+v+'</span>').join(''):'<span class="pill">없음</span>'}function move(){if(st.dialog)return;let dx=0,dy=0;if(st.keys.ArrowLeft||st.keys.a)dx--;if(st.keys.ArrowRight||st.keys.d)dx++;if(st.keys.ArrowUp||st.keys.w)dy--;if(st.keys.ArrowDown||st.keys.s)dy++;if(dx||dy){let sp=.075/(dx&&dy?1.414:1),nx=st.p.x+dx*sp,ny=st.p.y+dy*sp;if(nx>1&&nx<W-2)st.p.x=nx;if(ny>1&&ny<H-2)st.p.y=ny}}function loop(){st.tick++;move();draw();requestAnimationFrame(loop)}document.addEventListener('keydown',e=>{st.keys[e.key]=true;if(['Enter',' ','z','Z'].includes(e.key)){e.preventDefault();if(st.dialog){let b=D.op.querySelector('button');if(b)b.click()}else inter()}if(/^[1-9]$/.test(e.key)&&st.dialog){let b=D.op.children[+e.key-1];if(b)b.click()}});document.addEventListener('keyup',e=>st.keys[e.key]=false);say('해루','“실종자가 셋이라 했지요? 범이면 군사 일이 아니고, 도적이면 귀찮아집니다.”\n\n남쪽 고갯길. 무너울골로 가는 길목에 작은 짚신 한 짝이 떨어져 있다.',[['조작 시작',close]]);ref();loop()})();</script></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>마지막 산제 - 1장~5장 원형 · 종이 질감판</title>
+<style>
+:root{
+  --bg:#070908;--panel:#101515;--panel2:#151b1b;--line:#2b3434;--text:#ded4c1;
+  --muted:#958c7e;--accent:#b7925d;--good:#6d8766;--bad:#9b5955;--blue:#647b85;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 50% 0%,#151a19,#080b0b 62%,#030404 100%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+.wrap{max-width:1220px;margin:0 auto;padding:18px;display:grid;grid-template-columns:720px 1fr;gap:16px}
+header{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px;align-items:end;border-bottom:1px solid var(--line);padding-bottom:10px}
+h1{margin:0;font-size:24px;letter-spacing:-.03em}.sub{font-size:13px;color:var(--muted)}
+.gamebox{position:relative;background:#030506;border:1px solid var(--line);box-shadow:0 8px 28px rgba(0,0,0,.48),inset 0 0 0 2px rgba(255,255,255,.025)}
+.gamebox:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.010) 50%,rgba(0,0,0,.052) 50%);background-size:100% 4px;mix-blend-mode:soft-light}
+canvas{display:block;width:720px;height:480px;image-rendering:pixelated;background:#0b1110;filter:saturate(.96) brightness(1.02) contrast(1.03)}
+.hud{position:absolute;left:10px;top:10px;min-width:315px;background:rgba(12,16,18,.84);border:1px solid rgba(255,255,255,.16);padding:8px 10px;font-size:13px;z-index:2}.hud b{color:var(--accent)}
+.hint{position:absolute;right:10px;top:10px;background:rgba(12,16,18,.80);border:1px solid rgba(255,255,255,.16);padding:8px 10px;font-size:12px;color:var(--muted);text-align:right;z-index:2}
+.toast{position:absolute;left:50%;top:54px;transform:translateX(-50%);display:none;background:#15191e;border:1px solid var(--accent);color:#f7e8c9;padding:8px 12px;font-size:13px;z-index:6;max-width:640px;text-align:center}
+.dialog{position:absolute;left:16px;right:16px;bottom:16px;display:none;background:rgba(18,22,28,.98);border:2px solid #4d5867;box-shadow:0 8px 26px rgba(0,0,0,.55);padding:14px;z-index:5}.speaker{font-weight:800;color:var(--accent);margin-bottom:6px}.text{white-space:pre-wrap;font-size:15px;margin-bottom:10px}.options{display:grid;gap:7px}
+button{font-family:inherit;color:var(--text);background:#283141;border:1px solid #5b6778;padding:8px 10px;text-align:left;cursor:pointer;font-size:14px}button:hover,button:focus{background:#364154;outline:1px solid var(--accent)}button.primary{background:#44382a;border-color:#85673b}.selected{outline:2px solid var(--accent)!important;background:#3e3429!important}
+aside{display:flex;flex-direction:column;gap:12px}.card{background:var(--panel);border:1px solid var(--line);padding:12px}.card h2{font-size:16px;margin:0 0 8px;color:var(--accent)}.small{font-size:12px;color:var(--muted)}ul{margin:6px 0 0 18px;padding:0}li{margin:3px 0;font-size:13px}.meters{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px}.meter{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:3px}.pill{display:inline-block;border:1px solid var(--line);padding:2px 6px;margin:2px 2px 0 0;font-size:12px;color:var(--muted)}
+.report{display:none;position:absolute;inset:0;background:rgba(8,10,14,.97);padding:20px;overflow:auto;z-index:7}.report h2{margin-top:0;color:var(--accent)}.reportGroup{margin:14px 0;padding:12px;border:1px solid var(--line);background:#171b22}.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}.footerBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+@media(max-width:980px){.wrap{grid-template-columns:1fr}.gamebox canvas{width:100%;height:auto}.hint{display:none}}
+
+/* Paper-cut visual pass */
+body{background:#0b0907;background-image:radial-gradient(circle at 50% 0%,#2a2118,#100d0a 60%,#050403 100%)}
+.gamebox{background:#1a130d;border-color:#3f3327;box-shadow:0 10px 34px rgba(0,0,0,.56),inset 0 0 0 3px rgba(230,205,160,.06)}
+.gamebox:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;opacity:.13;background-image:linear-gradient(90deg,rgba(255,244,205,.14) 0 1px,transparent 1px 19px),radial-gradient(circle,rgba(255,235,185,.19) 0 1px,transparent 1px);background-size:19px 100%,23px 23px;mix-blend-mode:screen}
+canvas{background:#22170f;filter:saturate(.94) contrast(1.07)}
+.dialog,.report{background:rgba(31,25,20,.97);border-color:#5b4a38;box-shadow:0 8px 0 rgba(0,0,0,.28),0 18px 34px rgba(0,0,0,.55)}
+button{background:#35291f;border-color:#6e5a40}button:hover,button:focus{background:#493728}.card,.hud,.hint{background:rgba(28,23,18,.86);border-color:#4a3b2c}
+
+
+.cutscene{position:absolute;inset:0;display:none;z-index:6;pointer-events:auto;overflow:hidden;background:rgba(10,7,5,.28)}
+.cutscene:before{content:"";position:absolute;inset:-8%;background:radial-gradient(circle at var(--cx,50%) var(--cy,52%),rgba(245,218,160,.18) 0 7%,rgba(35,24,15,.15) 26%,rgba(4,3,2,.72) 78%);filter:blur(.2px)}
+.cutscene:after{content:"";position:absolute;left:0;right:0;top:0;bottom:0;background:linear-gradient(transparent 0 72%,rgba(0,0,0,.58) 72% 100%),linear-gradient(rgba(255,244,210,.035),rgba(0,0,0,.055));mix-blend-mode:multiply}
+.cutpiece{position:absolute;border:2px solid #1b120b;background:#c7aa72;box-shadow:6px 8px 0 rgba(0,0,0,.28);transform:rotate(-3deg);opacity:.95}
+.cutpiece.dark{background:#1e211b;border-color:#0b0a08;box-shadow:5px 6px 0 rgba(0,0,0,.45)}
+.cutpiece.red{background:#7e3934}.cutpiece.blue{background:#334e5c}.cutpiece.rope{height:3px;background:#d1bf7c;border-width:0;box-shadow:none;transform:rotate(2deg)}
+.cutcaption{position:absolute;left:24px;right:24px;bottom:24px;z-index:2;border:2px solid #5b4a38;background:rgba(31,25,20,.96);padding:13px 15px;box-shadow:0 8px 0 rgba(0,0,0,.30),0 18px 34px rgba(0,0,0,.55)}
+.cuttitle{font-weight:800;color:#d3ad70;margin-bottom:4px}.cuttext{white-space:pre-wrap;color:#eee0c8;font-size:15px;line-height:1.55}
+.cutskip{position:absolute;right:16px;top:14px;z-index:2;color:#c4b18e;font-size:12px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.18);padding:4px 8px}
+
+.cutNext{position:absolute;right:24px;bottom:24px;z-index:4;min-width:86px;text-align:center;background:#6b4e2f;border:2px solid #c39b62;color:#fff0d0;font-weight:800;box-shadow:0 5px 0 rgba(0,0,0,.35);animation:nextPulse 1.4s ease-in-out infinite}
+.cutNext:hover,.cutNext:focus{background:#805f39;outline:2px solid #ead09c}
+@keyframes nextPulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.cutactor{position:absolute;z-index:2;width:30px;height:42px;left:0;top:0;filter:drop-shadow(4px 6px 0 rgba(0,0,0,.34));animation:actorMove 1.35s ease-out forwards;animation-delay:var(--delay,0s);opacity:0;transform:translate(var(--sx),var(--sy)) scale(var(--scale,1))}
+.cutactor:before{content:"";position:absolute;left:7px;top:2px;width:16px;height:14px;border:2px solid #1c120b;background:#d0a870;border-radius:8px 8px 6px 6px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
+.cutactor:after{content:"";position:absolute;left:5px;top:16px;width:20px;height:20px;border:2px solid #1c120b;background:#445c63;border-radius:5px 5px 4px 4px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.18)}
+.cutactor .leg{position:absolute;top:35px;width:7px;height:8px;background:#28201a;border:2px solid #1c120b}.cutactor .l1{left:6px}.cutactor .l2{right:6px}
+.cutactor .arm{position:absolute;top:19px;width:6px;height:13px;background:#d0a870;border:2px solid #1c120b}.cutactor .a1{left:0;transform:rotate(13deg)}.cutactor .a2{right:0;transform:rotate(-13deg)}
+.cutactor.player:after{background:#3f5965}.cutactor.haeru:after{background:#53625e}.cutactor.chief:after{background:#7a4d3a}.cutactor.shaman:after{background:#393331}.cutactor.wolseon:after{background:#6d4a58}.cutactor.hunter:after{background:#463424}.cutactor.child{--scale:.78}.cutactor.child:after{background:#5e6f80}.cutactor.shadow:before{background:#151716;border-color:#090807}.cutactor.shadow:after{background:#101211;border-color:#090807}.cutactor .hair{position:absolute;left:5px;top:0;width:20px;height:8px;background:#211712;border:2px solid #1c120b;border-radius:9px 9px 3px 3px;z-index:1}.cutactor.child .hair{background:#33221a}
+@keyframes actorMove{0%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(var(--scale,1))}18%{opacity:1}72%{opacity:1;transform:translate(var(--ex),var(--ey)) scale(var(--scale,1))}100%{opacity:1;transform:translate(var(--ex),var(--ey)) scale(var(--scale,1))}}
+.cutpiece{animation:paperJolt 1.2s ease-out both}.cutpiece:nth-of-type(odd){animation-delay:.08s}.cutpiece:nth-of-type(even){animation-delay:.18s}
+@keyframes paperJolt{0%{opacity:0;transform:translateY(8px) rotate(-6deg)}50%{opacity:1}100%{opacity:.95}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>마지막 산제: 1장~5장 원형</h1><div class="sub">종이 오려붙이기풍 · 고구려 변경 취락 색감 · 마지막 산제 완결판</div></div>
+  <div class="sub">이동: WASD/방향키 · 상호작용: Enter/Space/Z · 대화: 클릭/숫자키</div>
+</header>
+<section class="gamebox">
+  <canvas id="game" width="1440" height="960"></canvas>
+  <div class="hud" id="hud"></div><div class="hint" id="hint"></div><div class="toast" id="toast"></div>
+  <div class="cutscene" id="cutscene"><div class="cutskip">컷신 진행</div><button class="cutNext" id="cutNext">다음</button><div class="cutcaption"><div class="cuttitle" id="cutTitle"></div><div class="cuttext" id="cutText"></div></div></div>
+  <div class="dialog" id="dialog"><div class="speaker" id="speaker"></div><div class="text" id="dialogText"></div><div class="options" id="options"></div></div>
+  <div class="report" id="reportPanel"><h2 id="reportTitle">보고서 작성</h2><p class="small" id="reportIntro">관아에 올릴 수 있는 말만 선택합니다. 실제로 본 것과 반드시 같을 필요는 없습니다.</p><div id="reportGroups"></div><div class="footerBtns"><button id="finishReport" class="primary">보고서 제출</button></div></div>
+</section>
+<aside>
+  <div class="card"><h2>진행 상태</h2><div id="phaseText" class="small"></div><div class="meters" id="meters"></div></div>
+  <div class="card"><h2>공식 기록</h2><ul id="official"></ul></div>
+  <div class="card"><h2>비공식 기록</h2><ul id="unofficial"></ul></div>
+  <div class="card"><h2>단서 / 의례 조각</h2><div id="cluePills"></div></div>
+</aside>
+</div>
+<script>
+(() => {
+'use strict';
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const VIEW_W=720, VIEW_H=480, SCALE=2, TILE=16, W=45, H=30;
+ctx.setTransform(SCALE,0,0,SCALE,0,0);ctx.imageSmoothingEnabled=false;
+const byId=id=>document.getElementById(id);
+const dom={hud:byId('hud'),hint:byId('hint'),toast:byId('toast'),cutscene:byId('cutscene'),cutTitle:byId('cutTitle'),cutText:byId('cutText'),cutNext:byId('cutNext'),dialog:byId('dialog'),speaker:byId('speaker'),text:byId('dialogText'),options:byId('options'),reportPanel:byId('reportPanel'),reportTitle:byId('reportTitle'),reportIntro:byId('reportIntro'),reportGroups:byId('reportGroups'),finishReport:byId('finishReport'),meters:byId('meters'),official:byId('official'),unofficial:byId('unofficial'),cluePills:byId('cluePills'),phaseText:byId('phaseText')};
+const pal={grass:'#5e7354',grass2:'#4c6248',path:'#967f5d',path2:'#77654e',water:'#516f77',water2:'#314d58',hill:'#415541',hill2:'#2b3a30',roof:'#2f4f5e',roof2:'#1c3340',wall:'#907f65',wood:'#5a4030',beam:'#6a3d36',stone:'#797970',shrine:'#6e5645',blood:'#774142'};
+const state={chapter:1,map:'pass',phase:'pass',time:'낮',dialogOpen:false,locked:false,dayInvestigations:0,maxDayInvestigations:3,ch2DayActions:0,maxCh2DayActions:4,nightActionDone:false,visited:{},chapterVisited:{},flags:{shoe:false,enteredVillage:false,ch1Report:false,ch2Started:false,ch2Conflict:false,ch2Crisis:false,ch2Report:false},player:{x:22,y:21.5,rx:22,ry:21.5,dir:'up',moving:false},stats:{기록:0,조사:0,결이해:0,애도:0,마을신뢰:0,을파신뢰:0,막례신뢰:0,해루공포:0,한:1,경계:3},official:[],unofficial:[],clues:[],ritual:[],report:{cause:null,measure:null,missing:null}};
+
+
+const cutsceneSeen=new Set();
+const cutscenes={
+  wellCommotion:{title:'우물가 소란',text:'아이들의 노래가 한 박자 늦어진다.\n우물 안쪽이 검게 가라앉고, 월선이 고개를 든다.\n\n“도리가… 같이 불렀어요.”',cx:'48%',cy:'44%',pieces:[['blue',332,178,38,34],['dark',350,210,22,28],['rope',285,224,155,3],['red',262,238,22,12]]},
+  ch2Conflict:{title:'을파와 막례',text:'우물가 사람들이 둘러선다.\n을파는 장부를 쥐고, 막례는 끊어진 금줄을 든다.\n둘의 말 사이에서 마을이 둘로 갈라진다.',cx:'46%',cy:'51%',pieces:[['red',270,190,36,42],['dark',405,186,34,46],['rope',300,238,146,3]]},
+  ch2CrisisPrompt:{title:'벌목터 소란',text:'도끼를 든 청년이 북쪽 길로 오른다.\n그루터기 위 금줄 조각이 뒤늦게 흔들린다.\n숲 안쪽에서 마른 나무가 꺾이는 소리가 난다.',cx:'32%',cy:'48%',pieces:[['dark',176,172,120,20],['red',215,145,11,58],['rope',170,214,122,3]]},
+  valley:{title:'물소리 골짜기',text:'낮인데도 물소리가 너무 크다.\n해루가 뒤돌아본다. 방금 지나온 나무가 다시 앞에 서 있다.\n\n“방금 이 나무, 지나오지 않았습니까?”',cx:'53%',cy:'42%',pieces:[['blue',340,165,126,14],['blue',300,215,144,10],['dark',384,178,24,46]]},
+  lumber:{title:'금기를 벤 자리',text:'그루터기마다 오래된 금줄 자국이 남아 있다.\n베어진 나무 단면은 밝은데, 도끼 주변 흙만 어둡다.',cx:'28%',cy:'52%',pieces:[['dark',162,230,132,19],['red',208,180,10,56],['rope',150,218,148,3]]},
+  shrine:{title:'무너진 산제단',text:'제단의 돌이 산 쪽이 아니라 서북쪽을 향해 있다.\n피를 담던 홈에 먼지가 고여 있다.\n어딘가에서 낮은 소리가 난다.\n\n“문을 닫아라.”',cx:'50%',cy:'32%',pieces:[['dark',318,142,128,24],['red',352,96,12,76],['red',398,96,12,76],['rope',300,135,165,3]]},
+  nightMill:{title:'방앗간의 밤',text:'멈춰 있던 물레가 한 번, 천천히 돈다.\n물소리가 사람 숨처럼 커진다.\n\n“집에 가려 했는데…”',cx:'77%',cy:'62%',pieces:[['blue',476,235,38,38],['dark',500,214,44,22],['rope',455,280,90,3]]},
+  nightWell:{title:'우물의 밤',text:'우물 속에서 이름이 한 박자 늦게 돌아온다.\n월선의 목소리와 아이의 목소리가 겹친다.',cx:'51%',cy:'42%',pieces:[['blue',332,178,34,34],['dark',346,196,28,18],['rope',307,218,90,3]]},
+  nightShaman:{title:'무당집의 밤',text:'막례가 금줄을 맨다.\n종이 부적이 바람 없이 흔들리고, 방울은 소리 없이 떤다.',cx:'34%',cy:'32%',pieces:[['dark',245,122,70,36],['rope',225,170,120,3],['red',270,160,15,18]]},
+  ch2NightWell:{title:'우물의 밤',text:'월선이 도리의 이름을 부른다.\n물 밑에서 같은 이름이, 조금 더 어린 목소리로 되돌아온다.',cx:'51%',cy:'42%',pieces:[['blue',332,178,34,34],['dark',346,196,28,18],['rope',307,218,90,3]]},
+  ch2NightMill:{title:'방앗간 돌확',text:'물레는 멈춰 있다. 그런데 물소리만 계속 난다.\n돌확 위로 검은 털 하나가 떠오른다.',cx:'77%',cy:'62%',pieces:[['blue',476,235,38,38],['dark',500,214,44,22],['rope',455,280,90,3]]},
+  ch2NightShaman:{title:'막례의 밤',text:'무당집 앞 금줄이 한 겹 더 매인다.\n막례는 산제단 쪽을 보며 이름을 삼킨다.',cx:'34%',cy:'32%',pieces:[['dark',245,122,70,36],['rope',225,170,120,3],['red',270,160,15,18]]},
+  ch2NightShrine:{title:'산제단의 밤',text:'무너진 제단의 발톱 자국이 젖어 있다.\n보이지 않는 큰 그림자가 제단 뒤로 비친다.\n\n“문이 열려 있다.”',cx:'50%',cy:'32%',pieces:[['dark',318,142,128,24],['red',352,96,12,76],['red',398,96,12,76],['rope',300,135,165,3]]},
+  ch3Trap:{title:'사량의 덫',text:'덫이 길 옆에 낮게 벌어져 있다.\n핏자국은 덫 안이 아니라 밖으로 이어진다.\n숲 뒤에서 사량이 모습을 드러낸다.',cx:'31%',cy:'48%',pieces:[['dark',183,205,90,20],['red',225,160,10,58],['rope',172,226,120,3]]},
+  ch3Voice:{title:'아이 목소리 길',text:'아이 그림자가 나무 사이를 지나간다.\n따라가려 하자 같은 나무가 다시 앞에 선다.\n목소리는 가까운데 발자국은 점점 작아진다.',cx:'50%',cy:'42%',pieces:[['dark',348,160,18,38],['blue',318,204,110,9],['rope',310,228,128,3]]},
+  ch3NightVoice:{title:'도리의 밤 목소리',text:'도리의 목소리가 아주 가까이서 들린다.\n그러나 발소리는 하나가 아니다.\n작은 길들이 숲속에서 입을 연다.',cx:'50%',cy:'42%',pieces:[['dark',348,160,18,38],['blue',318,204,110,9],['rope',310,228,128,3]]},
+  ch3NightTrap:{title:'밤의 덫',text:'덫에 걸린 것은 짐승이 아니다.\n마루의 목소리가 쇠 이빨 사이에서 끊어진다.',cx:'31%',cy:'48%',pieces:[['dark',183,205,90,20],['red',225,160,10,58],['rope',172,226,120,3]]},
+  ch3NightTree:{title:'표식 나무의 밤',text:'나무 상처가 새로 젖어 있다.\n뿌리 아래에서 소미의 천 조각이 바람 없이 흔들린다.',cx:'54%',cy:'29%',pieces:[['dark',360,98,40,92],['red',376,132,8,30],['rope',330,170,120,3]]},
+  ch3NightDeep:{title:'깊은 숲길',text:'깊은 숲에서 아이가 서 있다.\n얼굴은 보이지 않는다.\n\n“같이 가면 집에 갈 수 있어요.”',cx:'50%',cy:'36%',pieces:[['dark',350,120,20,55],['blue',310,192,118,9],['rope',300,214,140,3]]}
+};
+function actorDataForCutscene(id){
+  const A={
+    wellCommotion:[['child',300,165,326,180,0],['child',360,168,344,182,.12],['wolseon',265,200,288,202,.18],['player',220,260,250,235,.28],['haeru',190,265,222,245,.38]],
+    ch2Conflict:[['chief',282,188,312,188,0],['shaman',426,188,394,190,0],['player',340,260,340,226,.20],['haeru',315,266,318,238,.32]],
+    ch2CrisisPrompt:[['chief',250,222,285,218,0],['hunter',172,234,202,220,.12],['player',330,275,295,238,.25],['haeru',355,280,320,246,.36]],
+    valley:[['haeru',390,245,360,222,0],['player',330,250,342,222,.12],['shadow',420,178,392,178,.20]],
+    lumber:[['chief',245,250,218,222,0],['player',310,268,270,242,.14],['haeru',335,272,298,248,.27]],
+    shrine:[['shaman',290,245,330,205,0],['player',235,260,300,225,.14],['haeru',210,270,275,236,.26],['shadow',430,130,398,120,.38]],
+    nightMill:[['player',405,292,462,252,0],['haeru',380,300,438,262,.12],['child',512,234,500,234,.34]],
+    nightWell:[['wolseon',296,238,330,208,0],['child',378,203,355,198,.26],['player',230,270,285,230,.38]],
+    nightShaman:[['shaman',285,215,260,185,0],['player',355,272,310,232,.16],['haeru',380,276,335,242,.28]],
+    ch2NightWell:[['wolseon',292,238,328,210,0],['child',374,204,352,198,.24],['player',230,270,285,230,.36]],
+    ch2NightMill:[['player',405,292,462,252,0],['haeru',380,300,438,262,.12],['shadow',525,226,505,226,.34]],
+    ch2NightShaman:[['shaman',284,216,260,185,0],['player',355,272,310,232,.16],['haeru',380,276,335,242,.28]],
+    ch2NightShrine:[['player',250,262,315,220,0],['haeru',220,270,285,232,.12],['shadow',450,118,400,122,.32]],
+    ch3Trap:[['hunter',185,248,226,213,0],['player',325,275,270,238,.14],['haeru',350,282,295,248,.28]],
+    ch3Voice:[['child',390,172,350,178,0],['player',290,260,330,225,.18],['haeru',260,272,302,238,.32]],
+    ch3NightVoice:[['child',390,172,350,178,0],['shadow',430,180,380,188,.16],['player',292,262,330,226,.30],['haeru',260,272,302,238,.42]],
+    ch3NightTrap:[['hunter',190,248,225,214,0],['shadow',260,226,230,223,.20],['player',330,274,280,238,.34]],
+    ch3NightTree:[['shaman',295,245,338,202,0],['shadow',410,130,380,136,.18],['player',250,264,310,226,.32]],
+    ch3NightDeep:[['child',370,150,350,160,0],['shadow',420,170,384,178,.14],['player',290,270,330,230,.32],['haeru',260,278,300,244,.44]]
+  };
+  return A[id]||[['player',260,260,315,230,0],['haeru',230,268,286,242,.16]];
+}
+function makeCutActor(a){
+  const [kind,sx,sy,ex,ey,delay]=a;
+  const d=document.createElement('div');
+  d.className='cutactor '+kind;
+  d.style.setProperty('--sx',sx+'px'); d.style.setProperty('--sy',sy+'px');
+  d.style.setProperty('--ex',ex+'px'); d.style.setProperty('--ey',ey+'px');
+  d.style.setProperty('--delay',(delay||0)+'s');
+  d.innerHTML='<span class="hair"></span><span class="arm a1"></span><span class="arm a2"></span><span class="leg l1"></span><span class="leg l2"></span>';
+  return d;
+}
+function playCutscene(id,next){
+  const cs=cutscenes[id];
+  if(!cs){next();return}
+  state.dialogOpen=true; state.locked=true; keysDown.clear();
+  dom.cutscene.style.display='block'; dom.cutscene.style.setProperty('--cx',cs.cx||'50%'); dom.cutscene.style.setProperty('--cy',cs.cy||'50%');
+  dom.cutTitle.textContent=cs.title; dom.cutText.textContent=cs.text;
+  [...dom.cutscene.querySelectorAll('.cutpiece,.cutactor')].forEach(e=>e.remove());
+  (cs.pieces||[]).forEach((p,i)=>{const d=document.createElement('div');d.className='cutpiece '+p[0];d.style.left=p[1]+'px';d.style.top=p[2]+'px';d.style.width=p[3]+'px';d.style.height=p[4]+'px';d.style.transform='rotate('+(-5+i*3)+'deg)';dom.cutscene.appendChild(d)});
+  actorDataForCutscene(id).forEach(a=>dom.cutscene.appendChild(makeCutActor(a)));
+  const finish=()=>{dom.cutscene.style.display='none';state.locked=false;state.dialogOpen=false;dom.cutNext.onclick=null;next()};
+  dom.cutNext.onclick=finish;
+  dom.cutNext.focus({preventScroll:true});
+}
+function showSceneAfterCutscene(id,override){showScene(id,override,true)}
+function makeMap(t='.'){return Array.from({length:H},()=>Array.from({length:W},()=>t))}
+function fill(m,x1,y1,x2,y2,t){for(let y=y1;y<=y2;y++)for(let x=x1;x<=x2;x++)if(x>=0&&x<W&&y>=0&&y<H)m[y][x]=t}
+function setp(m,x,y,t){if(x>=0&&x<W&&y>=0&&y<H)m[y][x]=t}
+const maps={pass:makeMap('.'),village:makeMap('.'),north:makeMap('.')};buildPass();buildVillage();buildNorth();
+function buildPass(){const m=maps.pass;fill(m,0,0,W-1,H-1,'h');fill(m,15,7,29,23,'.');fill(m,18,9,26,21,'.');fill(m,21,8,23,22,'p');fill(m,19,13,25,14,'p');fill(m,20,18,24,19,'p');for(let y=8;y<=22;y++){if(y%3===0){setp(m,18,y,'g');setp(m,26,y,'g')}}[[17,10],[28,11],[16,16],[28,18],[19,22],[25,22]].forEach(([x,y])=>setp(m,x,y,'r'));border(m)}
+function buildVillage(){const m=maps.village;fill(m,0,0,W-1,H-1,'.');fill(m,0,0,W-1,4,'h');border(m);fill(m,21,4,23,29,'p');fill(m,4,14,40,15,'p');fill(m,7,18,40,20,'p');fill(m,12,24,32,25,'p');fill(m,8,15,12,17,'p');fill(m,14,9,17,13,'p');fill(m,20,22,25,27,'p');fill(m,31,17,39,22,'p');fill(m,40,5,41,28,'w');fill(m,38,20,41,20,'p');fill(m,37,19,41,21,'p');[[4,7],[6,8],[28,7],[30,8],[5,22],[7,24],[39,24],[42,22],[13,23],[30,23],[12,27],[32,26],[27,5],[31,5],[17,27],[5,5]].forEach(([x,y])=>setp(m,x,y,'g'))}
+function buildNorth(){const m=maps.north;fill(m,0,0,W-1,H-1,'.');fill(m,0,0,W-1,5,'h');fill(m,0,25,W-1,H-1,'h');border(m);fill(m,21,23,23,29,'p');fill(m,21,5,23,24,'p');fill(m,13,12,32,14,'p');fill(m,8,17,25,19,'p');fill(m,8,13,11,19,'p');fill(m,30,11,36,16,'p');fill(m,18,6,28,9,'p');for(let y=6;y<24;y++){setp(m,28,y,'w');if(y%4!==0)setp(m,29,y,'w')}fill(m,26,13,30,14,'p');[[4,6],[7,7],[10,8],[35,7],[38,8],[5,22],[7,23],[34,22],[40,22],[14,6],[31,5],[16,22],[25,21],[33,19],[39,15]].forEach(([x,y])=>setp(m,x,y,'g'));for(let x=4;x<41;x+=4)setp(m,x,4,'h')}
+function border(m){for(let x=0;x<W;x++){setp(m,x,0,'h');setp(m,x,H-1,'h')}for(let y=0;y<H;y++){setp(m,0,y,'h');setp(m,W-1,y,'h')}}
+function k(x,y){return x+','+y}
+function block(set,x,y,w,h){for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)set.add(k(xx,yy))}
+function colliders(){const s=new Set(),m=maps[state.map];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(['h','w','g','r'].includes(m[y][x]))s.add(k(x,y));if(state.map==='village'){block(s,6,10,8,5);block(s,12,5,7,4);block(s,18,19,10,4);block(s,32,14,7,4)}if(state.map==='north'){block(s,17,5,12,4);block(s,7,12,6,5);block(s,32,10,6,5)}return s}
+const locations={
+ pass:[{id:'shoe',name:'피 묻은 짚신',x:22,y:16,radius:1.5,phases:['pass']},{id:'toVillage',name:'무너울골 방향 고갯길',x:22,y:8.5,radius:1.6,phases:['pass','ch1_day','ch1_night','ch1_dawn','ch2_day','ch2_night','ch2_dawn']}],
+ village:[{id:'toPass',name:'남쪽 고갯길',x:22,y:28,radius:1.4,phases:['ch1_day','ch1_night','ch1_dawn','ch2_day','ch2_night','ch2_dawn']},{id:'toNorth',name:'물소리 골짜기 방향',x:22,y:5,radius:1.4,phases:['ch2_day','ch2_night','ch2_dawn']},{id:'office',name:'관아 임시처소',x:23,y:24,area:{x1:19,y1:22.6,x2:27,y2:26.7},phases:['ch1_day','ch1_night','ch1_dawn','ch2_day','ch2_night','ch2_dawn']},{id:'chief',name:'촌장집',x:10,y:16,area:{x1:6,y1:14.5,x2:14,y2:17.8},phases:['ch1_day','ch2_day']},{id:'well',name:'마을 우물',x:23,y:12,radius:1.8,phases:['ch1_day','ch1_night','ch2_day','ch2_night']},{id:'shaman',name:'무당집',x:15,y:10,area:{x1:12,y1:8.7,x2:19,y2:13.4},phases:['ch1_day','ch1_night','ch2_day','ch2_night']},{id:'mill',name:'방앗간',x:35,y:20,area:{x1:31,y1:17.5,x2:40,y2:22.4},phases:['ch1_day','ch1_night','ch2_day','ch2_night']}],
+ north:[{id:'toVillage',name:'무너울골 남쪽 길',x:22,y:28,radius:1.5,phases:['ch2_day','ch2_night','ch2_dawn']},{id:'valley',name:'물소리 골짜기',x:22,y:13,radius:2.0,phases:['ch2_day']},{id:'lumber',name:'벌목터',x:10,y:18,area:{x1:7,y1:16,x2:14,y2:20.5},phases:['ch2_day']},{id:'shrine',name:'무너진 산제단',x:22,y:8,area:{x1:17,y1:5.5,x2:29,y2:10.5},phases:['ch2_day','ch2_night']},{id:'forest',name:'금지된 숲 입구',x:22,y:4,radius:1.3,phases:['ch2_dawn']}]
+};
+const children=[{route:[[20,14.7],[23,14.7],[27,14.7],[31,14.7],[27,14.7],[23,14.7]],color:'#bf6e52',hair:'#3a251c',off:0},{route:[[25,19.1],[29,19.1],[34,19.1],[38,19.1],[34,19.1],[29,19.1]],color:'#66864e',hair:'#2d231a',off:320},{route:[[22,24.5],[22,22],[22,19],[22,16],[22,14.5],[22,17],[22,20.5]],color:'#9a753e',hair:'#4b2f1f',off:650}];
+const npcs=[{name:'을파',x:10.8,y:16.2,color:'#4e6680',hair:'#1f2428',phases:['ch1_day','ch2_day']},{name:'막례',x:16.2,y:10.2,color:'#705f86',hair:'#d7d0be',phases:['ch1_day','ch1_night','ch2_day','ch2_night']},{name:'월선',x:25.5,y:12.3,color:'#76546e',hair:'#2c1e1d',phases:['ch1_day','ch1_dawn','ch2_day']},{name:'청년',x:31.2,y:18.8,color:'#6e834f',hair:'#3a2b1e',phases:['ch1_day','ch2_day']}];
+const northNpcs=[{name:'사량',x:11.5,y:18.2,color:'#6d4f3f',hair:'#251915',phases:['ch2_day','ch2_dawn']},{name:'마루의 친구',x:19,y:13.2,color:'#6e834f',hair:'#3a2b1e',phases:['ch2_day']}];
+function uniq(arr,item){if(!arr.includes(item))arr.push(item)}
+function addOfficial(v){uniq(state.official,v);toast('공식 기록 추가: '+v);refreshSide()}
+function addUnofficial(v){uniq(state.unofficial,v);toast('비공식 기록 추가: '+v);refreshSide()}
+function addClue(v){uniq(state.clues,v);toast('단서 획득: '+v);refreshSide()}
+function addRitual(v){uniq(state.ritual,v);toast('의례 조각 획득: '+v);refreshSide()}
+function stat(n,d){state.stats[n]=(state.stats[n]||0)+d;refreshSide()}
+function toast(msg){dom.toast.textContent=msg;dom.toast.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>dom.toast.style.display='none',1350)}
+function showScene(id,override,skipCutscene=false){if(!skipCutscene&&cutscenes[id]){playCutscene(id,()=>showScene(id,override,true));return}const sc=scenes[id];if(!sc){console.error('missing scene',id);return}state.dialogOpen=true;keysDown.clear();dom.speaker.textContent=sc.speaker;dom.text.textContent=override||sc.text;dom.options.innerHTML='';sc.options.forEach((op,i)=>{const b=document.createElement('button');b.textContent=(i+1)+'. '+op[0];b.onclick=op[1];dom.options.appendChild(b)});dom.dialog.style.display='block';refreshSide()}
+function closeDialog(){state.dialogOpen=false;dom.dialog.style.display='none';keysDown.clear();refreshSide()}
+function setPlayerPos(x,y){state.player.x=x;state.player.y=y;state.player.rx=x;state.player.ry=y}
+function startChapter2(){state.chapter=2;state.flags.ch2Started=true;state.phase='ch2_day';state.time='낮';state.dayInvestigations=0;state.ch2DayActions=0;state.maxDayInvestigations=0;state.maxCh2DayActions=4;state.nightActionDone=false;state.chapterVisited={};state.map='village';setPlayerPos(23,24.6);addOfficial('1차 보고서 제출 완료');showScene('ch2Start')}
+function consumeDay(id){if(state.phase==='ch1_day'){if(state.visited[id])return;state.visited[id]=true;state.dayInvestigations++;if(state.dayInvestigations>=state.maxDayInvestigations){state.flags.dayComplete=true;setTimeout(()=>showScene('wellCommotion'),400)}}else if(state.phase==='ch2_day'){const key='ch2_'+id;if(state.chapterVisited[key])return;state.chapterVisited[key]=true;state.ch2DayActions++;if(state.ch2DayActions===2&&!state.flags.ch2Conflict){state.flags.ch2Conflict=true;setTimeout(()=>showScene('ch2Conflict'),450)}else if(state.ch2DayActions>=state.maxCh2DayActions&&!state.flags.ch2Crisis){state.flags.ch2Crisis=true;setTimeout(()=>showScene('ch2CrisisPrompt'),450)}}refreshSide()}
+function afterCh2Crisis(){state.phase='ch2_night';state.time='밤';state.nightActionDone=false;state.map='village';setPlayerPos(23,25.2);keysDown.clear();showScene('ch2NightStart')}
+function nightDone(){state.nightActionDone=true;if(state.phase==='ch1_night'){state.phase='ch1_dawn';state.time='새벽';state.map='village';setPlayerPos(23,24.6)}else if(state.phase==='ch2_night'){state.phase='ch2_dawn';state.time='새벽';state.map='north';setPlayerPos(22,20)}keysDown.clear();refreshSide()}
+const scenes={
+ intro:{speaker:'해루',text:'“실종자가 셋이라 했지요? 범이면 군사 일이 아니고, 도적이면 귀찮아집니다.”\n\n남쪽 고갯길. 무너울골로 가는 길목에 작은 짚신 한 짝이 떨어져 있다.',options:[['“사람이 셋 사라졌으면 이미 귀찮은 일이다.”',()=>{stat('애도',1);showScene('start')}],['“범이든 도적이든 흔적은 남는다.”',()=>{stat('조사',1);showScene('start')}],['“호적부터 맞춰야 한다. 죽은 사람도 이름은 있어야 하니.”',()=>{stat('기록',1);showScene('start')}]]},
+ start:{speaker:'안내',text:'짚신까지 이동한 뒤 Enter/Space/Z로 조사하세요. 짚신 조사 후 북쪽 길로 걸어가면 마을 맵으로 전환됩니다.',options:[['조작 시작',closeDialog]]},
+ shoe:{speaker:'고연우',text:'작은 짚신이다. 피는 말랐고, 발자국은 마을에서 산 쪽으로 향한다. 근처 가지에는 낡은 금줄 조각이 걸려 있다.\n\n무엇을 먼저 확인할까?',options:[['짚신과 피를 확인한다',()=>{state.flags.shoe=true;addClue('아이의 짚신');addOfficial('아이 실종 흔적');stat('애도',1);showScene('shoeAfter','피는 많지 않다. 즉사 흔적이라기보다, 어디론가 걸어간 뒤 다친 흔적에 가깝다.')}],['발자국의 방향을 본다',()=>{state.flags.shoe=true;addClue('산으로 향한 사람 발자국');addOfficial('마을에서 산 방향 이동');stat('조사',1);showScene('shoeAfter','발자국은 끌려간 것보다 스스로 걸어간 모양이다. 짐승 발자국과 사람 발자국이 몇 걸음 동안 겹쳐 있다.')}],['금줄 조각을 챙긴다',()=>{state.flags.shoe=true;addClue('끊긴 금줄 조각');addUnofficial('실종 현장에 끊긴 금줄 조각');stat('결이해',1);showScene('shoeAfter','오래되어 삭은 금줄이다. 단순한 범 습격이라면 이런 것이 길가에 걸려 있을 이유가 없다.')}],['수풀의 지워진 흔적을 본다',()=>{state.flags.shoe=true;addClue('일부러 지운 발자국');addOfficial('외부인 개입 가능성');stat('조사',1);showScene('shoeAfter','누군가 풀을 비벼 발자국 일부를 지웠다. 마을 사람이든, 도적이든, 짐승만의 일은 아니다.')}]]},
+ shoeAfter:{speaker:'해루',text:'북쪽 길로 걸어가면 무너울골에 들어갈 수 있다.',options:[['고갯길로 돌아간다',closeDialog]]},
+ villageEntry:{speaker:'안내',text:'무너울골에 도착했다. 낮 동안 조사할 수 있는 곳은 세 곳뿐이다.\n\n우물, 촌장집, 무당집, 방앗간 중 어디를 먼저 볼지 직접 움직여 정한다.',options:[['마을 조사 시작',closeDialog]]},
+ chief:{speaker:'을파',text:'“먼 길 오셨습니다. 범 짓일 가능성이 큽니다. 산길을 닫고 피해 기록만 올리면 될 일입니다.”\n\n촌장집 안에는 호적 초안, 세금 장부, 벌목 기록이 가지런히 놓여 있다.',options:[['실종자 이름부터 확인한다',()=>{consumeDay('chief');addOfficial('실종자 셋');addClue('실종자 명단');stat('기록',1);showScene('dayResult','을파는 이름을 말하며 잠시 멈춘다. 아이의 이름을 말할 때만 목소리가 작아진다. “도리입니다.”')}],['범 습격으로 보기엔 흔적이 이상하다고 말한다',()=>{consumeDay('chief');addUnofficial('산제 언급 전 촌장이 먼저 범 습격을 단정');stat('조사',1);stat('을파신뢰',-1);showScene('dayResult','을파의 손이 장부 위에서 굳는다. “산에서는 원래 이상한 흔적이 남습니다.”')}],['산제 이야기를 꺼낸다',()=>{consumeDay('chief');addClue('산제 3년 유예');addUnofficial('산제는 3년째 중단됨');stat('결이해',1);stat('을파신뢰',-1);showScene('dayResult','“올해만 미룬 겁니다.” 을파는 그렇게 말했지만, 장부의 빈칸은 세 해째 이어져 있다.')}],['장부를 조용히 베낀다',()=>{consumeDay('chief');addClue('벌목량 장부');addUnofficial('산제 비용 기록 옆에 금지된 숲 벌목량');stat('조사',1);stat('을파신뢰',1);showScene('dayResult','을파는 협조적이다. 그러나 장부에는 산제 비용이 끊긴 자리 옆으로 벌목량이 늘어난 기록이 이어진다.')}]]},
+ well:{speaker:'우물가',text:'우물가에 주민들이 모여 있다. 월선은 조용히 앉아 있다. 당신이 짚신을 꺼내자 그녀는 고개를 돌린다.\n\n“그건 도리 것이 아닙니다.”',options:[['월선에게 아이 이름을 묻는다',()=>{consumeDay('well');addOfficial('아이 이름: 도리');addClue('도리의 이름');stat('애도',1);showScene('dayResult','월선은 끝내 이름을 말한다. “도리입니다. 하지만 아직 죽었다고 하지 마세요.”')}],['아이들에게 마지막 노래를 묻는다',()=>{consumeDay('well');addRitual('우물가 산제 노래');addClue('도리가 산제 노래를 앎');stat('결이해',1);showScene('dayResult','아이 하나가 낮게 부른다. “검은 등 넘어 / 물소리 따라 / 이름은 두고 / 발만 간다.”')}],['우물 안을 들여다본다',()=>{consumeDay('well');addClue('우물 밑 나무패');addUnofficial('우물 밑에 이름패 같은 물건');stat('조사',1);showScene('dayResult','물 밑에서 작은 나무패가 보인다. 손은 닿지 않는다. 물결은 바람도 없이 한쪽으로만 흐른다.')}],['주민들의 소문을 듣는다',()=>{consumeDay('well');addClue('무당 탓, 범 탓, 촌장 탓으로 갈린 여론');stat('마을신뢰',1);showScene('dayResult','누구는 무당을 탓하고, 누구는 촌장을 탓한다. 이상하게도 아이 이름을 직접 입에 올리는 사람은 드물다.')}]]},
+ shaman:{speaker:'막례',text:'“관아 사람이 올 줄은 알았다. 산은 기록을 못 하니까.”\n\n무당집에는 찢어진 제문, 낡은 방울, 쓰지 않는 무복이 놓여 있다.',options:[['증거 없이 믿을 수 없다고 말한다',()=>{consumeDay('shaman');addOfficial('무당 진술: 산길 이상 주장');stat('기록',1);stat('막례신뢰',-1);showScene('dayResult','막례는 웃지도 화내지도 않는다. “그래서 관아 사람을 부른 게지. 믿지 말고 보라고.”')}],['산제가 무엇인지 묻는다',()=>{consumeDay('shaman');addRitual('찢어진 제문 일부');addClue('검은등이라는 산군 별칭');stat('결이해',1);stat('막례신뢰',1);showScene('dayResult','막례는 제문 절반만 기억한다. “검은등이라 불렀지. 하지만 그건 이름이 아니다. 별명이지.”')}],['아이를 찾을 방법을 묻는다',()=>{consumeDay('shaman');addUnofficial('아이 이름을 함부로 부르면 안 된다는 경고');stat('애도',1);stat('막례신뢰',1);showScene('dayResult','“길을 잃은 아이는 부르면 온다. 문제는, 그 아이가 오는 길이 집길인지 산길인지 모른다는 거다.”')}],['마을을 선동하지 말라고 경고한다',()=>{consumeDay('shaman');addOfficial('무당 감시 필요 가능성');stat('을파신뢰',1);stat('막례신뢰',-2);showScene('dayResult','막례는 방울을 뒤집어 엎는다. “나는 선동할 힘도 없다. 남은 건 잊어가는 말뿐이다.”')}]]},
+ mill:{speaker:'방앗간',text:'낮의 방앗간은 평범하다. 물레 소리, 곡식 냄새, 젖은 나무 냄새. 그러나 물레 옆에 아이의 머리끈이 걸려 있다.',options:[['머리끈을 확인한다',()=>{consumeDay('mill');addClue('도리의 머리끈');addOfficial('도리가 방앗간을 지나간 정황');stat('조사',1);showScene('dayResult','해루가 침을 삼킨다. “아이가 여기까지 혼자 온 겁니까? 아니면 누가 데려온 겁니까?”')}],['젖은 발자국을 따라본다',()=>{consumeDay('mill');addClue('우물에서 방앗간으로 이어진 젖은 발자국');stat('조사',1);showScene('dayResult','발자국은 우물에서 방앗간으로, 다시 물소리 골짜기 쪽으로 이어지다 흐려진다.')}],['짐승 털을 줍는다',()=>{consumeDay('mill');addClue('검은 털');addUnofficial('방앗간에서 짐승 털 발견');stat('조사',1);showScene('dayResult','털은 거칠고 검다. 해루가 낮게 말한다. “범 털 같긴 한데, 물에 오래 담긴 냄새가 납니다.”')}],['돌확을 조사한다',()=>{consumeDay('mill');addRitual('제물 씻던 돌확');stat('결이해',1);showScene('dayResult','곡식을 씻던 돌확 밑에 오래된 피 자국이 남아 있다. 막례가 말한 제물 씻는 자리일지도 모른다.')}]]},
+ dayResult:{speaker:'기록',text:'단서를 정리했다. 남은 낮 조사 횟수를 확인하고 다음 장소로 이동한다.',options:[['계속 조사한다',closeDialog]]},
+ wellCommotion:{speaker:'우물가',text:'우물가에서 아이 하나가 산제 노래를 부르다 갑자기 멈춘다.\n\n“도리가 같이 불렀어요.”\n\n주민들이 아이를 급히 데려가고, 월선은 우물가에 주저앉는다.',options:[['아이에게 더 묻는다',()=>{addClue('도리 목소리 목격담');stat('조사',1);stat('마을신뢰',-1);showScene('goOfficeCh1')}],['월선을 진정시킨다',()=>{stat('애도',1);stat('한',-1);showScene('goOfficeCh1')}],['을파 말대로 소문을 막는다',()=>{stat('을파신뢰',1);stat('한',1);showScene('goOfficeCh1')}],['막례를 부른다',()=>{stat('막례신뢰',1);stat('결이해',1);showScene('goOfficeCh1')}]]},
+ goOfficeCh1:{speaker:'해루',text:'해가 기울었다. 관아 임시처소에서 오늘 본 것을 정리해야 한다.\n\n마을 남쪽의 관아 임시처소로 이동해 상호작용하면 밤으로 넘어간다.',options:[['관아로 돌아간다',()=>{state.phase='ch1_day';state.flags.dayComplete=true;state.map='village';setPlayerPos(23,24.6);closeDialog()}]]},
+ officeCh1Ready:{speaker:'관아 임시처소',text:'기록장 위에 공식 기록과 비공식 기록이 나뉘어 쌓인다.\n\n해루가 묻는다. “이런 건 공식 기록에 못 쓰겠지요?”',options:[['기록을 정리하고 밤을 맞는다',()=>{state.phase='ch1_night';state.time='밤';state.nightActionDone=false;setPlayerPos(23,25.2);showScene('nightStart')}],['아직 밖을 더 본다',closeDialog]]},
+ nightStart:{speaker:'해루',text:'밤. 관아 임시처소 밖으로 방앗간 물레 소리가 들린다.\n\n“저 시간에 방앗간을 돌릴 리가 없지요.”\n\n밖으로 나가 직접 확인할 수 있다. 밤 행동은 한 번뿐이다.',options:[['밖으로 나간다',()=>{setPlayerPos(23,25.2);closeDialog()}],['무시하고 잠을 청한다',()=>{nightDone();addOfficial('야간 이상 없음으로 처리');stat('해루공포',1);showScene('dawnCall','밤새 물레 소리가 끊기지 않았다. 새벽이 되자 산 쪽에서 아이 목소리가 섞인 울음이 들린다.')}]]},
+ nightMill:{speaker:'방앗간의 밤',text:'물레가 혼자 돈다. 물소리가 커지고, 그 사이로 아이 목소리가 들린다.\n\n“집에 가려 했는데, 길이 자꾸 산으로 갔어요.”',options:[['도리의 이름을 부른다',()=>{nightDone();addUnofficial('밤 방앗간에서 도리의 목소리 확인');stat('애도',1);showScene('dawnCall','물레가 한 번 멈춘다. 어둠 속에서 작은 발소리가 물소리 골짜기 쪽으로 멀어진다.')}],['누가 데려갔느냐고 묻는다',()=>{nightDone();addClue('물가에서 끊긴 큰 발자국');stat('조사',1);stat('해루공포',1);showScene('dawnCall','대답 대신 물레 밑에 젖은 발자국이 번진다. 사람 것과 짐승 것이 겹쳐 있다.')}],['목소리를 따라간다',()=>{nightDone();addClue('물소리 골짜기 입구');stat('결이해',1);stat('해루공포',1);showScene('dawnCall','당신은 골짜기 입구까지 갔다가 같은 방앗간 앞으로 돌아온다. 해루가 말한다. “분명 앞으로 걸었습니다.”')}]]},
+ nightWell:{speaker:'우물의 밤',text:'우물 안에서 작은 목소리가 울린다.\n\n“산길이 물속에 있어요.”\n\n물 밑의 나무패가 낮보다 가까워 보인다.',options:[['나무패를 꺼내려 한다',()=>{nightDone();addClue('젖은 이름패');addUnofficial('우물 속에서 도리 이름패 회수');stat('조사',1);showScene('dawnCall','손끝이 닿는 순간 물은 얼음처럼 차가워진다. 나무패에는 흐린 글자가 남아 있다.')}],['도리의 이름을 부른다',()=>{nightDone();stat('애도',1);stat('한',-1);addUnofficial('도리 이름에 우물이 반응');showScene('dawnCall','우물 속에서 누군가 숨을 삼킨다. 그리고 멀리 산에서 같은 이름이 되돌아온다.')}]]},
+ nightShaman:{speaker:'막례',text:'막례는 잠들지 않았다. 방울을 손에 쥔 채 문 앞에 앉아 있다.\n\n“들었느냐. 물레 소리 말고, 그 안에 섞인 숨을.”',options:[['창귀라는 말인가 묻는다',()=>{nightDone();addUnofficial('막례: 창귀 가능성 언급');stat('결이해',1);showScene('dawnCall','“산에 먹힌 것이 다 죽은 것은 아니고, 죽은 것이 다 떠난 것도 아니다.”')}],['보낼 방법을 묻는다',()=>{nightDone();addRitual('천도 조건: 이름과 길');stat('막례신뢰',1);showScene('dawnCall','“이름이 있어야 한다. 길도 있어야 한다. 그런데 지금은 길이 틀어졌다.”')}]]},
+ dawnCall:{speaker:'새벽',text:'산 쪽에서 호랑이 울음이 들린다. 그런데 울음 끝에 아이 목소리가 섞인다.\n\n“어머니.”\n\n월선이 산으로 뛰쳐나가려 한다.',options:[['월선을 막는다',()=>{stat('애도',1);showScene('report1Intro')}],['월선에게 진실 일부를 말한다',()=>{stat('애도',1);stat('한',-1);addUnofficial('월선에게 도리 사망 가능성 일부 고지');showScene('report1Intro')}],['막례에게 맡긴다',()=>{stat('막례신뢰',1);showScene('report1Intro')}]]},
+ report1Intro:{speaker:'중간 보고',text:'1장 마지막 기록을 작성한다.\n\n범이라 쓰면 일이 끝난다. 그러나 범은 사람의 이름을 부르지 않는다.',options:[['보고서 작성',()=>openReport(1)]]},
+ ch2Start:{speaker:'2장: 끊긴 제사',text:'새벽 뒤의 낮. 해루가 묻는다.\n\n“어젯밤 일을 기록에 올리실 겁니까?”\n\n마을 북쪽의 물소리 골짜기, 벌목터, 무너진 산제단이 개방되었다. 2장 낮 조사는 4회다.',options:[['“아직 기록할 말이 없다.”',()=>{stat('조사',1);closeDialog()}],['“범은 아니라고만 적는다.”',()=>{stat('기록',1);addOfficial('범 습격 단정 보류');closeDialog()}],['“기록하지 않는다. 먼저 확인한다.”',()=>{stat('결이해',1);closeDialog()}]]},
+ chief2:{speaker:'촌장집',text:'을파는 장부를 닫지 않는다. 오히려 보라는 듯 펼쳐 둔다.\n\n세금 납부량, 군역 명단, 흉년 기록, 산제 비용 유예. 산제를 끊은 해와 모두 겹친다.',options:[['산제를 끊은 이유를 이해한다고 말한다',()=>{consumeDay('chief');stat('을파신뢰',1);addClue('세금·군역·흉년과 산제 중단의 겹침');showScene('ch2DayResult','을파는 처음으로 숨을 길게 내쉰다. “산에 바칠 곡식이 있으면, 살아 있는 아이들 입에 넣어야지요.”')}],['그래도 금지된 숲을 벤 건 잘못이라고 말한다',()=>{consumeDay('chief');stat('결이해',1);stat('을파신뢰',-1);addUnofficial('금지된 숲 벌목과 산제 중단의 연결');showScene('ch2DayResult','을파의 표정이 닫힌다. “나무를 베지 않으면 겨울을 못 넘깁니다.”')}],['장부를 관아 기록에 넣겠다',()=>{consumeDay('chief');stat('기록',1);stat('마을신뢰',-1);addOfficial('산제 비용 유예 및 벌목량 증가');showScene('ch2DayResult','장부는 기록이 된다. 그러나 장부에 적히지 않은 굶주림은 그대로 남는다.')}],['마루의 작업 기록을 본다',()=>{consumeDay('chief');addClue('마루: 금지된 숲 표식 나무 벌목 담당');stat('조사',1);showScene('ch2DayResult','마루라는 이름이 벌목 명단 위에 있다. 마지막 작업 위치는 금지된 숲 가장자리다.')}]]},
+ shaman2:{speaker:'막례',text:'막례는 산제 절차를 더듬어 말한다.\n\n“먼저 물을 올리고, 그다음 피를 씻고…… 아니, 피를 씻은 뒤에 물을 올렸던가.”\n\n그녀의 기억은 완전하지 않다.',options:[['기억나는 대로 모두 말해 달라',()=>{consumeDay('shaman');addRitual('제문 일부');stat('막례신뢰',1);showScene('ch2DayResult','막례는 산제의 목적을 겨우 붙잡는다. “산군에게 빌던 게 아니다. 산이 마을로 내려오지 말라고 문을 닫던 것이다.”')}],['틀린 기억이면 더 위험하지 않나',()=>{consumeDay('shaman');stat('기록',1);stat('막례신뢰',-1);showScene('ch2DayResult','막례는 말문이 막힌다. 그녀가 마지막 기억이라는 사실이 오히려 위험이 된다.')}],['장부와 대조해 보겠다',()=>{consumeDay('shaman');addRitual('의례 조합: 장부 대조 필요');stat('조사',1);showScene('ch2DayResult','제물 순서 일부는 장부와 맞춰야 한다. 막례의 기억만으로는 부족하다.')}],['창귀를 보내는 법부터 묻는다',()=>{consumeDay('shaman');addRitual('창귀 천도 조건: 이름·길·유족의 부름');stat('결이해',1);showScene('ch2DayResult','“이름이 있어야 한다. 길도 있어야 한다. 마지막으로, 산 자가 붙잡던 손을 놓아야 한다.”')}]]},
+ well2:{speaker:'우물',text:'우물가가 조용하다. 아이들은 놀지 않는다. 월선은 도리의 이름을 낮게 반복한다.\n\n“이름을 잊으면 그 애가 정말 없어질 것 같아서요.”',options:[['계속 불러도 된다고 말한다',()=>{consumeDay('well');stat('애도',1);stat('한',-1);showScene('ch2DayResult','월선의 목소리는 떨리지만 끊기지 않는다. 이름은 아직 우물 밑으로 가라앉지 않았다.')}],['밤에는 이름을 부르지 말라 한다',()=>{consumeDay('well');stat('기록',1);stat('한',1);showScene('ch2DayResult','월선은 고개를 끄덕이지만, 입술은 계속 아이의 이름 모양을 만든다.')}],['도리가 부른 노래를 묻는다',()=>{consumeDay('well');addRitual('노래 조각: 검은 등 넘어 / 물소리 따라');stat('결이해',1);showScene('ch2DayResult','월선은 가락은 모른다. 대신 도리가 마지막 며칠 동안 그 노래를 자꾸 흥얼거렸다고 말한다.')}],['짚신이 도리 것이 맞느냐고 묻는다',()=>{consumeDay('well');addClue('짚신은 도리의 것');stat('애도',1);showScene('ch2DayResult','월선은 결국 고개를 끄덕인다. “맞습니다. 그래도 그 애가 죽었다고는 말하지 마세요.”')}]]},
+ mill2:{speaker:'방앗간',text:'물레는 멈춰 있지만 축축하다. 밤새 돌아간 것처럼 나무가 물을 먹었다. 돌확에는 오래전 제물을 씻던 흔적이 남아 있다.',options:[['머리끈을 월선에게 가져간다',()=>{consumeDay('mill');stat('애도',1);stat('한',-1);addClue('월선에게 도리 머리끈 전달');showScene('ch2DayResult','월선은 머리끈을 쥔 채 아무 말도 하지 않는다. 한참 뒤, “이제 이름은 제가 부르겠습니다”라고 말한다.')}],['검은 털을 보관한다',()=>{consumeDay('mill');addClue('젖은 검은 털');stat('조사',1);showScene('ch2DayResult','털에서는 물 냄새와 짐승 냄새가 함께 난다. 산군의 흔적일지도 모른다.')}],['돌확을 조사한다',()=>{consumeDay('mill');addRitual('제물 씻는 절차');stat('결이해',1);showScene('ch2DayResult','돌확의 홈은 물이 산 쪽으로 빠지도록 파여 있다. 제물은 바치는 것보다 씻겨 보내는 것에 가까웠다.')}],['물길을 따라가 본다',()=>{consumeDay('mill');addClue('물길이 골짜기와 이어짐');stat('조사',1);showScene('ch2DayResult','방앗간 물길은 자연스럽게 흐르는 듯 보이지만, 눈을 떼면 산 쪽으로 방향을 바꾼 것처럼 보인다.')}]]},
+ valley:{speaker:'물소리 골짜기',text:'낮인데도 물소리가 너무 크다. 같은 길을 걸었는데 다시 입구로 돌아온다.\n\n해루가 말한다. “방금 이 나무, 지나오지 않았습니까?”',options:[['물소리를 따른다',()=>{consumeDay('valley');addClue('물소리 속 도리 목소리');stat('한',1);showScene('ch2DayResult','물소리 속에 아이 목소리가 섞인다. “이쪽이면 집에 갈 수 있어요.” 그러나 길은 다시 입구다.')}],['발자국을 따른다',()=>{consumeDay('valley');addClue('마루의 발자국');stat('조사',1);showScene('ch2DayResult','청년의 발자국이 골짜기에서 끊긴다. 그 옆에는 도끼를 끌고 간 자국이 있다.')}],['금줄 흔적을 찾는다',()=>{consumeDay('valley');addRitual('금기 조각: 물길을 넘지 말 것');stat('결이해',1);showScene('ch2DayResult','금줄 말뚝이 썩어 넘어져 있다. 금기는 길을 막는 미신이 아니라, 넘어서는 안 될 경계 표시였다.')}],['가만히 서서 소리가 멎길 기다린다',()=>{consumeDay('valley');stat('결이해',1);stat('경계',1);showScene('ch2DayResult','움직이지 않자 물소리가 한 겹 줄어든다. 길이 틀어진 곳에서는 따라가는 것보다 멈추는 것이 안전할 때가 있다.')}]]},
+ lumber:{speaker:'벌목터',text:'금지된 숲의 일부가 베어져 있다. 나무 더미는 세금, 땔감, 군역 장비로 쓰일 것이다. 탐욕이 아니라 생존의 흔적이다.',options:[['벌목을 즉시 중단시킨다',()=>{consumeDay('lumber');stat('결이해',1);stat('경계',1);stat('마을신뢰',-1);addOfficial('벌목 중단 명령');showScene('ch2DayResult','사람들은 반발한다. 산이 무서운 것보다 겨울이 더 무섭다는 얼굴이다.')}],['을파에게 먼저 확인한다',()=>{consumeDay('lumber');stat('을파신뢰',1);addClue('벌목은 세금·겨울 땔감 목적');showScene('ch2DayResult','을파의 말은 변명만은 아니다. 그러나 베인 나무 밑에서 오래된 금줄 말뚝이 드러난다.')}],['도끼와 털을 증거로 확보한다',()=>{consumeDay('lumber');stat('기록',1);addClue('마루의 도끼와 검은 털');showScene('ch2DayResult','도끼 손잡이에 마루의 표식이 있다. 날에는 나무진과 검은 털이 함께 묻어 있다.')}],['마루의 흔적을 따라간다',()=>{consumeDay('lumber');stat('조사',1);addClue('마루가 표식 나무를 베려 한 정황');showScene('ch2DayResult','마루는 가장 바깥 나무가 아니라, 금줄이 묶였던 표식 나무로 향했다. 실수였는지, 누가 시켰는지는 아직 모른다.')}]]},
+ shrine:{speaker:'무너진 산제단',text:'돌제단은 반쯤 무너져 있다. 금줄 말뚝은 썩었고, 오래된 호랑이 발톱 자국이 돌에 남아 있다.',options:[['제단 방향을 기록한다',()=>{consumeDay('shrine');addRitual('의례 장소: 서북쪽 제단 방향');stat('기록',1);showScene('ch2DayResult','제단은 마을이 아니라 산과 물길 사이를 향한다. 무언가를 부르는 자리보다 문을 닫는 자리에 가깝다.')}],['소미의 천 조각을 챙긴다',()=>{consumeDay('shrine');addClue('소미의 천 조각');stat('애도',1);showScene('ch2DayResult','소미는 도리를 찾겠다고 몰래 제단에 왔던 듯하다. 산제를 믿은 사람도 산에 먹혔다.')}],['호랑이 발톱 자국을 조사한다',()=>{consumeDay('shrine');addClue('오래된 산군 발톱 자국');stat('조사',1);showScene('ch2DayResult','발톱 자국은 오래됐다. 최근의 습격 흔적이 아니라, 옛 약속의 표식처럼 같은 자리에 반복되어 있다.')}],['제단에 물을 올려 본다',()=>{consumeDay('shrine');addRitual('물 올림 절차');stat('막례신뢰',1);stat('경계',1);showScene('ch2DayResult','물은 돌 홈을 따라 조용히 빠진다. 잠깐, 물소리가 멎는다.')}]]},
+ ch2DayResult:{speaker:'조사 기록',text:'2장 단서를 정리했다. 북쪽 장소와 마을 장소를 오가며 남은 낮 조사를 진행한다.',options:[['계속 조사한다',closeDialog]]},
+ ch2Conflict:{speaker:'우물가 충돌',text:'을파가 막례에게 말한다.\n\n“더는 사람들 겁주지 마십시오. 제사를 끊어서 사람이 죽었다면, 그전에는 왜 죽었습니까?”\n\n막례가 대답한다.\n\n“그전에는 길을 알고 죽었다. 지금은 죽은 것도 산 것도 길을 모른다.”',options:[['을파 편을 든다',()=>{stat('을파신뢰',1);stat('막례신뢰',-1);showScene('ch2DayResult','마을 사람들은 안도하지만, 막례는 더 말하지 않는다.')}],['막례 편을 든다',()=>{stat('막례신뢰',1);stat('을파신뢰',-1);showScene('ch2DayResult','젊은 주민들의 표정이 굳는다. 그들에게 산제는 곡식과 나무를 빼앗는 이름이다.')}],['둘 다 멈추게 한다',()=>{stat('마을신뢰',1);showScene('ch2DayResult','갈등은 멈췄지만 해결되지 않았다. 양쪽 모두 당신을 완전히 믿지는 않는다.')}],['아무 말도 하지 않고 듣는다',()=>{addUnofficial('을파와 막례의 핵심 대립 확인');stat('조사',1);showScene('ch2DayResult','둘의 말은 모두 틀리지 않다. 그래서 더 위험하다.')}]]},
+ ch2CrisisPrompt:{speaker:'벌목터 소란',text:'낮 조사가 끝나갈 무렵, 마루의 친구가 벌목터로 가겠다고 나선다.\n\n“마루가 아직 산에 있으면 데려와야지요. 산제니 뭐니 하다가 사람만 놓치고 있습니다.”\n\n관아 임시처소에서 기록을 정리하면 밤으로 넘어간다.',options:[['관아로 돌아가 정리한다',()=>{state.map='village';setPlayerPos(23,24.6);closeDialog()}]]},
+ officeCh2Ready:{speaker:'관아 임시처소',text:'2장의 낮 조사를 정리한다. 실종자는 도리만이 아니다. 마루, 소미, 그리고 산과 마을 사이의 경계도 사라지고 있다.\n\n밤이 되기 전, 마루의 친구 문제를 처리해야 한다.',options:[['직접 따라간다',()=>{addClue('마루의 친구 추적 준비');stat('조사',1);afterCh2Crisis()}],['사량에게 부탁한다',()=>{addClue('사량 조기 협조');stat('경계',-1);showScene('saryangIntro','벌목터 근처에서 사량이 덫을 손본다. “관아 사람은 발자국을 보고, 무당은 노래를 듣지. 나는 피가 어디로 끌렸는지 본다.”')}],['을파에게 막게 한다',()=>{stat('을파신뢰',1);addOfficial('청년들의 임의 산행 금지');afterCh2Crisis()}],['막례에게 금줄을 치게 한다',()=>{stat('막례신뢰',1);stat('경계',1);addRitual('임시 금줄');afterCh2Crisis()}]]},
+ saryangIntro:{speaker:'사량',text:'“관아 사람은 발자국을 보고, 무당은 노래를 듣지. 나는 피가 어디로 끌렸는지 본다.”\n\n그는 산군을 죽일 생각이다.',options:[['덫을 치워라',()=>{stat('경계',1);stat('마을신뢰',-1);afterCh2Crisis()}],['산군을 본 적 있나',()=>{addClue('사량: 검은등 목격담');stat('조사',1);afterCh2Crisis()}],['실종자를 찾는 데 도와라',()=>{addClue('사량 동행 가능성');stat('마을신뢰',1);afterCh2Crisis()}],['네가 사람을 죽인 건 아니냐',()=>{stat('마을신뢰',-1);addUnofficial('사량 적대');afterCh2Crisis()}]]},
+ ch2NightStart:{speaker:'2장 밤',text:'밤이 내려온다. 오늘은 우물, 방앗간, 무당집뿐 아니라 북쪽 산제단까지 갈 수 있다.\n\n밤 행동은 한 번뿐이다.',options:[['밖으로 나간다',closeDialog],['그냥 잔다',()=>{nightDone();stat('해루공포',-1);stat('한',1);showScene('ch2Dawn','아침이 되자 벌목터 근처에 피 묻은 도끼가 꽂혀 있다는 소식이 들린다. 밤을 넘겼지만, 산은 가만히 있지 않았다.')}]]},
+ ch2NightWell:{speaker:'우물의 밤',text:'월선이 우물가에서 도리 이름을 부른다. 우물 안에서 같은 목소리가 따라 한다.\n\n“어머니. 그런데 어머니 목소리가 물 밑에서 나요.”',options:[['월선을 멈춘다',()=>{nightDone();stat('한',1);stat('애도',1);showScene('ch2Dawn','월선은 무너진다. 이름을 부르지 못한 밤은 더 길다.')}],['함께 이름을 부른다',()=>{nightDone();addRitual('도리 천도 조건 강화: 어머니의 이름 부름');stat('한',-1);stat('애도',1);showScene('ch2Dawn','우물 밑 목소리가 잠깐 어린아이처럼 돌아온다. 그러나 곧 물소리 속으로 멀어진다.')}],['나무패를 건진다',()=>{nightDone();addClue('도리 이름패');stat('조사',1);showScene('ch2Dawn','이름패의 글자는 젖어 흐렸지만, 도리라는 이름의 첫 글자는 남아 있다.')}]]},
+ ch2NightMill:{speaker:'방앗간의 밤',text:'물레가 돌지 않는데도 물소리가 난다. 돌확에 물이 차 있고, 그 위에 검은 털이 떠 있다.',options:[['검은 털을 건진다',()=>{nightDone();addClue('방앗간 돌확의 검은 털');stat('조사',1);stat('해루공포',1);showScene('ch2Dawn','털을 집어 드는 순간 물이 붉게 번졌다가 사라진다.')}],['돌확의 물길을 막아 본다',()=>{nightDone();addRitual('제물 씻는 물길 차단');stat('경계',1);showScene('ch2Dawn','물소리가 잠시 약해진다. 산길이 마을 쪽으로 내려오는 속도가 늦춰진 듯하다.')}],['물소리에 귀를 댄다',()=>{nightDone();addUnofficial('물소리 속 여러 이름');stat('결이해',1);stat('해루공포',1);showScene('ch2Dawn','도리만이 아니다. 물소리 속에는 마루와 소미의 이름도 섞여 있다.')}]]},
+ ch2NightShaman:{speaker:'막례의 밤',text:'막례는 무당집 앞에 금줄을 매고 있다.\n\n“오늘은 산제단 쪽이 열린다. 가려면 이름을 입에 담지 말고 가거라.”',options:[['제문을 다시 확인한다',()=>{nightDone();addRitual('제문 보정: 문을 닫아라');stat('막례신뢰',1);showScene('ch2Dawn','막례의 기억과 장부의 순서가 조금 맞물린다. 산제는 부르는 의식이 아니라 닫는 의식이다.')}],['금줄을 같이 맨다',()=>{nightDone();stat('경계',1);stat('마을신뢰',1);addRitual('마을 금줄 보강');showScene('ch2Dawn','밤새 바람이 금줄을 흔든다. 그래도 끊어지지는 않는다.')}],['창귀 이름을 묻는다',()=>{nightDone();addRitual('창귀 천도: 이름을 잃기 전 불러야 함');stat('결이해',1);showScene('ch2Dawn','“창귀는 죽은 자가 아니라, 이름이 산길에 걸린 자다.”')}]]},
+ ch2NightShrine:{speaker:'산제단의 밤',text:'무너진 제단에 검은 그림자가 비친다. 직접 보이는 것은 없다. 그러나 발톱 자국이 새것처럼 젖어 있다.\n\n어둠 속에서 목소리가 들린다.\n\n“문이 열려 있다.”',options:[['제단에 물을 올린다',()=>{nightDone();addRitual('밤 산제단 물 올림');stat('경계',1);stat('해루공포',1);showScene('ch2Dawn','물은 피처럼 어둡게 흐른다. 그러나 잠시 뒤 산길의 물소리가 한 겹 낮아진다.')}],['목소리에 “누가 열었나” 묻는다',()=>{nightDone();addUnofficial('산제단 목소리: 문이 열려 있음');stat('결이해',2);stat('한',1);showScene('ch2Dawn','대답은 없다. 대신 벌목터 쪽에서 도끼가 나무를 찍는 소리가 한 번 난다.')}],['소미의 천 조각을 올린다',()=>{nightDone();addClue('소미의 길 반응');stat('애도',1);showScene('ch2Dawn','천 조각이 젖는다. 소미는 제단에 왔고, 아직 완전히 떠나지 못했다.')}]]},
+ ch2Dawn:{speaker:'2장 새벽',text:'산 쪽에서 청년들이 소리친다. 벌목터 근처에 누군가의 도끼가 꽂혀 있다.\n\n도끼에는 피가 묻어 있다. 그러나 더 중요한 것은 도끼에 묶인 금줄이다.\n\n막례가 말한다. “이제 산이 사람을 부르는 게 아니다. 사람이 산의 문을 열고 있다.”',options:[['금지된 숲 진입을 허가한다',()=>{addOfficial('금지된 숲 진입 허가');openReport(2)}],['금지된 숲을 봉쇄한다',()=>{addOfficial('금지된 숲 봉쇄');stat('경계',1);openReport(2)}],['사량과 함께 추적한다',()=>{addClue('사량과 금지된 숲 추적');stat('조사',1);openReport(2)}],['막례와 의례 준비를 먼저 한다',()=>{addRitual('마지막 산제 준비 시작');stat('막례신뢰',1);openReport(2)}]]},
+ final:{speaker:'2장 종료',text:'산은 마을을 덮치지 않았다.\n마을이 먼저 산의 문을 열었다.\n\n3장에서는 금지된 숲으로 들어가 도리가 창귀가 되었음을 확인하게 된다.',options:[['원형 종료',closeDialog]]}
+};
+function openReport(ch){dom.reportPanel.style.display='block';state.dialogOpen=false;dom.dialog.style.display='none';state.report={cause:null,measure:null,missing:null};dom.reportTitle.textContent=ch===1?'1장 중간 보고서':'2장 보고서';dom.reportIntro.textContent=ch===1?'관아에 올릴 수 있는 말만 선택합니다. 실제 진실과 어긋날 수 있습니다.':'2장 조사 결과를 공식 기록으로 정리합니다. 산길 이상을 쓰면 관아 평가는 나빠지지만 비공식 진실과 가까워집니다.';const groups=ch===1?[
+ {key:'cause',title:'사건 원인',items:['범 습격 가능성','도적 또는 유괴 가능성','마을 내부 은폐 가능성','원인 불명']},
+ {key:'measure',title:'조치',items:['산길 폐쇄','추가 병력 요청','촌장 책임 조사','무당 감시','실종자 수색 지속']},
+ {key:'missing',title:'실종자 표기',items:['생존 가능성 있음','사망 추정','행방 불명','호적 보류']}
+]:[
+ {key:'cause',title:'사건 원인',items:['범 습격 지속','벌목터 사고','마을 내부 은폐','산길 이상 현상','원인 불명']},
+ {key:'measure',title:'조치',items:['벌목 중단','산길 폐쇄','추가 병력 요청','무당 협조','실종자 수색 확대','금지된 숲 진입 허가']},
+ {key:'missing',title:'다음 조치 대상',items:['도리 이름 확인','마루 추적','소미 천도 준비','산제 복원 조각 수집']}
+];dom.reportGroups.innerHTML='';groups.forEach(g=>{const div=document.createElement('div');div.className='reportGroup';div.innerHTML='<b>'+g.title+'</b><div class="choices"></div>';const box=div.querySelector('.choices');g.items.forEach(item=>{const b=document.createElement('button');b.textContent=item;b.onclick=()=>{state.report[g.key]=item;[...box.children].forEach(x=>x.classList.remove('selected'));b.classList.add('selected')};box.appendChild(b)});dom.reportGroups.appendChild(div)});dom.finishReport.onclick=()=>{if(!state.report.cause||!state.report.measure||!state.report.missing){toast('모든 항목을 하나씩 선택하세요.');return}addOfficial((ch===1?'1장':'2장')+' 보고: '+state.report.cause+' / '+state.report.measure+' / '+state.report.missing);dom.reportPanel.style.display='none';if(ch===1){state.flags.ch1Report=true;startChapter2()}else{state.flags.ch2Report=true;showScene('final')}}}
+function interact(){const loc=nearbyLocation();if(!loc)return;if(loc.id==='shoe'){if(state.flags.shoe){toast('이미 조사했다. 북쪽으로 이동하자.');return}showScene('shoe');return}if(loc.id==='toVillage'){if(state.map==='pass'){if(!state.flags.shoe&&state.phase==='pass'){toast('먼저 짚신을 조사해야 한다.');return}state.map='village';if(state.phase==='pass'){state.phase='ch1_day';state.time='낮';state.maxDayInvestigations=3;state.flags.enteredVillage=true;showScene('villageEntry')}setPlayerPos(22,27);return}if(state.map==='north'){state.map='village';setPlayerPos(22,6);return}}
+ if(loc.id==='toPass'){state.map='pass';setPlayerPos(22,10.5);return}
+ if(loc.id==='toNorth'){if(state.chapter<2){toast('아직 북쪽 길은 열리지 않았다.');return}state.map='north';setPlayerPos(22,27);return}
+ if(loc.id==='office'){if(state.phase==='ch1_day'&&state.flags.dayComplete)showScene('officeCh1Ready');else if(state.phase==='ch1_dawn')showScene('report1Intro');else if(state.phase==='ch2_day'&&state.flags.ch2Crisis)showScene('officeCh2Ready');else toast('아직 정리할 때가 아니다.');return}
+ if(state.phase==='ch1_day'){if(state.dayInvestigations>=state.maxDayInvestigations){toast('낮 조사는 끝났다. 관아 임시처소에서 정리하자.');return}if(loc.id==='chief')showScene('chief');else if(loc.id==='well')showScene('well');else if(loc.id==='shaman')showScene('shaman');else if(loc.id==='mill')showScene('mill');return}
+ if(state.phase==='ch1_night'){if(state.nightActionDone){toast('오늘 밤 행동은 이미 끝났다.');return}if(loc.id==='well')showScene('nightWell');else if(loc.id==='shaman')showScene('nightShaman');else if(loc.id==='mill')showScene('nightMill');else toast('밤에는 이곳에서 할 수 있는 일이 없다.');return}
+ if(state.phase==='ch2_day'){if(state.ch2DayActions>=state.maxCh2DayActions){toast('2장 낮 조사는 끝났다. 관아 임시처소에서 정리하자.');return}if(loc.id==='chief')showScene('chief2');else if(loc.id==='well')showScene('well2');else if(loc.id==='shaman')showScene('shaman2');else if(loc.id==='mill')showScene('mill2');else if(loc.id==='valley')showScene('valley');else if(loc.id==='lumber')showScene('lumber');else if(loc.id==='shrine')showScene('shrine');return}
+ if(state.phase==='ch2_night'){if(state.nightActionDone){toast('오늘 밤 행동은 이미 끝났다.');return}if(loc.id==='well')showScene('ch2NightWell');else if(loc.id==='shaman')showScene('ch2NightShaman');else if(loc.id==='mill')showScene('ch2NightMill');else if(loc.id==='shrine')showScene('ch2NightShrine');else toast('밤에는 이곳에서 할 수 있는 일이 없다.');return}
+ if(state.phase==='ch2_dawn'){if(loc.id==='forest')showScene('ch2Dawn');else toast('금지된 숲 입구에서 다음 결정을 내려야 한다.');return}}
+function nearbyLocation(){const arr=locations[state.map]||[];const px=state.player.x,py=state.player.y;let best=null,bd=999;for(const l of arr){if(!l.phases.includes(state.phase))continue;if(l.area){if(px>=l.area.x1&&px<=l.area.x2&&py>=l.area.y1&&py<=l.area.y2)return l;continue}const d=Math.hypot(px-l.x,py-l.y);if(d<(l.radius||1.2)&&d<bd){best=l;bd=d}}return best}
+const keysDown=new Set();function norm(k){if(k==='ArrowUp'||k==='w'||k==='W')return'up';if(k==='ArrowDown'||k==='s'||k==='S')return'down';if(k==='ArrowLeft'||k==='a'||k==='A')return'left';if(k==='ArrowRight'||k==='d'||k==='D')return'right';return null}
+window.addEventListener('keydown',e=>{if(dom.cutscene&&dom.cutscene.style.display==='block'&&['Enter',' ','z','Z'].includes(e.key)){dom.cutNext.click();e.preventDefault();return}if(state.dialogOpen){const n=parseInt(e.key,10);if(n>=1&&n<=dom.options.children.length){dom.options.children[n-1].click();e.preventDefault()}return}if(dom.reportPanel.style.display==='block')return;const m=norm(e.key);if(m){keysDown.add(m);e.preventDefault();return}if(['Enter',' ','z','Z'].includes(e.key)){if(!e.repeat)interact();e.preventDefault()}});window.addEventListener('keyup',e=>{const m=norm(e.key);if(m)keysDown.delete(m)});window.addEventListener('blur',()=>keysDown.clear());
+function update(dt){if(state.dialogOpen||dom.reportPanel.style.display==='block')return;let dx=0,dy=0;if(keysDown.has('up'))dy-=1;if(keysDown.has('down'))dy+=1;if(keysDown.has('left'))dx-=1;if(keysDown.has('right'))dx+=1;if(dx||dy){const len=Math.hypot(dx,dy);dx/=len;dy/=len;const sp=dt*0.0085;tryMove(dx*sp,dy*sp);state.player.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?'left':'right'):(dy<0?'up':'down');state.player.moving=true}else state.player.moving=false;state.player.rx+=(state.player.x-state.player.rx)*0.45;state.player.ry+=(state.player.y-state.player.ry)*0.45}
+function tryMove(dx,dy){const nx=state.player.x+dx,ny=state.player.y+dy;if(canStand(nx,state.player.y))state.player.x=nx;if(canStand(state.player.x,ny))state.player.y=ny}
+function canStand(x,y){const cx=Math.floor(x),cy=Math.floor(y);if(cx<0||cy<0||cx>=W||cy>=H)return false;return !colliders().has(k(cx,cy))}
+let last=performance.now();function frame(t){const dt=Math.min(32,t-last);last=t;update(dt);draw(t);requestAnimationFrame(frame)}
+function draw(t){ctx.setTransform(SCALE,0,0,SCALE,0,0);ctx.clearRect(0,0,VIEW_W,VIEW_H);drawMap();drawProps(t);drawInteraction();drawPeople(t);drawAtmosphere(t);if(state.phase.includes('night'))drawNight();if(state.phase.includes('dawn'))drawDawn();updateHud()}
+function drawMap(){const m=maps[state.map];for(let y=0;y<H;y++)for(let x=0;x<W;x++)drawTile(x,y,m[y][x]);drawPathEdges()}
+function drawTile(x,y,t){const ox=x*TILE,oy=y*TILE;let base=t==='p'?pal.path:t==='w'?pal.water:t==='h'?pal.hill:t==='g'?pal.grass2:t==='r'?pal.stone:pal.grass;if(state.phase.includes('night'))base=shade(base,-62);if(state.phase.includes('dawn'))base=shade(base,-16);ctx.fillStyle=base;ctx.fillRect(ox,oy,TILE,TILE);function p(a,b,w,h,c){ctx.fillStyle=c;ctx.fillRect(ox+a,oy+b,w,h)}if(t==='.'){p(2,3,2,1,rgba('#253b28',.28));p(10,6,2,1,rgba('#172a1d',.32));p(5,12,3,1,rgba('#16271d',.28));if((x+y)%7===0)p(8,9,1,1,rgba('#8f855a',.18))}else if(t==='p'){p(1,1,14,1,rgba('#b09a76',.12));p(3,5,2,1,rgba('#3d2c20',.24));p(11,8,3,1,rgba('#7b6b51',.12));p(2,13,12,1,rgba('#35281f',.16));if((x*3+y)%6===0)p(7,10,2,1,rgba('#423025',.24))}else if(t==='w'){p(0,0,16,16,rgba('#9fb2b5',.035));p(2+(x+y)%3,4,10,1,rgba('#78939a',.12));p(5,11,8,1,rgba('#53717a',.12))}else if(t==='h'){p(0,0,16,16,rgba('#0c1b14',.20));p(3,5,3,1,rgba('#4a6148',.14));p(9,11,4,1,rgba('#0e2117',.25))}else if(t==='g'){p(2,4,2,1,rgba('#15251a',.33));p(9,8,3,1,rgba('#4a5b3f',.18))}else if(t==='r'){p(2,5,10,1,rgba('#8b8c83',.13));p(4,10,8,1,rgba('#222522',.22))}}
+function drawPathEdges(){const m=maps[state.map];ctx.fillStyle=state.phase.includes('night')?'rgba(36,25,17,.22)':'rgba(107,76,44,.18)';for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++)if(m[y][x]==='p'){const ox=x*TILE,oy=y*TILE;if(m[y-1][x]!=='p')ctx.fillRect(ox,oy,16,1);if(m[y+1][x]!=='p')ctx.fillRect(ox,oy+15,16,1);if(m[y][x-1]!=='p')ctx.fillRect(ox,oy,1,16);if(m[y][x+1]!=='p')ctx.fillRect(ox+15,oy,1,16)}}
+function drawProps(t){if(state.map==='village'){drawHouse(6,10,8,7,{roof:'#2e5262',wall:'#927d61',official:false});drawHouse(12,5,7,5,{roof:'#6b5d48',wall:'#7f6d56',shaman:true});drawHouse(18,19,10,8,{roof:'#263f4e',wall:'#9a8568',official:true});drawHouse(32,14,7,7,{roof:'#5b4532',wall:'#816b50',mill:true});drawVillageObjects(t)}else if(state.map==='north'){drawNorthObjects(t)}else{drawPassObjects(t)}}
+function drawHouse(x,y,w,h,opt){
+ const ox=x*TILE,oy=y*TILE,width=w*TILE,height=h*TILE;
+ const night=state.phase.includes('night');
+ const roofBase=night?shade(opt.roof,-36):opt.roof;
+ const roofDark=shade(roofBase,-24), roofLight=shade(roofBase,18);
+ const wallBase=night?shade(opt.wall,-32):opt.wall;
+ const wallDark=shade(wallBase,-22), wallLight=shade(wallBase,16);
+ const beam=night?shade(pal.beam,-28):pal.beam;
+ const stone=night?shade(pal.stone,-28):pal.stone;
+ const bodyTop=oy+24, bodyBottom=oy+height-13;
+ ctx.fillStyle=rgba('#000000',.26);ctx.fillRect(ox+4,oy+height-2,width-4,6);
+ ctx.fillStyle=shade(stone,-18);ctx.fillRect(ox+7,bodyBottom,width-14,11);
+ ctx.fillStyle=stone;for(let bx=ox+9;bx<ox+width-10;bx+=13){ctx.fillRect(bx,bodyBottom+2,10,3);ctx.fillRect(bx+2,bodyBottom+7,8,2)}
+ ctx.fillStyle=wallBase;ctx.fillRect(ox+10,bodyTop,width-20,bodyBottom-bodyTop);
+ ctx.fillStyle=rgba('#ffffff',night?.035:.055);ctx.fillRect(ox+12,bodyTop+2,width-24,2);
+ ctx.fillStyle=wallDark;ctx.fillRect(ox+10,bodyBottom-4,width-20,4);
+ ctx.fillStyle=beam;ctx.fillRect(ox+8,bodyTop-3,width-16,4);
+ ctx.fillStyle=shade(beam,-16);ctx.fillRect(ox+10,bodyBottom-2,width-20,3);
+ const pillarXs=[ox+12,ox+width/2-2,ox+width-16];
+ pillarXs.forEach((cx,i)=>{ctx.fillStyle=shade(beam,i===1?4:-10);ctx.fillRect(Math.round(cx),bodyTop,4,bodyBottom-bodyTop+7);ctx.fillStyle=rgba('#000',.24);ctx.fillRect(Math.round(cx)+3,bodyTop,1,bodyBottom-bodyTop+7)});
+ if(opt.shaman){drawRoof(ox,oy,width,'thatched',roofBase);}
+ else if(opt.mill){drawRoof(ox,oy,width,'wood',roofBase);}
+ else{drawRoof(ox,oy,width,opt.official?'official':'tile',roofBase);}
+ const doorW=opt.official?20:opt.shaman?14:16;
+ const dx=Math.round(ox+width/2-doorW/2),dy=bodyBottom-24;
+ ctx.fillStyle='#1b1210';ctx.fillRect(dx-3,dy-2,doorW+6,26);
+ ctx.fillStyle=opt.official?'#56342d':opt.shaman?'#3f2e23':'#4a3026';ctx.fillRect(dx,dy,doorW,24);
+ ctx.fillStyle=rgba('#000000',.45);ctx.fillRect(dx+Math.floor(doorW/2),dy,1,23);
+ ctx.fillStyle=rgba('#c7a06b',night?.12:.22);ctx.fillRect(dx+3,dy+5,doorW-6,2);
+ ctx.fillStyle=shade(stone,-8);ctx.fillRect(dx-6,bodyBottom+8,doorW+12,3);
+ if(width>=96){drawWindow(ox+18,bodyBottom-31);drawWindow(ox+width-31,bodyBottom-31)}else{drawWindow(ox+15,bodyBottom-30)}
+ if(opt.official){
+  ctx.fillStyle=shade(beam,-8);ctx.fillRect(ox+width-17,bodyTop-9,2,25);
+  ctx.fillStyle=night?shade('#8f3f38',-28):'#8f3f38';ctx.fillRect(ox+width-15,bodyTop-9,12,6);
+  ctx.fillStyle=rgba('#d7c287',night?.16:.28);ctx.fillRect(ox+width-15,bodyTop-9,12,1);
+ }
+ if(opt.shaman){
+  const ropeY=bodyBottom-34;ctx.fillStyle=night?shade('#dbc985',-35):'#dbc985';ctx.fillRect(ox+9,ropeY,width-18,1);
+  for(let xx=ox+14;xx<ox+width-14;xx+=12){ctx.fillRect(xx,ropeY-1,3,7);ctx.fillStyle=rgba('#b34d45',night?.20:.36);ctx.fillRect(xx+1,ropeY+6,1,3);ctx.fillStyle=night?shade('#dbc985',-35):'#dbc985'}
+ }
+ if(opt.mill)drawMillWheel(ox+width-5,oy+height-21)
+}
+function drawRoof(ox,oy,w,kind,color){
+ const night=state.phase.includes('night');
+ const c=color, dark=shade(c,-25), deep=shade(c,-43), light=shade(c,20);
+ ctx.fillStyle=rgba('#000',.24);ctx.fillRect(ox+5,oy+21,w-10,5);
+ if(kind==='thatched'){
+  ctx.fillStyle=deep;ctx.fillRect(ox+7,oy+9,w-14,7);
+  ctx.fillStyle=dark;ctx.fillRect(ox+3,oy+15,w-6,7);
+  ctx.fillStyle=c;ctx.fillRect(ox,oy+20,w,8);
+  ctx.fillStyle=light;ctx.fillRect(ox+8,oy+12,w-16,2);
+  for(let xx=ox+5;xx<ox+w-5;xx+=5){ctx.fillStyle=rgba('#eadc9d',night?.07:.16);ctx.fillRect(xx,oy+16,1,12)}
+  ctx.fillStyle=rgba('#000',.18);ctx.fillRect(ox+1,oy+27,w-2,2);return
+ }
+ if(kind==='wood'){
+  ctx.fillStyle=deep;ctx.fillRect(ox+7,oy+8,w-14,8);
+  ctx.fillStyle=dark;ctx.fillRect(ox+3,oy+14,w-6,8);
+  ctx.fillStyle=c;ctx.fillRect(ox,oy+20,w,9);
+  for(let xx=ox+4;xx<ox+w-5;xx+=9){ctx.fillStyle=rgba('#1a110e',.22);ctx.fillRect(xx,oy+14,2,15)}
+  ctx.fillStyle=rgba('#d8b879',night?.06:.13);ctx.fillRect(ox+8,oy+10,w-16,2);return
+ }
+ const eave=kind==='official'?12:8;
+ ctx.fillStyle=deep;ctx.fillRect(ox+eave,oy+5,w-eave*2,7);
+ ctx.fillStyle=dark;ctx.fillRect(ox+6,oy+10,w-12,8);
+ ctx.fillStyle=c;ctx.fillRect(ox+1,oy+17,w-2,11);
+ ctx.fillStyle=light;ctx.fillRect(ox+eave+2,oy+7,w-(eave+2)*2,2);
+ ctx.fillStyle=rgba('#000',.22);ctx.fillRect(ox+2,oy+27,w-4,2);
+ for(let xx=ox+8;xx<ox+w-8;xx+=10){ctx.fillStyle=rgba('#edf0da',night?.035:.08);ctx.fillRect(xx,oy+18,2,9)}
+ if(kind==='official'){ctx.fillStyle=shade(c,-50);ctx.fillRect(ox+w/2-18,oy+3,36,3);ctx.fillStyle=light;ctx.fillRect(ox+w/2-12,oy+1,24,1)}
+}
+function drawWindow(x,y){
+ const night=state.phase.includes('night');
+ ctx.fillStyle='#211713';ctx.fillRect(x-2,y-2,16,12);
+ ctx.fillStyle=night?'#765237':'#4f3b2e';ctx.fillRect(x,y,12,8);
+ ctx.fillStyle=night?'#a87347':'#2c251e';ctx.fillRect(x+1,y+1,4,3);ctx.fillRect(x+7,y+1,4,3);
+ ctx.fillStyle=rgba('#000000',.36);ctx.fillRect(x+5,y,1,8);ctx.fillRect(x,y+4,12,1);
+}
+function drawMillWheel(x,y){ctx.strokeStyle=state.phase.includes('night')?'#6d5034':'#8e6a45';ctx.lineWidth=2;ctx.strokeRect(x-10,y-10,20,20);ctx.beginPath();ctx.moveTo(x-10,y);ctx.lineTo(x+10,y);ctx.moveTo(x,y-10);ctx.lineTo(x,y+10);ctx.moveTo(x-7,y-7);ctx.lineTo(x+7,y+7);ctx.moveTo(x+7,y-7);ctx.lineTo(x-7,y+7);ctx.stroke();ctx.fillStyle='#a78352';ctx.fillRect(x-2,y-2,4,4)}
+function drawVillageObjects(t){drawWell(23,12);drawBridge(39,20);drawTrees([[4,7],[6,8],[28,7],[30,8],[5,22],[7,24],[39,24],[42,22],[13,23],[30,23],[12,27],[32,26],[27,5],[31,5],[17,27],[5,5]]);drawRocks([[2,5],[41,16],[9,25],[29,26],[42,25]]);drawFences();drawFlags();if(state.phase.endsWith('day'))drawSmoke(t);if(state.phase.includes('night'))drawWindowGlow()}
+function drawNorthObjects(t){drawTrees([[6,8],[8,9],[10,10],[35,7],[38,8],[5,22],[7,23],[34,22],[40,22],[14,6],[31,5],[16,22],[25,21],[33,19],[39,15],[4,13],[5,15],[38,12]]);drawShrine(17,5);drawLumber();drawBridge(26,13);drawRocks([[14,12],[26,18],[31,16],[19,10],[23,7]]);if(state.phase.includes('night')){ctx.fillStyle=rgba('#23201a',.24);ctx.fillRect(17*TILE,5*TILE,12*TILE,5*TILE)}}
+function drawPassObjects(t){drawTrees([[8,8],[10,16],[34,12],[32,21],[16,23],[28,6]]);drawRocks([[14,8],[31,9],[12,16],[31,20],[33,24]]);if(!state.flags.shoe){ctx.fillStyle='#d6c39b';ctx.fillRect(22*TILE+6,18*TILE+8,6,3);ctx.fillStyle='#8b3d36';ctx.fillRect(22*TILE+9,18*TILE+8,3,1)}}
+function drawShrine(x,y){const ox=x*TILE,oy=y*TILE;ctx.fillStyle=rgba('#000',.25);ctx.fillRect(ox+8,oy+64,170,7);ctx.fillStyle=pal.stone;ctx.fillRect(ox+28,oy+48,100,18);ctx.fillStyle=shade(pal.stone,-22);ctx.fillRect(ox+36,oy+37,84,12);ctx.fillStyle=pal.shrine;ctx.fillRect(ox+68,oy+16,8,34);ctx.fillRect(ox+104,oy+16,8,34);ctx.fillStyle=shade(pal.shrine,-20);ctx.fillRect(ox+61,oy+16,58,7);ctx.fillStyle=pal.blood;ctx.fillRect(ox+82,oy+39,22,2);ctx.fillStyle='#d9ca90';for(let xx=ox+18;xx<ox+150;xx+=18)ctx.fillRect(xx,oy+32,3,14)}
+function drawLumber(){const baseX=8*TILE,baseY=17*TILE;ctx.fillStyle='#6b4930';for(let i=0;i<6;i++){ctx.fillRect(baseX+i*13,baseY+28+(i%2)*3,30,5);ctx.fillStyle=shade('#6b4930',18);ctx.fillRect(baseX+i*13,baseY+28+(i%2)*3,4,5);ctx.fillStyle='#6b4930'}ctx.fillStyle='#7d6741';ctx.fillRect(baseX+40,baseY+14,14,4);ctx.fillStyle='#57422a';ctx.fillRect(baseX+44,baseY+2,5,16);ctx.fillStyle='#9d9a8d';ctx.fillRect(baseX+42,baseY,10,4);ctx.fillStyle='#d3c286';ctx.fillRect(baseX+6,baseY+5,38,1);ctx.fillRect(baseX+57,baseY+6,34,1)}
+function drawWell(x,y){const ox=x*TILE,oy=y*TILE;ctx.fillStyle=rgba('#000000',.22);ctx.fillRect(ox+1,oy+12,15,3);ctx.fillStyle=state.phase.includes('night')?'#555955':'#7d7a71';ctx.fillRect(ox+2,oy+6,12,8);ctx.fillRect(ox,oy+8,16,4);ctx.fillStyle=state.phase.includes('night')?'#17242d':'#203642';ctx.fillRect(ox+4,oy+8,8,4);ctx.fillStyle=state.phase.includes('night')?'#32231b':'#4f3826';ctx.fillRect(ox+3,oy+2,2,8);ctx.fillRect(ox+11,oy+2,2,8);ctx.fillRect(ox+2,oy+2,12,2)}
+function drawBridge(x,y){const ox=x*TILE,oy=y*TILE;ctx.fillStyle=state.phase.includes('night')?'#33241b':'#4e3a27';ctx.fillRect(ox-4,oy+2,38,12);ctx.fillStyle=state.phase.includes('night')?'#4d3b2a':'#6d553a';for(let i=-4;i<34;i+=6)ctx.fillRect(ox+i,oy+2,2,12)}
+function drawTrees(list){list.forEach(([x,y])=>{const ox=x*TILE,oy=y*TILE;ctx.fillStyle='#513116';ctx.fillRect(ox+7,oy+8,3,8);let d=state.phase.includes('night')?'#102216':'#233b2a',m=state.phase.includes('night')?'#18321e':'#345236',h=state.phase.includes('night')?'#244326':'#5c7051';ctx.fillStyle=d;ctx.fillRect(ox+3,oy+4,10,8);ctx.fillRect(ox+1,oy+7,14,5);ctx.fillStyle=m;ctx.fillRect(ox+4,oy+2,8,8);ctx.fillStyle=h;ctx.fillRect(ox+6,oy+3,3,1);ctx.fillRect(ox+10,oy+7,2,1)})}
+function drawRocks(list){list.forEach(([x,y])=>{const ox=x*TILE,oy=y*TILE;ctx.fillStyle=state.phase.includes('night')?'#3e403d':'#5f615a';ctx.fillRect(ox+2,oy+8,12,6);ctx.fillStyle=rgba('#ffffff',.14);ctx.fillRect(ox+4,oy+8,4,1)})}
+function drawFences(){
+ const col=state.phase.includes('night')?'#271c15':'#4c3525';
+ // 촌장집을 가로지르던 기존 세로 목책을 제거하고, 건물 주변 바깥 경계로 재배치한다.
+ for(let x=4;x<16;x++){
+  ctx.fillStyle=col;ctx.fillRect(x*TILE+2,18*TILE+3,3,10);
+  if(x%2===0)ctx.fillRect(x*TILE+2,18*TILE+8,18,2)
+ }
+ for(let y=7;y<11;y++){
+  ctx.fillStyle=col;ctx.fillRect(4*TILE+4,y*TILE+5,3,10);
+  ctx.fillRect(4*TILE+4,y*TILE+9,15,2)
+ }
+ for(let y=21;y<27;y++){
+  ctx.fillStyle=col;ctx.fillRect(29*TILE+3,y*TILE+4,3,10);
+  if(y%2===0)ctx.fillRect(29*TILE+3,y*TILE+8,15,2)
+ }
+}
+function drawFlags(){[[4,16],[27,24],[31,14]].forEach(([x,y])=>{const ox=x*TILE,oy=y*TILE;ctx.fillStyle=state.phase.includes('night')?'#281b14':'#4d3424';ctx.fillRect(ox+7,oy-6,2,21);ctx.fillStyle='#7d3934';ctx.fillRect(ox+9,oy-6,9,5)})}
+function drawSmoke(t){[[110,184],[225,104],[342,328]].forEach(([x,y],i)=>{const d=Math.sin(t/900+i)*2;ctx.fillStyle=rgba('#b5ad9e',.055);ctx.fillRect(Math.round(x+d),y,6,2);ctx.fillStyle=rgba('#b5ad9e',.04);ctx.fillRect(Math.round(x+3-d),y-6,8,2)})}
+function drawWindowGlow(){[[8*TILE+17,13*TILE+20],[14*TILE+13,8*TILE+12],[21*TILE+16,22*TILE+12],[34*TILE+14,17*TILE+11]].forEach(([x,y])=>{ctx.fillStyle=rgba('#7c563d',.14);ctx.fillRect(x-2,y-2,16,12);ctx.fillStyle=rgba('#a87649',.22);ctx.fillRect(x,y,12,8)})}
+function drawInteraction(){const near=nearbyLocation();if(!near)return;ctx.strokeStyle='#b5945d';ctx.lineWidth=2;if(near.area){const x=near.area.x1*TILE,y=near.area.y1*TILE,w=(near.area.x2-near.area.x1)*TILE,h=(near.area.y2-near.area.y1)*TILE;ctx.strokeRect(x+1,y+1,w-2,h-2);ctx.fillStyle=rgba('#b5945d',.10);ctx.fillRect(x+2,y+2,w-4,h-4);ctx.fillStyle='#d0b277';ctx.font='bold 13px monospace';ctx.fillText('!',near.x*TILE+4,near.y*TILE-4)}else{ctx.strokeRect(near.x*TILE,near.y*TILE,TILE,TILE);ctx.fillStyle='#d0b277';ctx.font='bold 13px monospace';ctx.fillText('!',near.x*TILE+5,near.y*TILE-4)}}
+function drawPeople(t){if(state.map==='village'){if(!state.phase.includes('night'))npcs.forEach(n=>{if(n.phases.includes(state.phase))drawHuman(n.x,n.y,n,t)});if(state.phase.includes('night'))drawHuman(16.2,10.2,{name:'막례',color:'#705f86',hair:'#d7d0be'},t);if(state.phase==='ch1_day'&&state.dayInvestigations<state.maxDayInvestigations)children.forEach((c,i)=>drawChild(c,i,t));if(state.phase==='ch2_day'&&state.ch2DayActions<2)children.forEach((c,i)=>drawChild(c,i,t))}if(state.map==='north')northNpcs.forEach(n=>{if(n.phases.includes(state.phase))drawHuman(n.x,n.y,n,t)});drawCompanion(t);drawPlayer(t)}
+function drawChild(c,i,t){const dur=1250+i*150,total=dur*c.route.length,tt=(t+c.off)%total,idx=Math.floor(tt/dur),next=(idx+1)%c.route.length,f=(tt%dur)/dur,a=c.route[idx],b=c.route[next],x=a[0]+(b[0]-a[0])*f,y=a[1]+(b[1]-a[1])*f;drawHuman(x,y,{name:'아이',color:c.color,hair:c.hair,child:true,moving:true},t)}
+function drawCompanion(t){const p=state.player,off=p.dir==='left'?[.72,0]:p.dir==='right'?[-.72,0]:p.dir==='up'?[0,.72]:[0,-.72];drawHuman((p.rx||p.x)+off[0],(p.ry||p.y)+off[1],{name:'해루',color:'#5c6775',hair:'#242932',soldier:true,moving:p.moving},t)}
+function drawPlayer(t){const p=state.player;drawHuman(p.rx||p.x,p.ry||p.y,{name:'고연우',color:'#26374b',hair:'#332219',player:true,moving:p.moving},t)}
+function drawHuman(tx,ty,opt,t){const size=opt.child?13:opt.player?17:opt.soldier?16:15,footX=Math.round(tx*TILE+8),footY=Math.round(ty*TILE+15+(opt.moving?Math.sin(t/100)*.35:0)),sx=Math.round(footX-size/2),sy=Math.round(footY-size);ctx.save();ctx.translate(sx,sy);const sc=size/24;ctx.scale(sc,sc);miniSprite(opt,t);ctx.restore()}
+function miniSprite(opt,t){const skin=opt.child?'#e7c08d':'#d7ae82',hair=opt.hair||'#2c2118',cloth=opt.color||'#444',dark=shade(cloth,-45),light=shade(cloth,22),frame=opt.moving?Math.floor(t/160)%2:0,leg=frame?1:0;px(6,22,12,2,rgba('#000',.25));px(8-leg,16,3,6,dark);px(7-leg,21,5,2,'#1b1512');px(13+leg,16,3,6,dark);px(12+leg,21,5,2,'#1b1512');px(6,9,12,10,'#15110f');px(7,10,10,8,cloth);px(7,10,3,8,light);px(14,10,3,8,dark);px(11,10,2,8,opt.player?'#c8aa68':opt.child?'#efd685':'#c6a46a');px(4,10,4,8,'#15110f');px(5,11,2,7,dark);px(18,10,4,8,'#15110f');px(19,11,2,7,dark);px(10,7,4,3,'#15110f');px(11,7,2,3,skin);px(7,2,10,5,hair);px(8,1,8,2,hair);px(6,5,3,6,hair);px(16,5,2,6,hair);px(7,5,10,7,'#15110f');px(8,6,8,7,skin);px(9,6,5,2,'#edc89b');px(9,9,1,1,'#201612');px(14,9,1,1,'#201612');px(11,11,2,1,shade(skin,-18));px(10,12,4,1,'#784a3f');if(opt.child){px(5,6,2,5,hair);px(17,6,2,5,hair)}if(opt.soldier){px(7,1,10,2,'#aeb8bf');px(9,0,6,2,'#7b8790')}if(opt.name==='막례'){px(6,3,12,3,'#ddd7c6');px(5,6,3,6,'#ddd7c6');px(16,6,3,6,'#ddd7c6');px(4,17,2,5,'#bda46a')}if(opt.name==='사량'){px(2,13,4,2,'#77614e');px(0,14,3,1,'#c3b58e')}}
+function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h)}
+function drawAtmosphere(t){const night=state.phase.includes('night'),dawn=state.phase.includes('dawn');const a=night?0.20:dawn?0.13:0.045;const g=ctx.createLinearGradient(0,0,0,VIEW_H);g.addColorStop(0,rgba('#21302f',a*.55));g.addColorStop(.48,rgba('#182321',a*.34));g.addColorStop(1,rgba('#0c1110',a));ctx.fillStyle=g;ctx.fillRect(0,0,VIEW_W,VIEW_H);ctx.fillStyle=rgba('#d3c7aa',night?.018:dawn?.03:.018);for(let i=0;i<5;i++){const yy=(i*86+Math.sin(t/2400+i)*8)%VIEW_H;ctx.fillRect(0,Math.round(yy),VIEW_W,1)}}
+function drawNight(){const px=(state.player.rx||state.player.x)*TILE+8,py=(state.player.ry||state.player.y)*TILE+5;ctx.fillStyle=rgba('#020608',.34);ctx.fillRect(0,0,VIEW_W,VIEW_H);const g=ctx.createRadialGradient(px,py,18,px,py,170);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.42,'rgba(0,0,0,.28)');g.addColorStop(1,'rgba(0,0,0,.76)');ctx.fillStyle=g;ctx.fillRect(0,0,VIEW_W,VIEW_H)}
+function drawDawn(){const g=ctx.createLinearGradient(0,0,0,VIEW_H);g.addColorStop(0,rgba('#6d6457',.10));g.addColorStop(.5,rgba('#4d4b42',.07));g.addColorStop(1,rgba('#20231e',.12));ctx.fillStyle=g;ctx.fillRect(0,0,VIEW_W,VIEW_H)}
+function updateHud(){const loc=nearbyLocation();let dayInfo=state.chapter===1?'낮 조사: '+state.dayInvestigations+'/'+state.maxDayInvestigations:'2장 낮 조사: '+state.ch2DayActions+'/'+state.maxCh2DayActions;dom.hud.innerHTML='<b>'+mapName()+'</b> · '+chapterName()+' · '+state.time+'<br>'+dayInfo+' · 밤 행동: '+(state.nightActionDone?'완료':'미완료')+(loc?'<br>상호작용: '+loc.name:'');dom.hint.innerHTML='WASD/방향키: 이동<br>Enter/Space/Z: 상호작용<br>대화 선택: 숫자키 또는 클릭'}
+function mapName(){return state.map==='pass'?'남쪽 고갯길':state.map==='north'?'마을 북쪽 산길':'무너울골'}
+function chapterName(){return state.chapter===1?'1장 무너울골 도착':'2장 끊긴 제사'}
+function phaseText(){const p=state.phase;if(p==='pass')return'짚신 조사';if(p==='ch1_day')return'1장 낮 조사';if(p==='ch1_night')return'1장 첫 밤';if(p==='ch1_dawn')return'1장 새벽 보고';if(p==='ch2_day')return'2장 낮 조사';if(p==='ch2_night')return'2장 밤';if(p==='ch2_dawn')return'2장 새벽 보고';return p}
+function refreshSide(){dom.phaseText.textContent=mapName()+' / '+state.time+' / '+phaseText();dom.meters.innerHTML=Object.entries(state.stats).map(([k,v])=>'<div class="meter"><span>'+k+'</span><b>'+v+'</b></div>').join('');dom.official.innerHTML=state.official.map(v=>'<li>'+esc(v)+'</li>').join('')||'<li class="small">아직 없음</li>';dom.unofficial.innerHTML=state.unofficial.map(v=>'<li>'+esc(v)+'</li>').join('')||'<li class="small">아직 없음</li>';dom.cluePills.innerHTML=[...state.clues.map(v=>'<span class="pill">단서: '+esc(v)+'</span>'),...state.ritual.map(v=>'<span class="pill">의례: '+esc(v)+'</span>')].join('')||'<span class="small">아직 없음</span>'}
+function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function shade(hex,amt){let n=parseInt(hex.slice(1),16),r=(n>>16)+amt,g=((n>>8)&255)+amt,b=(n&255)+amt;r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1)}
+function rgba(hex,a){let n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255;return `rgba(${r},${g},${b},${a})`}
+
+// === building detail reapply patch: village buildings and fences ===
+function drawProps(t){
+ if(state.map==='village'){
+  drawVillageBackObjects(t);
+  drawGoguryeoBuilding(6,10,8,7,{type:'chief',roof:'#273f50',wall:'#8d775e'});
+  drawGoguryeoBuilding(12,5,7,5,{type:'shaman',roof:'#66543d',wall:'#78654e'});
+  drawGoguryeoBuilding(18,19,10,8,{type:'office',roof:'#223949',wall:'#927b62'});
+  drawGoguryeoBuilding(32,14,7,7,{type:'mill',roof:'#4a3728',wall:'#735c45'});
+  drawVillageFrontObjects(t);
+ }else if(state.map==='north'){
+  drawNorthObjects(t);
+ }else{
+  drawPassObjects(t);
+ }
+}
+function drawVillageBackObjects(t){
+ drawTrees([[4,7],[6,8],[28,7],[30,8],[5,22],[7,24],[39,24],[42,22],[13,23],[30,23],[12,27],[32,26],[27,5],[31,5],[17,27],[5,5]]);
+ drawRocks([[2,5],[41,16],[9,25],[29,26],[42,25]]);
+ drawFences();
+ drawWell(23,12);
+ drawBridge(39,20);
+ if(state.phase.endsWith('day'))drawSmoke(t);
+}
+function drawVillageFrontObjects(t){
+ drawVillagePosts();
+ if(state.phase.includes('night'))drawWindowGlow();
+}
+function drawGoguryeoBuilding(x,y,w,h,opt){
+ const ox=x*TILE,oy=y*TILE,width=w*TILE,height=h*TILE;
+ const night=state.phase.includes('night');
+ const type=opt.type||'chief';
+ const roof=night?shade(opt.roof,-34):opt.roof;
+ const wall=night?shade(opt.wall,-28):opt.wall;
+ const beam=night?shade('#783f35',-30):'#783f35';
+ const beamDark=shade(beam,-22);
+ const outline=night?'#0b0e10':'#17191b';
+ const stone=night?shade('#7a7468',-33):'#7a7468';
+ const bodyTop=oy+Math.max(28,Math.round(height*.31));
+ const bodyBottom=oy+height-12;
+ ctx.fillStyle=rgba('#000000',.30);ctx.fillRect(ox+5,oy+height-1,width-6,7);
+ drawGoguryeoRoof(ox,oy,width,type,roof,outline);
+ ctx.fillStyle=outline;ctx.fillRect(ox+10,bodyTop-2,width-20,bodyBottom-bodyTop+4);
+ ctx.fillStyle=wall;ctx.fillRect(ox+12,bodyTop,width-24,bodyBottom-bodyTop);
+ // wall plaster texture and horizontal beams
+ ctx.fillStyle=rgba('#f0dfbd',night?.025:.055);ctx.fillRect(ox+14,bodyTop+2,width-28,2);ctx.fillRect(ox+15,bodyTop+9,width-30,1);
+ ctx.fillStyle=shade(wall,-20);ctx.fillRect(ox+12,bodyBottom-5,width-24,5);
+ ctx.fillStyle=beam;ctx.fillRect(ox+9,bodyTop-5,width-18,4);ctx.fillRect(ox+11,bodyBottom-7,width-22,4);
+ ctx.fillStyle=beamDark;ctx.fillRect(ox+9,bodyTop-1,width-18,1);ctx.fillRect(ox+11,bodyBottom-3,width-22,1);
+ // pillars: red-brown wooden columns
+ const pillars=type==='office'?[14,width*.34,width*.66,width-18]:[14,width/2-2,width-18];
+ pillars.forEach(v=>{const px=Math.round(ox+v);ctx.fillStyle=outline;ctx.fillRect(px-1,bodyTop-1,6,bodyBottom-bodyTop+11);ctx.fillStyle=beam;ctx.fillRect(px,bodyTop,4,bodyBottom-bodyTop+9);ctx.fillStyle=rgba('#e0a079',night?.06:.16);ctx.fillRect(px+1,bodyTop,1,bodyBottom-bodyTop+8);ctx.fillStyle=beamDark;ctx.fillRect(px+3,bodyTop,1,bodyBottom-bodyTop+8)});
+ // stone base
+ ctx.fillStyle=outline;ctx.fillRect(ox+8,bodyBottom,width-16,13);
+ ctx.fillStyle=stone;ctx.fillRect(ox+10,bodyBottom+1,width-20,10);
+ for(let bx=ox+12;bx<ox+width-13;bx+=12){ctx.fillStyle=shade(stone,(bx/TILE)%2?8:-8);ctx.fillRect(bx,bodyBottom+2,10,3);ctx.fillRect(bx+3,bodyBottom+7,8,2)}
+ // front door and threshold
+ const doorW=type==='office'?22:type==='shaman'?14:16;
+ const dx=Math.round(ox+width/2-doorW/2),dy=bodyBottom-24;
+ ctx.fillStyle=outline;ctx.fillRect(dx-3,dy-3,doorW+6,27);
+ ctx.fillStyle=type==='office'?'#5c342e':type==='shaman'?'#37251d':'#473026';ctx.fillRect(dx,dy,doorW,24);
+ ctx.fillStyle=rgba('#100b09',.56);ctx.fillRect(dx+Math.floor(doorW/2),dy,1,24);
+ ctx.fillStyle=rgba('#d8b878',night?.13:.27);ctx.fillRect(dx+3,dy+5,doorW-6,2);
+ ctx.fillStyle=shade(stone,5);ctx.fillRect(dx-8,bodyBottom+10,doorW+16,4);
+ // windows
+ if(width>=120){drawGoguryeoWindow(ox+20,bodyBottom-33,type);drawGoguryeoWindow(ox+width-34,bodyBottom-33,type)}else{drawGoguryeoWindow(ox+16,bodyBottom-32,type)}
+ // type-specific details
+ if(type==='office'){
+  ctx.fillStyle=outline;ctx.fillRect(ox+width-16,bodyTop-14,4,36);
+  ctx.fillStyle=night?shade('#8b3434',-20):'#8b3434';ctx.fillRect(ox+width-12,bodyTop-14,16,8);
+  ctx.fillStyle=rgba('#ead28c',night?.10:.25);ctx.fillRect(ox+width-12,bodyTop-14,16,1);
+  ctx.fillStyle=rgba('#000',.22);ctx.fillRect(ox+width-12,bodyTop-7,16,1);
+ }
+ if(type==='chief'){
+  // small wooden tablet above door; visually separates it from generic fantasy houses
+  ctx.fillStyle=outline;ctx.fillRect(dx-6,dy-12,doorW+12,7);
+  ctx.fillStyle=night?shade('#8d6a44',-28):'#8d6a44';ctx.fillRect(dx-4,dy-11,doorW+8,5);
+  ctx.fillStyle=rgba('#24150e',.42);ctx.fillRect(dx+1,dy-10,doorW-2,1);
+ }
+ if(type==='shaman'){
+  const ropeY=bodyBottom-33;ctx.fillStyle=night?shade('#dbc985',-38):'#dbc985';ctx.fillRect(ox+8,ropeY,width-16,1);
+  for(let xx=ox+13;xx<ox+width-12;xx+=11){ctx.fillStyle=night?shade('#dbc985',-38):'#dbc985';ctx.fillRect(xx,ropeY-1,3,7);ctx.fillStyle=rgba('#b34d45',night?.22:.38);ctx.fillRect(xx+1,ropeY+6,1,3)}
+ }
+ if(type==='mill'){
+  drawMillWheel(ox+width-3,oy+height-20);
+  ctx.fillStyle=rgba('#2a1b13',.35);for(let xx=ox+15;xx<ox+width-16;xx+=9)ctx.fillRect(xx,bodyTop+3,1,bodyBottom-bodyTop-3);
+ }
+}
+function drawGoguryeoRoof(ox,oy,w,type,color,outline){
+ const night=state.phase.includes('night');
+ const c=color,dark=shade(c,-24),deep=shade(c,-45),light=shade(c,18);
+ const wide=type==='office'?14:type==='chief'?12:type==='shaman'?7:9;
+ ctx.fillStyle=rgba('#000',.26);ctx.fillRect(ox+4,oy+27,w-8,6);
+ if(type==='shaman'){
+  ctx.fillStyle=outline;ctx.fillRect(ox+8,oy+8,w-16,7);ctx.fillRect(ox+3,oy+14,w-6,9);ctx.fillRect(ox,oy+22,w,8);
+  ctx.fillStyle=deep;ctx.fillRect(ox+9,oy+9,w-18,6);
+  ctx.fillStyle=dark;ctx.fillRect(ox+4,oy+15,w-8,8);
+  ctx.fillStyle=c;ctx.fillRect(ox+1,oy+22,w-2,7);
+  ctx.fillStyle=light;ctx.fillRect(ox+12,oy+11,w-24,2);
+  for(let xx=ox+6;xx<ox+w-6;xx+=5){ctx.fillStyle=rgba('#efe0a6',night?.07:.17);ctx.fillRect(xx,oy+15,1,13)}
+  ctx.fillStyle=rgba('#000',.22);ctx.fillRect(ox+2,oy+29,w-4,2);return;
+ }
+ if(type==='mill'){
+  ctx.fillStyle=outline;ctx.fillRect(ox+8,oy+8,w-16,8);ctx.fillRect(ox+3,oy+15,w-6,8);ctx.fillRect(ox,oy+22,w,8);
+  ctx.fillStyle=deep;ctx.fillRect(ox+9,oy+9,w-18,7);ctx.fillStyle=dark;ctx.fillRect(ox+4,oy+16,w-8,7);ctx.fillStyle=c;ctx.fillRect(ox+1,oy+23,w-2,7);
+  for(let xx=ox+5;xx<ox+w-6;xx+=8){ctx.fillStyle=rgba('#150d0a',.28);ctx.fillRect(xx,oy+13,2,15)}
+  ctx.fillStyle=rgba('#d6b67a',night?.07:.16);ctx.fillRect(ox+9,oy+11,w-18,2);return;
+ }
+ // broad Goguryeo-style tiled roof: clear eaves, ridge, and tile courses
+ ctx.fillStyle=outline;ctx.fillRect(ox+wide,oy+4,w-wide*2,6);ctx.fillRect(ox+6,oy+9,w-12,9);ctx.fillRect(ox+1,oy+17,w-2,12);
+ ctx.fillStyle=deep;ctx.fillRect(ox+wide+1,oy+5,w-wide*2-2,5);
+ ctx.fillStyle=dark;ctx.fillRect(ox+7,oy+10,w-14,8);
+ ctx.fillStyle=c;ctx.fillRect(ox+2,oy+18,w-4,10);
+ ctx.fillStyle=light;ctx.fillRect(ox+wide+5,oy+6,w-(wide+5)*2,2);
+ ctx.fillStyle=rgba('#0c1012',.28);ctx.fillRect(ox+4,oy+27,w-8,2);
+ for(let yy=oy+18;yy<=oy+26;yy+=4){ctx.fillStyle=rgba('#dfe6dc',night?.025:.055);ctx.fillRect(ox+8,yy,w-16,1)}
+ for(let xx=ox+10;xx<ox+w-10;xx+=10){ctx.fillStyle=rgba('#0d1418',.23);ctx.fillRect(xx,oy+18,2,10);ctx.fillStyle=rgba('#e6ebdf',night?.025:.06);ctx.fillRect(xx+1,oy+18,1,8)}
+ // raised ridge caps
+ ctx.fillStyle=outline;ctx.fillRect(ox+w/2-19,oy+1,38,4);
+ ctx.fillStyle=deep;ctx.fillRect(ox+w/2-17,oy+2,34,2);
+ if(type==='office'){ctx.fillStyle=light;ctx.fillRect(ox+w/2-11,oy,22,1);ctx.fillStyle=outline;ctx.fillRect(ox+w/2-27,oy+5,6,5);ctx.fillRect(ox+w/2+21,oy+5,6,5)}
+}
+function drawGoguryeoWindow(x,y,type){
+ const night=state.phase.includes('night');
+ ctx.fillStyle=night?'#16110f':'#17120f';ctx.fillRect(x-2,y-2,17,13);
+ ctx.fillStyle=night?'#5b422e':'#4d3728';ctx.fillRect(x,y,13,9);
+ ctx.fillStyle=night?'#9c6942':'#2e241c';ctx.fillRect(x+1,y+1,4,3);ctx.fillRect(x+8,y+1,4,3);
+ ctx.fillStyle=rgba('#000000',.45);ctx.fillRect(x+6,y,1,9);ctx.fillRect(x,y+4,13,1);
+ if(type==='shaman'){ctx.fillStyle=rgba('#e2d49b',night?.09:.16);ctx.fillRect(x+1,y+7,11,1)}
+}
+function drawVillageObjects(t){drawVillageBackObjects(t);drawVillageFrontObjects(t)}
+function drawFences(){
+ const col=state.phase.includes('night')?'#211610':'#46311f';
+ const hi=state.phase.includes('night')?'#37261a':'#654a32';
+ function post(x,y){ctx.fillStyle=col;ctx.fillRect(x,y,3,11);ctx.fillStyle=hi;ctx.fillRect(x,y,1,10)}
+ function rail(x,y,w){ctx.fillStyle=col;ctx.fillRect(x,y,w,2);ctx.fillStyle=hi;ctx.fillRect(x,y,w,1)}
+ // Chieftain fence is now outside the roof footprint only: no vertical brown line over the building.
+ for(let x=4;x<=15;x+=2){post(x*TILE+2,18*TILE+4)}rail(4*TILE+2,18*TILE+8,12*TILE);
+ for(let y=8;y<=12;y+=2){post(4*TILE+3,y*TILE+4);rail(4*TILE+3,y*TILE+8,14)}
+ // Office yard boundary, kept to the east and south so it does not cross roofs.
+ for(let y=22;y<=27;y+=2){post(29*TILE+3,y*TILE+4);rail(29*TILE+3,y*TILE+8,14)}
+ for(let x=18;x<=29;x+=2){post(x*TILE+3,28*TILE+3)}rail(18*TILE+3,28*TILE+7,12*TILE);
+}
+function drawVillagePosts(){
+ // Small markers only around the office and mill; no marker near the chieftain roof.
+ [[29,24,'#7d3934'],[31,14,'#6a4f38']].forEach(([x,y,c])=>{const ox=x*TILE,oy=y*TILE;ctx.fillStyle=state.phase.includes('night')?'#281b14':'#4d3424';ctx.fillRect(ox+7,oy-6,2,21);ctx.fillStyle=state.phase.includes('night')?shade(c,-22):c;ctx.fillRect(ox+9,oy-6,9,5);ctx.fillStyle=rgba('#e3c988',state.phase.includes('night')?.08:.18);ctx.fillRect(ox+9,oy-6,9,1)})
+}
+function drawFlags(){drawVillagePosts()}
+function drawWindowGlow(){
+ [[8*TILE+20,13*TILE+21],[14*TILE+17,8*TILE+13],[21*TILE+20,22*TILE+16],[34*TILE+18,17*TILE+15]].forEach(([x,y])=>{ctx.fillStyle=rgba('#6f4a32',.13);ctx.fillRect(x-3,y-3,18,13);ctx.fillStyle=rgba('#a87649',.21);ctx.fillRect(x,y,13,8)})
+}
+
+
+
+// === paper cutout visual override: broad reference, not a direct copy ===
+const paperPal={
+ grass:'#657453', grass2:'#566448', path:'#a78b61', path2:'#8d724d', water:'#526d74', hill:'#3d4b38',
+ wall:'#b49a72', wall2:'#917653', roof:'#2c4654', roof2:'#1b2f3a', thatch:'#806846', wood:'#60412c',
+ ink:'#0d0b0a', edge:'#211915', paper:'#d9c49a', red:'#7b3631', gold:'#b99a57', shadow:'rgba(0,0,0,.34)'
+};
+function phash(x,y,n=0){let v=(x*374761393+y*668265263+n*2246822519)>>>0;v=(v^(v>>13))*1274126177>>>0;return ((v^(v>>16))&1023)/1023}
+function cutPoly(points,fill,stroke=paperPal.ink,line=2){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke()}
+function cutRect(x,y,w,h,fill,stroke=paperPal.ink,line=2,j=1.6){cutPoly([[x+phash(x,y,1)*j,y+phash(x,y,2)*j],[x+w-phash(x,y,3)*j,y+phash(x,y,4)*j],[x+w-phash(x,y,5)*j,y+h-phash(x,y,6)*j],[x+phash(x,y,7)*j,y+h-phash(x,y,8)*j]],fill,stroke,line)}
+function paperSpeckle(x,y,w,h,alpha=.08,count=9){ctx.fillStyle=`rgba(255,239,192,${alpha})`;for(let i=0;i<count;i++){const px=x+Math.floor(phash(x,y,i)*w),py=y+Math.floor(phash(x+7,y+3,i)*h);ctx.fillRect(px,py,1+(i%2),1)}ctx.fillStyle=`rgba(42,26,12,${alpha*.7})`;for(let i=0;i<count/2;i++){const px=x+Math.floor(phash(x+2,y+9,i)*w),py=y+Math.floor(phash(x+9,y+2,i)*h);ctx.fillRect(px,py,1,1)}}
+function drawTile(x,y,t){const ox=x*TILE,oy=y*TILE;let base=t==='p'?paperPal.path:t==='w'?paperPal.water:t==='h'?paperPal.hill:t==='g'?paperPal.grass2:t==='r'?'#696359':paperPal.grass;if(state.phase.includes('night'))base=shade(base,-54);if(state.phase.includes('dawn'))base=shade(base,-15);ctx.fillStyle=base;ctx.fillRect(ox,oy,TILE,TILE);const n=phash(x,y);if(t==='p'){ctx.fillStyle=rgba('#f0d69b',state.phase.includes('night')?.035:.08);ctx.fillRect(ox+2,oy+2+n*4,12,1);ctx.fillStyle=rgba('#3a2718',state.phase.includes('night')?.09:.15);ctx.fillRect(ox+3+n*5,oy+10,4,1);paperSpeckle(ox,oy,16,16,state.phase.includes('night')?.025:.05,4)}else if(t==='.'){ctx.fillStyle=rgba('#d0bf7d',state.phase.includes('night')?.025:.07);ctx.fillRect(ox+2,oy+3,2,1);ctx.fillRect(ox+10,oy+8,2,1);ctx.fillStyle=rgba('#23301e',state.phase.includes('night')?.12:.18);ctx.fillRect(ox+5,oy+12,4,1);paperSpeckle(ox,oy,16,16,state.phase.includes('night')?.02:.04,3)}else if(t==='w'){ctx.fillStyle=rgba('#d8e0d0',state.phase.includes('night')?.025:.10);ctx.fillRect(ox+2,oy+5,11,1);ctx.fillRect(ox+5,oy+11,8,1);ctx.fillStyle=rgba('#182a31',.13);ctx.fillRect(ox,oy+15,16,1)}else if(t==='h'){ctx.fillStyle=rgba('#0c120c',.15);ctx.fillRect(ox,oy+15,16,1);ctx.fillStyle=rgba('#c6b174',state.phase.includes('night')?.018:.055);ctx.fillRect(ox+4,oy+5,4,1)}else if(t==='g'){ctx.fillStyle=rgba('#171b12',.18);ctx.fillRect(ox+2,oy+11,12,2);ctx.fillStyle=rgba('#e0ce8d',state.phase.includes('night')?.018:.05);ctx.fillRect(ox+5,oy+4,4,1)}else if(t==='r'){paperSpeckle(ox,oy,16,16,.045,6)}}
+function drawPathEdges(){const m=maps[state.map];ctx.strokeStyle=state.phase.includes('night')?'rgba(25,15,10,.28)':'rgba(48,31,20,.28)';ctx.lineWidth=1;for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++)if(m[y][x]==='p'){const ox=x*TILE,oy=y*TILE;if(m[y-1][x]!=='p'){ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+16,oy+phash(x,y,1)*1.2);ctx.stroke()}if(m[y+1][x]!=='p'){ctx.beginPath();ctx.moveTo(ox,oy+15);ctx.lineTo(ox+16,oy+15-phash(x,y,2)*1.2);ctx.stroke()}if(m[y][x-1]!=='p'){ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox,oy+16);ctx.stroke()}if(m[y][x+1]!=='p'){ctx.beginPath();ctx.moveTo(ox+15,oy);ctx.lineTo(ox+15,oy+16);ctx.stroke()}}}
+function drawProps(t){if(state.map==='village'){drawVillageBackObjects(t);drawPaperBuilding(6,10,8,7,{type:'chief'});drawPaperBuilding(12,5,7,5,{type:'shaman'});drawPaperBuilding(18,19,10,8,{type:'office'});drawPaperBuilding(32,14,7,7,{type:'mill'});drawVillageFrontObjects(t)}else if(state.map==='north'){drawNorthObjects(t)}else{drawPassObjects(t)}}
+function drawPaperBuilding(x,y,w,h,opt){const ox=x*TILE,oy=y*TILE,width=w*TILE,height=h*TILE;const night=state.phase.includes('night');const type=opt.type;const ink=paperPal.ink;const wall=night?shade(paperPal.wall,-32):paperPal.wall;const roof=type==='shaman'?(night?shade(paperPal.thatch,-32):paperPal.thatch):type==='mill'?(night?shade(paperPal.wood,-28):paperPal.wood):(night?shade(paperPal.roof,-30):paperPal.roof);const bodyTop=oy+30,bodyBottom=oy+height-13;ctx.fillStyle=paperPal.shadow;ctx.beginPath();ctx.ellipse(ox+width/2,oy+height+1,width*.48,6,0,0,Math.PI*2);ctx.fill();drawPaperRoof(ox,oy,width,type,roof);cutRect(ox+11,bodyTop,width-22,bodyBottom-bodyTop,wall,ink,2,2.4);paperSpeckle(ox+12,bodyTop,width-24,bodyBottom-bodyTop,night?.035:.085,14);const beam=night?shade(paperPal.red,-24):paperPal.red;cutRect(ox+9,bodyTop-4,width-18,5,beam,ink,1.4,1.3);cutRect(ox+11,bodyBottom-5,width-22,5,shade(beam,-18),ink,1.2,1.2);[14,width/2-2,width-18].forEach(px=>cutRect(ox+px,bodyTop-1,5,bodyBottom-bodyTop+10,beam,ink,1.4,1.1));cutRect(ox+8,bodyBottom,width-16,13,night?shade('#7b766b',-28):'#7b766b',ink,1.5,1.4);for(let bx=ox+12;bx<ox+width-14;bx+=13){ctx.fillStyle=rgba('#e7ddbd',night?.035:.08);ctx.fillRect(bx,bodyBottom+3,9,2);ctx.fillStyle=rgba('#211610',.18);ctx.fillRect(bx+2,bodyBottom+8,8,1)}const doorW=type==='office'?23:type==='shaman'?14:16;const dx=Math.round(ox+width/2-doorW/2);cutRect(dx,bodyBottom-25,doorW,25,type==='office'?'#57332f':type==='shaman'?'#3a2a20':'#4a3025',ink,1.7,1.2);ctx.strokeStyle=rgba('#000',.45);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(dx+doorW/2,bodyBottom-25);ctx.lineTo(dx+doorW/2,bodyBottom-1);ctx.stroke();cutRect(dx-8,bodyBottom+10,doorW+16,4,night?shade('#94856f',-25):'#94856f',ink,1,1);if(width>=118){drawPaperWindow(ox+19,bodyBottom-34);drawPaperWindow(ox+width-35,bodyBottom-34)}else drawPaperWindow(ox+17,bodyBottom-33);if(type==='shaman'){const ropeY=bodyBottom-34;ctx.strokeStyle=night?shade('#d9c780',-35):'#d9c780';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ox+8,ropeY);ctx.lineTo(ox+width-8,ropeY+1);ctx.stroke();for(let xx=ox+13;xx<ox+width-13;xx+=11)cutRect(xx,ropeY-2,4,8,night?shade('#dfd098',-30):'#dfd098',ink,.8,.7)}if(type==='office'){cutRect(ox+width-14,bodyTop-16,18,9,night?shade(paperPal.red,-20):paperPal.red,ink,1,1);cutRect(ox+width-17,bodyTop-17,3,38,night?shade('#4b2b22',-20):'#4b2b22',ink,1,1)}if(type==='mill')drawPaperMillWheel(ox+width-4,oy+height-21)}
+function drawPaperRoof(ox,oy,w,type,color){const ink=paperPal.ink,night=state.phase.includes('night');if(type==='shaman'){cutPoly([[ox+10,oy+8],[ox+w-13,oy+8],[ox+w-4,oy+22],[ox+w+1,oy+30],[ox-2,oy+30],[ox+4,oy+20]],color,ink,2.2);ctx.fillStyle=rgba('#ead7a1',night?.05:.16);for(let xx=ox+8;xx<ox+w-8;xx+=6)ctx.fillRect(xx,oy+14+phash(xx,oy)*5,1,13);ctx.fillStyle=rgba('#000',.18);ctx.fillRect(ox+4,oy+28,w-8,3);return}if(type==='mill'){cutPoly([[ox+9,oy+7],[ox+w-10,oy+8],[ox+w+1,oy+22],[ox+w-2,oy+31],[ox+1,oy+31],[ox+4,oy+20]],color,ink,2.2);ctx.fillStyle=rgba('#1a0f0a',.23);for(let xx=ox+7;xx<ox+w-7;xx+=9)ctx.fillRect(xx,oy+13,2,16);return}const e=type==='office'?14:12;cutPoly([[ox+e,oy+4],[ox+w-e,oy+4],[ox+w-5,oy+10],[ox+w+1,oy+19],[ox+w-3,oy+30],[ox+2,oy+30],[ox-3,oy+19],[ox+5,oy+10]],color,ink,2.4);ctx.fillStyle=night?shade(paperPal.roof2,-25):paperPal.roof2;ctx.fillRect(ox+e+3,oy+6,w-e*2-6,5);ctx.fillStyle=rgba('#e6e6d2',night?.025:.07);for(let yy=oy+16;yy<oy+27;yy+=4)ctx.fillRect(ox+9,yy,w-18,1);ctx.strokeStyle=rgba('#050505',.22);ctx.lineWidth=1;for(let xx=ox+11;xx<ox+w-10;xx+=10){ctx.beginPath();ctx.moveTo(xx,oy+15);ctx.lineTo(xx+1,oy+28);ctx.stroke()}cutRect(ox+w/2-19,oy+1,38,5,night?shade(paperPal.roof2,-22):paperPal.roof2,ink,1.4,1);if(type==='office'){cutRect(ox+w/2-28,oy+5,7,7,night?shade(paperPal.roof2,-20):paperPal.roof2,ink,1,1);cutRect(ox+w/2+21,oy+5,7,7,night?shade(paperPal.roof2,-20):paperPal.roof2,ink,1,1)}}
+function drawPaperWindow(x,y){const night=state.phase.includes('night');const frame=night?'#1b120d':'#25160f';const inner=night?'#4f331f':'#c2a36f';const paper=night?'#7a4a24':'#d6bd82';cutPoly([[x,y+2],[x+14,y],[x+16,y+8],[x+2,y+11]],frame,paperPal.ink,1.25);cutPoly([[x+2,y+3],[x+13,y+2],[x+14,y+7],[x+3,y+9]],inner,paperPal.ink,.75);ctx.fillStyle=paper;ctx.fillRect(x+4,y+4,8,4);ctx.strokeStyle=night?shade('#2b1a10',-15):'#3a2415';ctx.lineWidth=1;for(let i=0;i<4;i++){const xx=x+4+i*3;ctx.beginPath();ctx.moveTo(xx,y+3);ctx.lineTo(xx+1,y+9);ctx.stroke()}ctx.beginPath();ctx.moveTo(x+3,y+6);ctx.lineTo(x+14,y+5);ctx.stroke();ctx.fillStyle=rgba('#f1d690',night?.18:.06);ctx.fillRect(x+5,y+4,3,1)}
+function drawPaperMillWheel(x,y){ctx.save();ctx.translate(x,y);ctx.strokeStyle=paperPal.ink;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,11,11,0,0,Math.PI*2);ctx.stroke();ctx.strokeStyle=state.phase.includes('night')?'#5e422d':'#8c6642';for(let a=0;a<Math.PI*2;a+=Math.PI/4){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*10,Math.sin(a)*10);ctx.stroke()}cutRect(-2,-2,4,4,'#b89051',paperPal.ink,.8,.5);ctx.restore()}
+function drawTrees(list){list.forEach(([x,y])=>{const ox=x*TILE,oy=y*TILE;const night=state.phase.includes('night');ctx.fillStyle=rgba('#000',.23);ctx.fillRect(ox+2,oy+13,14,4);cutRect(ox+7,oy+8,4,8,night?'#342414':'#5a3418',paperPal.ink,1,.7);cutPoly([[ox+6,oy+2],[ox+13,oy+3],[ox+16,oy+8],[ox+13,oy+13],[ox+3,oy+13],[ox,oy+8]],night?shade('#34482d',-25):'#34482d',paperPal.ink,1.5);cutPoly([[ox+8,oy],[ox+15,oy+5],[ox+12,oy+10],[ox+4,oy+9],[ox+2,oy+4]],night?shade('#526944',-25):'#526944',paperPal.ink,1.1);ctx.fillStyle=rgba('#dfcf8e',night?.025:.08);ctx.fillRect(ox+8,oy+4,3,1)})}
+function drawRocks(list){list.forEach(([x,y])=>{const ox=x*TILE,oy=y*TILE;cutPoly([[ox+2,oy+10],[ox+5,oy+6],[ox+12,oy+7],[ox+15,oy+12],[ox+12,oy+15],[ox+4,oy+15]],state.phase.includes('night')?'#46423e':'#706c62',paperPal.ink,1.2);ctx.fillStyle=rgba('#f5edd1',state.phase.includes('night')?.025:.1);ctx.fillRect(ox+6,oy+8,5,1)})}
+function drawWell(x,y){const ox=x*TILE,oy=y*TILE;ctx.fillStyle=paperPal.shadow;ctx.fillRect(ox+1,oy+13,16,4);cutRect(ox+1,oy+7,15,7,state.phase.includes('night')?'#605e59':'#827d70',paperPal.ink,1.3);cutRect(ox+4,oy+8,9,5,state.phase.includes('night')?'#17252b':'#26424a',paperPal.ink,1);cutRect(ox+3,oy+1,3,9,state.phase.includes('night')?'#3d2b1f':'#5c3d26',paperPal.ink,1);cutRect(ox+11,oy+1,3,9,state.phase.includes('night')?'#3d2b1f':'#5c3d26',paperPal.ink,1);cutRect(ox+2,oy+1,13,3,state.phase.includes('night')?'#3d2b1f':'#5c3d26',paperPal.ink,1)}
+function drawBridge(x,y){const ox=x*TILE,oy=y*TILE;cutRect(ox-4,oy+2,38,13,state.phase.includes('night')?'#3b2a1c':'#684a31',paperPal.ink,1.2);ctx.strokeStyle=rgba('#1a0e08',.28);ctx.lineWidth=1;for(let i=-2;i<33;i+=6){ctx.beginPath();ctx.moveTo(ox+i,oy+3);ctx.lineTo(ox+i,oy+14);ctx.stroke()}}
+function drawShrine(x,y){const ox=x*TILE,oy=y*TILE;ctx.fillStyle=paperPal.shadow;ctx.fillRect(ox+8,oy+66,170,7);cutRect(ox+28,oy+48,104,19,state.phase.includes('night')?shade('#817b70',-24):'#817b70',paperPal.ink,2);cutRect(ox+36,oy+37,86,12,state.phase.includes('night')?shade('#6d6961',-24):'#6d6961',paperPal.ink,1.6);cutRect(ox+67,oy+16,10,36,state.phase.includes('night')?shade(paperPal.red,-24):paperPal.red,paperPal.ink,1.6);cutRect(ox+103,oy+16,10,36,state.phase.includes('night')?shade(paperPal.red,-24):paperPal.red,paperPal.ink,1.6);cutRect(ox+60,oy+15,61,8,state.phase.includes('night')?shade(paperPal.wood,-24):paperPal.wood,paperPal.ink,1.6);ctx.fillStyle=paperPal.blood;ctx.fillRect(ox+82,oy+41,23,2);ctx.strokeStyle=state.phase.includes('night')?shade('#d9c780',-34):'#d9c780';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ox+18,oy+32);ctx.lineTo(ox+150,oy+33);ctx.stroke()}
+function drawLumber(){const baseX=8*TILE,baseY=17*TILE;for(let i=0;i<6;i++)cutRect(baseX+i*13,baseY+28+(i%2)*3,31,6,state.phase.includes('night')?shade('#6b4930',-24):'#6b4930',paperPal.ink,.9,1);cutRect(baseX+43,baseY+2,6,18,state.phase.includes('night')?shade('#57422a',-20):'#57422a',paperPal.ink,1);cutRect(baseX+40,baseY,13,5,state.phase.includes('night')?shade('#b0aaa0',-18):'#b0aaa0',paperPal.ink,1);ctx.strokeStyle=state.phase.includes('night')?shade('#d3c286',-30):'#d3c286';ctx.beginPath();ctx.moveTo(baseX+6,baseY+5);ctx.lineTo(baseX+45,baseY+6);ctx.moveTo(baseX+57,baseY+6);ctx.lineTo(baseX+91,baseY+7);ctx.stroke()}
+function drawHuman(tx,ty,opt,t){const size=opt.child?14:opt.player?18:opt.soldier?17:16,footX=Math.round(tx*TILE+8),footY=Math.round(ty*TILE+15+(opt.moving?Math.sin(t/100)*.35:0)),sx=Math.round(footX-size/2),sy=Math.round(footY-size);ctx.save();ctx.translate(sx,sy);const sc=size/24;ctx.scale(sc,sc);paperMiniSprite(opt,t);ctx.restore()}
+function paperMiniSprite(opt,t){const skin=opt.child?'#e2b777':'#d2a276',hair=opt.hair||'#2a1b14',cloth=opt.color||'#46506a',dark=shade(cloth,-42),light=shade(cloth,18),frame=opt.moving?Math.floor(t/160)%2:0,leg=frame?1:0;ctx.lineJoin='round';ctx.lineCap='round';cutPoly([[6,22],[18,22],[20,24],[4,24]],'rgba(0,0,0,.24)','rgba(0,0,0,0)',0);cutPoly([[8-leg,16],[11-leg,16],[11,22],[7,22]],dark,paperPal.ink,1.2);cutPoly([[13+leg,16],[16+leg,16],[17,22],[12,22]],dark,paperPal.ink,1.2);cutPoly([[6,9],[18,9],[17,18],[7,18]],cloth,paperPal.ink,1.6);cutPoly([[7,10],[11,10],[10,18],[6,18]],light,paperPal.ink,.6);cutPoly([[13,10],[18,10],[18,18],[14,18]],dark,paperPal.ink,.6);ctx.fillStyle=opt.player?paperPal.gold:opt.child?'#efd081':'#c19b5b';ctx.fillRect(11,10,2,8);cutPoly([[4,11],[7,10],[7,17],[5,18]],dark,paperPal.ink,1);cutPoly([[18,10],[21,11],[19,18],[17,17]],dark,paperPal.ink,1);cutPoly([[7,2],[17,2],[18,7],[16,12],[8,12],[6,7]],skin,paperPal.ink,1.5);cutPoly([[7,1],[16,1],[19,5],[17,8],[13,5],[9,6],[7,9],[5,6]],hair,paperPal.ink,1.3);ctx.fillStyle='#1a0f0c';ctx.fillRect(9,8,1,1);ctx.fillRect(14,8,1,1);ctx.fillStyle=shade(skin,-20);ctx.fillRect(11,11,3,1);if(opt.child){cutPoly([[4,5],[7,6],[6,11],[4,11]],hair,paperPal.ink,.7);cutPoly([[17,6],[20,5],[20,11],[18,11]],hair,paperPal.ink,.7)}if(opt.soldier){cutRect(7,0,10,3,'#9aa1a2',paperPal.ink,1,.6)}if(opt.name==='막례'){cutPoly([[6,3],[18,3],[17,7],[7,7]],'#d8d0bd',paperPal.ink,.8);cutPoly([[4,5],[8,5],[7,12],[4,12]],'#d8d0bd',paperPal.ink,.7);cutPoly([[16,5],[20,5],[20,12],[17,12]],'#d8d0bd',paperPal.ink,.7)}if(opt.name==='사량'){cutPoly([[1,14],[6,12],[7,14],[2,16]],'#8a6b4d',paperPal.ink,1)}}
+function drawAtmosphere(t){const night=state.phase.includes('night'),dawn=state.phase.includes('dawn');ctx.fillStyle=night?'rgba(12,8,6,.24)':dawn?'rgba(74,56,38,.12)':'rgba(116,87,50,.08)';ctx.fillRect(0,0,VIEW_W,VIEW_H);for(let i=0;i<55;i++){const x=(i*97+t*.004)%VIEW_W,y=(i*41+Math.sin(t/1500+i)*4)%VIEW_H;ctx.fillStyle=night?'rgba(220,200,150,.025)':'rgba(255,242,200,.035)';ctx.fillRect(Math.round(x),Math.round(y),1,1)}ctx.fillStyle='rgba(26,15,8,.13)';for(let x=0;x<VIEW_W;x+=29)ctx.fillRect(x,0,1,VIEW_H);ctx.fillStyle='rgba(238,210,160,.035)';for(let x=13;x<VIEW_W;x+=47)ctx.fillRect(x,0,1,VIEW_H)}
+
+
+// Compact pass visual override: short tutorial corridor, not a full-size field.
+function drawPassObjects(t){
+  drawTrees([[17,9],[27,9],[16,13],[28,15],[18,20],[26,21]]);
+  drawRocks([[19,11],[25,12],[17,18],[27,18],[20,22],[24,22]]);
+  // torn old boundary rope near the shoe
+  const sx=22*TILE, sy=16*TILE;
+  ctx.strokeStyle=state.phase.includes('night')?shade('#d8c77b',-35):'#d8c77b';
+  ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(sx-20,sy-7);ctx.lineTo(sx+22,sy-5);ctx.stroke();
+  for(let i=-16;i<=18;i+=11)cutRect(sx+i,sy-10,4,8,state.phase.includes('night')?shade('#d8c77b',-35):'#d8c77b',paperPal.ink,.7,.5);
+  // darker cropped hills close the top and bottom so the road feels shorter.
+  ctx.fillStyle=rgba('#11100b',state.phase.includes('night')?.22:.09);
+  ctx.fillRect(0,0,VIEW_W,6*TILE);
+  ctx.fillRect(0,23*TILE,VIEW_W,VIEW_H-23*TILE);
+}
+
+
+// === Chapter 3 extension: 금지된 숲 ===
+(function installChapter3(){
+  // Build a compact forbidden forest map. It is self-contained so chapter 3 can start immediately after the chapter 2 report.
+  maps.forest = makeMap('h');
+  fill(maps.forest, 0, 0, W-1, H-1, 'h');
+  fill(maps.forest, 18, 23, 26, 29, 'p');
+  fill(maps.forest, 20, 5, 24, 24, 'p');
+  fill(maps.forest, 10, 16, 34, 18, 'p');
+  fill(maps.forest, 14, 11, 30, 13, 'p');
+  fill(maps.forest, 7, 19, 17, 21, 'p');
+  fill(maps.forest, 28, 8, 37, 11, 'p');
+  fill(maps.forest, 4, 4, 17, 7, '.');
+  fill(maps.forest, 28, 4, 40, 7, '.');
+  fill(maps.forest, 3, 22, 13, 25, '.');
+  fill(maps.forest, 31, 21, 41, 25, '.');
+  for(let y=5;y<25;y++){ if(y%3!==0){ setp(maps.forest,17,y,'w'); } }
+  fill(maps.forest, 15, 17, 19, 18, 'p');
+  [[5,5],[8,5],[12,6],[33,5],[37,7],[5,23],[8,24],[35,22],[39,24],[13,15],[31,15],[12,10],[32,13],[26,20],[19,8],[25,8],[21,3],[23,3],[18,27],[27,27]].forEach(([x,y])=>setp(maps.forest,x,y,'g'));
+  [[9,13],[35,14],[14,24],[30,24],[24,5],[20,10]].forEach(([x,y])=>setp(maps.forest,x,y,'r'));
+  border(maps.forest);
+
+  locations.forest = [
+    {id:'toNorthFromForest',name:'무너진 산제단 쪽 길',x:22,y:28,radius:1.6,phases:['ch3_day','ch3_night','ch3_dawn']},
+    {id:'forestEntrance',name:'금지된 숲 입구 금줄',x:22,y:24,radius:1.7,phases:['ch3_day']},
+    {id:'forestTrap',name:'사량의 덫',x:12,y:18,radius:2.0,phases:['ch3_day','ch3_night']},
+    {id:'forestRoots',name:'뒤엉킨 뿌리길',x:30,y:17,radius:2.0,phases:['ch3_day']},
+    {id:'forestVoice',name:'아이 목소리가 나는 길',x:22,y:12,radius:2.0,phases:['ch3_day','ch3_night']},
+    {id:'forestTree',name:'표식 나무',x:33,y:9,radius:2.0,phases:['ch3_day','ch3_night']},
+    {id:'forestDeep',name:'깊은 숲길',x:22,y:5,radius:1.6,phases:['ch3_day','ch3_night','ch3_dawn']}
+  ];
+  // Let the northern map point into chapter 3 after the chapter starts, while keeping the old chapter 2 dawn interaction.
+  const northForest = (locations.north||[]).find(x=>x.id==='forest');
+  if(northForest && !northForest.phases.includes('ch3_day')) northForest.phases.push('ch3_day','ch3_night','ch3_dawn');
+
+  function ensureCh3State(){
+    if(typeof state.ch3DayActions !== 'number') state.ch3DayActions = 0;
+    if(typeof state.maxCh3DayActions !== 'number') state.maxCh3DayActions = 4;
+    if(!state.flags) state.flags = {};
+  }
+  window.startChapter3 = function startChapter3(){
+    ensureCh3State();
+    state.chapter = 3;
+    state.flags.ch3Started = true;
+    state.phase = 'ch3_day';
+    state.time = '낮';
+    state.ch3DayActions = 0;
+    state.maxCh3DayActions = 4;
+    state.nightActionDone = false;
+    state.chapterVisited = {};
+    state.map = 'forest';
+    setPlayerPos(22,26.5);
+    addOfficial('2장 보고서 제출 완료');
+    showScene('ch3Start');
+  };
+  function consumeCh3(id){
+    ensureCh3State();
+    const key='ch3_'+id;
+    if(state.chapterVisited[key]) return;
+    state.chapterVisited[key]=true;
+    state.ch3DayActions++;
+    if(state.ch3DayActions===2 && !state.flags.ch3Saryang){
+      state.flags.ch3Saryang = true;
+      setTimeout(()=>showScene('ch3SaryangEvent'),420);
+    }else if(state.ch3DayActions>=state.maxCh3DayActions && !state.flags.ch3Dusk){
+      state.flags.ch3Dusk = true;
+      setTimeout(()=>showScene('ch3DuskPrompt'),420);
+    }
+    refreshSide();
+  }
+  function startCh3Night(){
+    state.phase='ch3_night';
+    state.time='밤';
+    state.nightActionDone=false;
+    state.map='forest';
+    setPlayerPos(22,24.5);
+    keysDown.clear();
+    showScene('ch3NightStart');
+  }
+  function ch3NightDone(){
+    state.nightActionDone=true;
+    state.phase='ch3_dawn';
+    state.time='새벽';
+    state.map='forest';
+    setPlayerPos(22,20);
+    keysDown.clear();
+    refreshSide();
+  }
+
+  // Override report flow so chapter 2 continues into chapter 3 instead of ending.
+  window.openReport = function openReport(ch){
+    dom.reportPanel.style.display='block';state.dialogOpen=false;dom.dialog.style.display='none';
+    state.report={cause:null,measure:null,missing:null};
+    dom.reportTitle.textContent=ch===1?'1장 중간 보고서':ch===2?'2장 보고서':'3장 보고서';
+    dom.reportIntro.textContent=ch===1?'관아에 올릴 수 있는 말만 선택합니다. 실제 진실과 어긋날 수 있습니다.':ch===2?'2장 조사 결과를 공식 기록으로 정리합니다. 금지된 숲 진입 여부가 다음 장을 엽니다.':'3장 금지된 숲 조사 결과를 정리합니다.';
+    const groups=ch===1?[
+      {key:'cause',title:'사건 원인',items:['범 습격 가능성','도적 또는 유괴 가능성','마을 내부 은폐 가능성','원인 불명']},
+      {key:'measure',title:'조치',items:['산길 폐쇄','추가 병력 요청','촌장 책임 조사','무당 감시','실종자 수색 지속']},
+      {key:'missing',title:'실종자 표기',items:['생존 가능성 있음','사망 추정','행방 불명','호적 보류']}
+    ]:ch===2?[
+      {key:'cause',title:'사건 원인',items:['범 습격 지속','벌목터 사고','마을 내부 은폐','산길 이상 현상','원인 불명']},
+      {key:'measure',title:'조치',items:['벌목 중단','산길 폐쇄','추가 병력 요청','무당 협조','실종자 수색 확대','금지된 숲 진입 허가']},
+      {key:'missing',title:'다음 조치 대상',items:['도리 이름 확인','마루 추적','소미 천도 준비','산제 복원 조각 수집']}
+    ]:[
+      {key:'cause',title:'확인된 사실',items:['도리 창귀화 확인','금지된 숲 경계 붕괴','산군 직접 개입 가능성','원인 불명 유지']},
+      {key:'measure',title:'다음 조치',items:['도리 천도 준비','사량의 덫 회수','금지된 숲 봉쇄','산군의 이름 조사']},
+      {key:'missing',title:'보고서 표현',items:['범 습격으로 완곡 표기','산길 이상으로 기록','실종자 수색 지속','비공식 기록으로만 보관']}
+    ];
+    dom.reportGroups.innerHTML='';
+    groups.forEach(g=>{const div=document.createElement('div');div.className='reportGroup';div.innerHTML='<b>'+g.title+'</b><div class="choices"></div>';const box=div.querySelector('.choices');g.items.forEach(item=>{const b=document.createElement('button');b.textContent=item;b.onclick=()=>{state.report[g.key]=item;[...box.children].forEach(x=>x.classList.remove('selected'));b.classList.add('selected')};box.appendChild(b)});dom.reportGroups.appendChild(div)});
+    dom.finishReport.onclick=()=>{if(!state.report.cause||!state.report.measure||!state.report.missing){toast('모든 항목을 하나씩 선택하세요.');return}addOfficial((ch===1?'1장':ch===2?'2장':'3장')+' 보고: '+state.report.cause+' / '+state.report.measure+' / '+state.report.missing);dom.reportPanel.style.display='none';if(ch===1){state.flags.ch1Report=true;startChapter2()}else if(ch===2){state.flags.ch2Report=true;window.startChapter3()}else{state.flags.ch3Report=true;showScene('ch3End')}};
+  };
+  openReport = window.openReport;
+
+  const oldInteract = interact;
+  window.interact = function interact(){
+    const loc=nearbyLocation();
+    if(!loc) return;
+    if(loc.id==='toNorthFromForest'){state.map='north';setPlayerPos(22,5.5);return}
+    if(loc.id==='forest' && state.chapter>=3){state.map='forest';setPlayerPos(22,27);return}
+    if(state.phase==='ch3_day'){
+      if(loc.id==='toNorthFromForest'){state.map='north';setPlayerPos(22,5.5);return}
+      if(state.ch3DayActions>=state.maxCh3DayActions){toast('낮 조사는 끝났다. 깊은 숲 앞에서 밤을 맞을지 정하자.'); if(loc.id==='forestDeep') showScene('ch3DuskPrompt'); return;}
+      if(loc.id==='forestEntrance')showScene('ch3Entrance');
+      else if(loc.id==='forestTrap')showScene('ch3Trap');
+      else if(loc.id==='forestRoots')showScene('ch3Roots');
+      else if(loc.id==='forestVoice')showScene('ch3Voice');
+      else if(loc.id==='forestTree')showScene('ch3Tree');
+      else if(loc.id==='forestDeep')showScene('ch3DeepDay');
+      else oldInteract();
+      return;
+    }
+    if(state.phase==='ch3_night'){
+      if(state.nightActionDone){toast('오늘 밤 행동은 이미 끝났다.');return}
+      if(loc.id==='forestVoice')showScene('ch3NightVoice');
+      else if(loc.id==='forestTrap')showScene('ch3NightTrap');
+      else if(loc.id==='forestTree')showScene('ch3NightTree');
+      else if(loc.id==='forestDeep')showScene('ch3NightDeep');
+      else toast('밤의 숲은 길을 골라야 한다.');
+      return;
+    }
+    if(state.phase==='ch3_dawn'){
+      if(loc.id==='forestDeep'||loc.id==='forestVoice')showScene('ch3Dawn');
+      else toast('깊은 숲길 쪽에서 새벽의 흔적을 정리해야 한다.');
+      return;
+    }
+    return oldInteract();
+  };
+
+  // Override movement handler references by replacing global interact binding. The original keydown closes over the old function name,
+  // so in non-module scripts this function declaration update is enough for the global identifier.
+  interact = window.interact;
+
+  const oldNightDone = nightDone;
+  window.nightDone = function nightDone(){
+    if(state.phase==='ch3_night') return ch3NightDone();
+    return oldNightDone();
+  };
+  nightDone = window.nightDone;
+
+  Object.assign(scenes,{
+    ch3Start:{speaker:'3장: 금지된 숲',text:'금지된 숲 안쪽은 낮인데도 어둡다. 길은 하나처럼 보이지만, 발밑에는 사람 길·짐승 길·죽은 자의 길이 겹쳐 있다.\n\n해루가 낮게 말한다. “여기부터는 지도에 없는 길입니다.”',options:[['숲 안으로 들어간다',closeDialog]]},
+    ch3Entrance:{speaker:'금지된 숲 입구',text:'금줄은 끊어져 있고, 말뚝은 속이 비어 있다. 산제단 쪽에서 이어진 길이 이곳에서 세 갈래로 갈라진다.',options:[['금줄을 다시 묶는다',()=>{consumeCh3('entrance');stat('경계',1);addRitual('금지된 숲 입구 금줄');showScene('ch3DayResult','금줄은 허술하지만 잠깐 버틴다. 바람이 한 번 멎는다.')}],['말뚝 속을 본다',()=>{consumeCh3('entrance');addClue('비어 있는 금줄 말뚝');stat('조사',1);showScene('ch3DayResult','말뚝 속에는 오래된 검은 흙이 들어 있다. 산의 흙인지, 묘의 흙인지 알 수 없다.')}],['관아 기록용 표시를 남긴다',()=>{consumeCh3('entrance');addOfficial('금지된 숲 경계 표시');stat('기록',1);showScene('ch3DayResult','나무에 관아 표시를 남긴다. 그러나 그 표식은 숲 안쪽을 향해 조금 기울어져 보인다.')}]]},
+    ch3Trap:{speaker:'사량의 덫',text:'짐승용 덫이 길 옆에 숨겨져 있다. 덫의 이빨에는 피가 없고, 대신 젖은 흙과 머리카락 같은 검은 실이 걸려 있다.',options:[['덫을 해체한다',()=>{consumeCh3('trap');stat('경계',1);stat('마을신뢰',-1);addClue('해체한 사량의 덫');showScene('ch3DayResult','덫을 풀자 금속 소리가 숲 전체로 번진다. 멀리서 사량이 욕설을 삼킨다.')}],['덫을 그대로 둔다',()=>{consumeCh3('trap');stat('경계',-1);addUnofficial('사량의 덫 방치');showScene('ch3DayResult','덫은 산군을 잡을 수 있을지 모른다. 그러나 산군 아닌 것도 걸릴 수 있다.')}],['검은 실을 챙긴다',()=>{consumeCh3('trap');addClue('덫에 걸린 검은 실');stat('조사',1);showScene('ch3DayResult','검은 실은 머리카락 같지만 물에 젖은 금줄처럼도 보인다. 손끝이 싸늘해진다.')}]]},
+    ch3Roots:{speaker:'뒤엉킨 뿌리길',text:'나무뿌리가 길 위로 드러나 있다. 뿌리는 길을 막은 것이 아니라, 길을 붙잡는 모양이다. 몇 걸음 걸으면 같은 나무로 돌아온다.',options:[['물소리를 따르지 않는다',()=>{consumeCh3('roots');stat('결이해',1);stat('경계',1);showScene('ch3DayResult','서서 기다리자 물소리가 한 겹 낮아진다. 길이 다시 앞으로 열린다.')}],['사람 발자국을 따른다',()=>{consumeCh3('roots');addClue('마루의 깊은 숲 발자국');stat('조사',1);showScene('ch3DayResult','마루의 발자국은 도끼를 끌고 가는 자국과 겹친다. 그는 도망친 것이 아니라 무언가를 찍으러 갔다.')}],['아이 목소리를 따른다',()=>{consumeCh3('roots');stat('한',1);addUnofficial('뿌리길의 아이 목소리');showScene('ch3DayResult','“이쪽이에요.” 목소리는 가까운데, 발자국은 점점 작아진다.')}]]},
+    ch3Voice:{speaker:'아이 목소리가 나는 길',text:'숲 안쪽에서 도리의 목소리가 들린다.\n\n“집에 가려 했는데, 길이 자꾸 산으로 갔어요.”\n\n목소리는 울고 있지 않다. 오히려 길을 알려주려는 듯하다.',options:[['도리의 이름을 부른다',()=>{consumeCh3('voice');addRitual('도리 이름 부름: 창귀 반응');stat('애도',1);showScene('ch3DayResult','목소리가 잠깐 멈춘다. “내 이름을 아세요?” 그러나 다음 순간, 같은 목소리가 다른 방향에서도 들린다.')}],['이름을 부르지 않고 듣는다',()=>{consumeCh3('voice');stat('결이해',1);addUnofficial('도리 목소리의 방향이 둘 이상');showScene('ch3DayResult','목소리는 하나가 아니다. 도리의 목소리로 말하는 길이 여럿 있다.')}],['해루에게 뒤를 보게 한다',()=>{consumeCh3('voice');stat('해루공포',1);addClue('뒤쪽에서 따라오는 작은 발소리');showScene('ch3DayResult','해루는 칼자루를 잡는다. “뒤에서 아이 발소리가 납니다. 그런데 발자국은 없습니다.”')}]]},
+    ch3Tree:{speaker:'표식 나무',text:'금줄이 묶였던 오래된 나무다. 한쪽이 도끼에 찍혀 있고, 상처 안쪽에서 검은 물이 마른 흔적이 보인다.',options:[['마루의 도끼 자국을 확인한다',()=>{consumeCh3('tree');addClue('표식 나무의 마루 도끼 자국');stat('조사',1);showScene('ch3DayResult','자국은 서툴지 않다. 마루는 이 나무가 표식이라는 걸 알고도 찍었다. 누군가의 재촉이 있었을 수 있다.')}],['상처에 금줄 조각을 댄다',()=>{consumeCh3('tree');addRitual('표식 나무 금줄 보정');stat('경계',1);showScene('ch3DayResult','상처에서 나던 물소리가 약해진다. 나무가 잠깐 숨을 멈춘 듯하다.')}],['검은 물 흔적을 긁어낸다',()=>{consumeCh3('tree');addUnofficial('표식 나무의 검은 물');stat('결이해',1);stat('한',1);showScene('ch3DayResult','검은 물은 손끝에서 가루처럼 부서진다. 물도 피도 아닌 것이 나무 안쪽에 스며 있었다.')}]]},
+    ch3DeepDay:{speaker:'깊은 숲길',text:'깊은 숲으로 이어지는 길이다. 낮인데도 안쪽은 밤처럼 어둡다. 지금 들어가면 길을 잃을 수 있다.',options:[['아직 들어가지 않는다',closeDialog],['그래도 가장자리만 확인한다',()=>{consumeCh3('deepday');addClue('깊은 숲 입구의 작은 발자국');stat('조사',1);showScene('ch3DayResult','작은 발자국이 안쪽으로 이어진다. 도리의 것처럼 보이지만, 발자국 끝은 짐승 발처럼 갈라져 있다.')}]]},
+    ch3DayResult:{speaker:'금지된 숲 조사',text:'조사를 기록했다. 숲의 길은 조금씩 달라진다.',options:[['계속 조사한다',closeDialog]]},
+    ch3SaryangEvent:{speaker:'사량',text:'사량이 나무 뒤에서 나온다.\n\n“애를 보내려면 먼저 범의 목을 잡아야지. 제문으로 이빨을 뺄 수 있소?”\n\n그의 말은 거칠지만, 두려움은 진짜다.',options:[['덫으로는 해결되지 않는다고 말한다',()=>{stat('경계',1);addUnofficial('사량과 덫 갈등');showScene('ch3DayResult','사량은 웃지 않는다. “그럼 관아 글자로 아이를 데려오시오.”')}],['실종자 수색에 협조하라고 한다',()=>{stat('마을신뢰',1);addClue('사량 임시 협조');showScene('ch3DayResult','사량은 마지못해 고개를 끄덕인다. 그러나 산군을 죽이겠다는 마음은 꺾이지 않았다.')}],['산군을 봤는지 묻는다',()=>{addClue('사량: 검은등은 사람처럼 길을 본다');stat('조사',1);showScene('ch3DayResult','“그놈은 그냥 범이 아니오. 사람 길을 알고, 죽은 길도 아는 눈이었소.”')}]]},
+    ch3DuskPrompt:{speaker:'금지된 숲의 해질녘',text:'숲 안쪽에서 도리의 목소리가 다시 들린다.\n\n“이제 집에 가는 길을 찾았어요.”\n\n막례가 경고했던 말이 떠오른다. 길을 찾았다는 말이 반드시 집으로 간다는 뜻은 아니다.',options:[['밤까지 숲에 남는다',startCh3Night],['관아 기록을 핑계로 물러난다',()=>{stat('기록',1);stat('한',1);startCh3Night()}]]},
+    ch3NightStart:{speaker:'3장 밤',text:'밤의 금지된 숲. 오늘 밤은 한 길만 고를 수 있다.\n\n도리의 목소리, 사량의 덫, 표식 나무, 깊은 숲길 중 하나를 택해야 한다.',options:[['움직인다',closeDialog]]},
+    ch3NightVoice:{speaker:'도리의 목소리',text:'도리의 목소리가 아주 가까이서 들린다.\n\n“어머니가 부르면 가야 하는데, 산이 먼저 불러요.”\n\n목소리 뒤로 작은 발소리가 여러 개 따라온다.',options:[['도리의 이름을 세 번 부른다',()=>{ch3NightDone();addRitual('도리 천도 핵심: 이름 세 번 부름');stat('애도',1);stat('한',-1);showScene('ch3Dawn','도리의 목소리가 잠깐 하나로 모인다. 그러나 아직 손은 닿지 않는다.')}],['“너는 누구를 데려가려 하니”라고 묻는다',()=>{ch3NightDone();addUnofficial('도리 창귀: 사람을 집길로 부른다고 믿음');stat('결이해',2);showScene('ch3Dawn','“데려가는 게 아니에요. 같이 집에 가는 거예요.” 그 말이 가장 무섭다.')}],['목소리를 따라간다',()=>{ch3NightDone();stat('한',1);stat('해루공포',2);addClue('도리의 길 추적 실패');showScene('ch3Dawn','몇 걸음 뒤, 해루가 당신의 팔을 붙잡는다. 앞에 있던 아이 그림자가 등 뒤에서도 웃고 있다.')}]]},
+    ch3NightTrap:{speaker:'사량의 덫',text:'밤의 덫에 무언가 걸려 있다. 가까이 가자 덫 안에는 짐승이 아니라, 마루의 목소리가 걸려 있다.\n\n“찍으라 해서 찍었는데, 나무가 피를 흘렸어요.”',options:[['덫을 풀어 목소리를 놓아준다',()=>{ch3NightDone();addRitual('마루의 목소리 풀어줌');stat('애도',1);stat('경계',1);showScene('ch3Dawn','덫이 열리자 숲이 잠깐 조용해진다. 마루의 발자국이 산 안쪽으로 이어진다.')}],['누가 찍으라 했는지 묻는다',()=>{ch3NightDone();addClue('마루: 아이 목소리에 이끌림');stat('조사',1);showScene('ch3Dawn','대답은 도리의 목소리로 돌아온다. “집으로 가려면 문을 열어야 한다고 했어요.”')}],['덫을 더 조인다',()=>{ch3NightDone();stat('경계',-1);stat('한',1);addUnofficial('덫이 혼을 붙잡음');showScene('ch3Dawn','목소리가 끊긴다. 해결된 듯하지만, 덫의 이빨은 더 검어졌다.')}]]},
+    ch3NightTree:{speaker:'표식 나무의 밤',text:'표식 나무의 상처가 새로 젖어 있다. 검은 물이 아니라, 아주 묽은 피처럼 보인다. 뿌리 아래에서 소미의 천 조각이 흔들린다.',options:[['소미의 이름을 부른다',()=>{ch3NightDone();addRitual('소미 이름 부름');stat('애도',1);showScene('ch3Dawn','천 조각이 바람 없이 흔들린다. 소미는 아직 제단으로 돌아가지 못했다.')}],['상처에 금줄을 다시 묶는다',()=>{ch3NightDone();stat('경계',1);addRitual('표식 나무 밤 금줄');showScene('ch3Dawn','나무의 상처가 완전히 닫히지는 않는다. 그러나 물소리는 나무 안쪽으로 물러난다.')}],['검은 물을 따라간다',()=>{ch3NightDone();stat('결이해',1);stat('해루공포',1);addUnofficial('검은 물은 깊은 숲으로 흐름');showScene('ch3Dawn','검은 물은 낮은 곳이 아니라 깊은 숲 쪽으로 흐른다. 이 숲의 아래와 위는 이미 뒤틀렸다.')}]]},
+    ch3NightDeep:{speaker:'깊은 숲길',text:'깊은 숲에서 아이가 서 있다. 얼굴은 보이지 않는다.\n\n“같이 가면 집에 갈 수 있어요.”\n\n해루가 떨리는 목소리로 말한다. “저 아이, 발이 땅에 닿지 않습니다.”',options:[['도리라고 부른다',()=>{ch3NightDone();addClue('도리 창귀화 확인');addRitual('도리 이름 반응');stat('결이해',2);showScene('ch3Dawn','아이의 얼굴이 잠깐 도리로 돌아온다. 다음 순간, 그 뒤로 수많은 작은 길이 입을 벌린다. 도리는 길을 잃은 아이이자, 사람을 부르는 창귀가 되었다.')}],['칼을 뽑는다',()=>{ch3NightDone();stat('한',2);stat('해루공포',1);addUnofficial('창귀를 적으로 대함');showScene('ch3Dawn','아이 그림자는 사라진다. 그러나 나무마다 아이 목소리가 하나씩 더 붙는다.')}],['이름을 부르지 않고 손을 내민다',()=>{ch3NightDone();stat('애도',1);addUnofficial('도리는 손을 잡지 못함');showScene('ch3Dawn','작은 손이 다가오다 멈춘다. “아직 어머니가 놓지 않았어요.”')}]]},
+    ch3Dawn:{speaker:'3장 새벽',text:'새벽이 오자 금지된 숲은 다시 평범한 나무들로 돌아간다. 그러나 이제 사실을 안다.\n\n도리는 죽은 아이만도 아니고, 살아 돌아올 아이도 아니다. 그는 집으로 가려다 사람을 산으로 부르는 창귀가 되었다.\n\n산군 검은등은 아직 모습을 드러내지 않았지만, 그가 지키던 경계는 거의 무너졌다.',options:[['도리 천도 준비를 우선한다',()=>{addRitual('4장 목표: 도리 천도 준비');openReport(3)}],['사량의 덫부터 회수한다',()=>{addOfficial('사량의 덫 회수 명령');openReport(3)}],['막례에게 산군의 진짜 이름을 묻기로 한다',()=>{addRitual('4장 목표: 산군 이름 조사');openReport(3)}],['금지된 숲을 봉쇄하고 보고한다',()=>{addOfficial('금지된 숲 임시 봉쇄');openReport(3)}]]},
+    ch3End:{speaker:'3장 종료',text:'도리는 길을 잃은 아이였고, 이제 다른 이를 길 잃게 하는 자가 되었다.\n\n다음 장에서는 검은등의 자리로 들어가, 산군이 사람을 벌하는 존재가 아니라 길을 구분하지 못하게 된 늙은 주인임을 확인하게 된다.',options:[['원형 종료',closeDialog]]}
+  });
+
+  // Override render helpers to include forest map while keeping the latest paper-cut village rendering.
+  const oldDrawProps = drawProps;
+  window.drawProps = function drawProps(t){
+    if(state.map==='forest'){ drawForestObjects(t); return; }
+    return oldDrawProps(t);
+  };
+  drawProps = window.drawProps;
+
+  const oldDrawPeople = drawPeople;
+  window.drawPeople = function drawPeople(t){
+    if(state.map==='forest'){
+      if(state.phase==='ch3_day'){
+        drawHuman(12.2,18.3,{name:'사량',color:'#6d4f3f',hair:'#251915'},t);
+        drawHuman(33.1,9.4,{name:'마루의 친구',color:'#6e834f',hair:'#3a2b1e'},t);
+      }
+      if(state.phase==='ch3_night'){
+        // Small paper shadow for Dori. It is deliberately not a full child sprite.
+        drawDoriShadow(t);
+      }
+      drawCompanion(t);drawPlayer(t);return;
+    }
+    return oldDrawPeople(t);
+  };
+  drawPeople = window.drawPeople;
+
+  window.mapName = function mapName(){return state.map==='pass'?'남쪽 고갯길':state.map==='north'?'마을 북쪽 산길':state.map==='forest'?'금지된 숲':'무너울골'};
+  mapName = window.mapName;
+  window.chapterName = function chapterName(){return state.chapter===1?'1장 무너울골 도착':state.chapter===2?'2장 끊긴 제사':'3장 금지된 숲'};
+  chapterName = window.chapterName;
+  window.phaseText = function phaseText(){const p=state.phase;if(p==='pass')return'짚신 조사';if(p==='ch1_day')return'1장 낮 조사';if(p==='ch1_night')return'1장 첫 밤';if(p==='ch1_dawn')return'1장 새벽 보고';if(p==='ch2_day')return'2장 낮 조사';if(p==='ch2_night')return'2장 밤';if(p==='ch2_dawn')return'2장 새벽 보고';if(p==='ch3_day')return'3장 숲 조사';if(p==='ch3_night')return'3장 숲의 밤';if(p==='ch3_dawn')return'3장 새벽 보고';return p};
+  phaseText = window.phaseText;
+  window.updateHud = function updateHud(){
+    const loc=nearbyLocation();
+    let dayInfo=state.chapter===1?'낮 조사: '+state.dayInvestigations+'/'+state.maxDayInvestigations:state.chapter===2?'2장 낮 조사: '+state.ch2DayActions+'/'+state.maxCh2DayActions:'3장 숲 조사: '+(state.ch3DayActions||0)+'/'+(state.maxCh3DayActions||4);
+    dom.hud.innerHTML='<b>'+mapName()+'</b> · '+chapterName()+' · '+state.time+'<br>'+dayInfo+' · 밤 행동: '+(state.nightActionDone?'완료':'미완료')+(loc?'<br>상호작용: '+loc.name:'');
+    dom.hint.innerHTML='WASD/방향키: 이동<br>Enter/Space/Z: 상호작용<br>대화 선택: 숫자키 또는 클릭';
+  };
+  updateHud = window.updateHud;
+
+  function drawForestObjects(t){
+    drawTrees([[5,5],[8,5],[12,6],[33,5],[37,7],[5,23],[8,24],[35,22],[39,24],[13,15],[31,15],[12,10],[32,13],[26,20],[19,8],[25,8],[21,3],[23,3],[18,27],[27,27],[16,6],[29,6],[6,18],[38,18]]);
+    drawRocks([[9,13],[35,14],[14,24],[30,24],[24,5],[20,10],[11,20],[34,21]]);
+    drawBridge(15,17);
+    drawForbiddenRopes();
+    drawTrapMark(12,18);
+    drawOldTree(33,9);
+    drawForestMouth(22,5,t);
+    // dim central paths with torn-paper shadows
+    ctx.fillStyle=rgba('#0a0805',state.phase.includes('night')?.18:.08);
+    ctx.fillRect(20*TILE,5*TILE,5*TILE,20*TILE);
+  }
+  function drawForbiddenRopes(){
+    const night=state.phase.includes('night');
+    ctx.strokeStyle=night?shade('#d9c780',-38):'#d9c780';ctx.lineWidth=2;
+    [[20,24,25,24],[17,13,27,13],[10,18,15,18]].forEach(([x1,y1,x2,y2])=>{ctx.beginPath();ctx.moveTo(x1*TILE,y1*TILE+5);ctx.lineTo(x2*TILE,y2*TILE+6);ctx.stroke();for(let x=x1;x<=x2;x+=2)cutRect(x*TILE+3,y1*TILE+1,4,8,night?shade('#dfd098',-34):'#dfd098',paperPal.ink,.7,.5)});
+  }
+  function drawTrapMark(x,y){const ox=x*TILE,oy=y*TILE;ctx.save();ctx.translate(ox+8,oy+8);ctx.rotate(-0.35);cutRect(-13,-3,26,6,state.phase.includes('night')?shade('#5e422d',-25):'#5e422d',paperPal.ink,1,1);cutRect(-2,-14,5,28,state.phase.includes('night')?shade('#3b302b',-15):'#3b302b',paperPal.ink,1,1);ctx.restore()}
+  function drawOldTree(x,y){const ox=x*TILE,oy=y*TILE;cutRect(ox+3,oy-5,12,27,state.phase.includes('night')?shade('#5a3418',-30):'#5a3418',paperPal.ink,1.5,1);cutPoly([[ox-4,oy-7],[ox+9,oy-16],[ox+24,oy-5],[ox+22,oy+6],[ox+6,oy+8]],state.phase.includes('night')?shade('#2f4128',-25):'#2f4128',paperPal.ink,2);ctx.fillStyle=rgba('#10100b',.45);ctx.fillRect(ox+7,oy+5,7,2);ctx.fillStyle=paperPal.blood;ctx.fillRect(ox+8,oy+4,5,1)}
+  function drawForestMouth(x,y,t){const ox=x*TILE,oy=y*TILE;ctx.fillStyle=rgba('#020202',state.phase.includes('night')?.65:.28);ctx.beginPath();ctx.ellipse(ox+8,oy+9,28,14,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=rgba('#d7c17a',state.phase.includes('night')?.28:.10);ctx.beginPath();ctx.moveTo(ox-14,oy+9);ctx.lineTo(ox+30,oy+9+Math.sin(t/700)*2);ctx.stroke()}
+  function drawDoriShadow(t){const x=22*TILE+8+Math.sin(t/900)*12,y=12*TILE+8+Math.sin(t/500)*2;ctx.fillStyle=rgba('#050505',.58);ctx.beginPath();ctx.ellipse(x,y+10,5,2,0,0,Math.PI*2);ctx.fill();cutPoly([[x-5,y-4],[x+5,y-4],[x+4,y+8],[x-4,y+8]],'rgba(30,28,24,.62)',paperPal.ink,1);ctx.fillStyle='rgba(222,210,160,.24)';ctx.fillRect(x-2,y-7,4,3)}
+})();
+
+
+/* === Chapter 4 extension: 검은등의 자리 === */
+(function(){
+  // New cutscenes for chapter 4. These keep the manual "다음" flow and use the existing paper actor system.
+  Object.assign(cutscenes,{
+    ch4Start:{title:'검은등의 자리',text:'깊은 숲을 지나자 바람이 끊긴다.\n검은 바위가 산등성이에 엎드린 등처럼 보인다.\n해루가 숨을 낮춘다.\n\n“저건 바위입니까, 등입니까?”',cx:'50%',cy:'38%',pieces:[['dark',270,120,210,50],['dark',320,92,90,94],['rope',262,174,232,3],['blue',310,218,118,10]]},
+    ch4Bones:{title:'바위 아래 뼈더미',text:'바위 아래에 오래된 뼈들이 흙과 섞여 있다.\n사람 뼈도, 짐승 뼈도 있다.\n그것들은 사냥의 흔적이자 오래된 경계의 말뚝처럼 놓여 있다.',cx:'48%',cy:'55%',pieces:[['dark',245,248,240,22],['red',330,212,16,30],['rope',276,236,178,3]]},
+    ch4Water:{title:'말라붙은 물길',text:'물은 없는데 물소리가 난다.\n물길은 산 아래로 흐르지 않고 검은 바위 쪽으로 기어 올라간다.\n산길과 저승길이 이곳에서 거의 겹쳐 있다.',cx:'54%',cy:'52%',pieces:[['blue',320,222,180,12],['blue',360,190,96,10],['dark',400,150,48,48]]},
+    ch4Footprint:{title:'겹친 발자국',text:'큰 호랑이 발자국 안쪽에 아이 발자국이 겹쳐 있다.\n검은등이 도리를 삼킨 것이 아니라, 이름을 입에 물고 길을 잃은 듯하다.',cx:'43%',cy:'51%',pieces:[['dark',250,214,110,28],['dark',304,184,120,24],['rope',260,248,158,3]]},
+    ch4Tooth:{title:'이빨 사이의 이름',text:'바위 틈에서 작은 목소리가 들린다.\n\n“내 이름이 저 안에 걸렸어요.”\n\n도리의 목소리는 검은등의 숨소리와 함께 흔들린다.',cx:'55%',cy:'40%',pieces:[['dark',340,126,112,72],['red',382,154,10,34],['blue',318,218,130,9]]},
+    ch4FirstMeet:{title:'검은등 첫 대면',text:'바위가 움직인다.\n거대한 호랑이는 울지 않는다. 다만 오래된 문처럼 낮게 숨을 쉰다.\n눈 안쪽에는 산이 아닌 검은 물결이 비친다.',cx:'50%',cy:'34%',pieces:[['dark',250,102,260,92],['red',336,130,12,20],['red',414,130,12,20],['rope',286,194,186,3]]},
+    ch4NightRock:{title:'밤의 검은 바위',text:'밤이 되자 검은 바위는 더 이상 바위처럼 보이지 않는다.\n등줄기가 움직이고, 그 아래의 뼈들이 한 박자 늦게 흔들린다.',cx:'50%',cy:'34%',pieces:[['dark',246,102,268,96],['blue',326,222,132,10],['red',384,140,14,24]]},
+    ch4NightDori:{title:'도리의 이름',text:'도리의 목소리가 검은등의 이빨 사이에서 새어 나온다.\n\n“부르면 가고 싶은데, 산이 먼저 대답해요.”',cx:'54%',cy:'40%',pieces:[['dark',342,126,110,70],['blue',314,218,138,9],['rope',304,236,160,3]]},
+    ch4NightSaryang:{title:'사량의 화살',text:'사량이 어둠 속에서 활을 든다.\n화살촉은 산군을 향하지만, 그의 손은 죽은 아내의 이름 쪽으로 떨린다.',cx:'35%',cy:'50%',pieces:[['dark',190,210,94,22],['red',222,166,10,58],['rope',184,232,120,3]]},
+    ch4Dawn:{title:'검은등의 새벽',text:'새벽이 오자 검은등은 다시 바위처럼 웅크린다.\n하지만 이제 알 수 있다.\n그는 마을을 벌하러 내려온 것이 아니라, 길을 구분하지 못하게 된 늙은 주인이다.',cx:'50%',cy:'36%',pieces:[['dark',260,118,230,70],['blue',310,220,140,9],['rope',275,198,210,3]]}
+  });
+
+  const actorDataBeforeCh4 = actorDataForCutscene;
+  actorDataForCutscene = function(id){
+    const A={
+      ch4Start:[['player',260,270,318,228,0],['haeru',232,276,286,242,.12],['shadow',430,132,390,136,.28]],
+      ch4Bones:[['player',270,270,318,236,0],['haeru',240,278,286,246,.16],['shadow',402,190,374,194,.30]],
+      ch4Water:[['player',250,270,318,230,0],['haeru',220,276,286,244,.12],['shaman',382,246,348,214,.26]],
+      ch4Footprint:[['player',322,270,300,232,0],['haeru',354,278,322,244,.12],['child',258,190,300,198,.28]],
+      ch4Tooth:[['child',420,178,382,184,0],['player',280,268,324,232,.16],['haeru',250,276,294,246,.30]],
+      ch4FirstMeet:[['shadow',410,142,382,146,0],['player',274,280,320,238,.20],['haeru',236,286,286,250,.34],['shaman',458,252,410,224,.46]],
+      ch4NightRock:[['shadow',402,138,380,140,0],['player',270,282,324,240,.18],['haeru',238,288,292,252,.34]],
+      ch4NightDori:[['child',420,178,382,184,0],['shadow',450,150,414,156,.16],['player',274,280,324,240,.32]],
+      ch4NightSaryang:[['hunter',190,250,230,218,0],['player',340,280,292,240,.20],['haeru',370,286,320,250,.34],['shadow',440,138,390,145,.46]],
+      ch4Dawn:[['player',270,278,322,238,0],['haeru',240,286,292,250,.12],['shaman',434,260,390,226,.26],['shadow',410,140,386,144,.40]]
+    };
+    return A[id]||actorDataBeforeCh4(id);
+  };
+
+  // Build black rock map.
+  maps.blackrock = makeMap('.');
+  function buildBlackrock(){
+    const m=maps.blackrock;
+    fill(m,0,0,W-1,H-1,'h');
+    fill(m,8,5,36,27,'.');
+    fill(m,18,24,26,28,'p');
+    fill(m,20,8,24,24,'p');
+    fill(m,13,16,31,18,'p');
+    fill(m,10,20,16,22,'p');
+    fill(m,29,13,35,15,'p');
+    for(let y=8;y<=24;y++){ if(y%3!==1){ setp(m,18,y,'g'); setp(m,26,y,'g'); }}
+    [[7,7],[10,8],[35,8],[38,10],[6,22],[37,23],[11,26],[33,26],[15,10],[30,10],[12,14],[34,18],[17,5],[27,5]].forEach(([x,y])=>setp(m,x,y,'g'));
+    [[14,13],[31,20],[11,18],[34,13],[17,23],[28,23],[9,11],[36,16]].forEach(([x,y])=>setp(m,x,y,'r'));
+    border(m);
+  }
+  buildBlackrock();
+
+  locations.forest.push({id:'toBlackrock',name:'검은등의 자리로 가는 깊은 길',x:22,y:4.2,radius:1.5,phases:['ch4_day','ch4_night','ch4_dawn']});
+  locations.blackrock = [
+    {id:'toForestFromRock',name:'금지된 숲으로 돌아가는 길',x:22,y:27.5,radius:1.6,phases:['ch4_day','ch4_night','ch4_dawn']},
+    {id:'rockBones',name:'바위 아래 뼈더미',x:15,y:20,radius:2.0,phases:['ch4_day']},
+    {id:'rockWater',name:'말라붙은 물길',x:31,y:15,radius:2.0,phases:['ch4_day']},
+    {id:'rockFootprint',name:'겹친 발자국',x:18,y:13,radius:2.0,phases:['ch4_day']},
+    {id:'rockTooth',name:'이빨 사이의 이름',x:28,y:10,radius:2.0,phases:['ch4_day']},
+    {id:'rockCenter',name:'검은 바위',x:22,y:8,radius:2.3,phases:['ch4_day','ch4_night','ch4_dawn']},
+    {id:'rockSaryang',name:'사량이 숨어 있는 바위턱',x:12,y:16,radius:2.0,phases:['ch4_night']}
+  ];
+
+  const oldCollidersCh4 = colliders;
+  colliders = function(){
+    if(state.map!=='blackrock') return oldCollidersCh4();
+    const s=new Set(),m=maps.blackrock;
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(['h','w','g','r'].includes(m[y][x]))s.add(k(x,y));
+    block(s,18,5,9,5); // 검은 바위 중심부
+    return s;
+  };
+
+  function startChapter4(){
+    state.chapter=4;
+    state.flags.ch4Started=true;
+    state.phase='ch4_day';
+    state.time='낮';
+    state.map='blackrock';
+    state.ch4DayActions=0;
+    state.maxCh4DayActions=4;
+    state.nightActionDone=false;
+    state.chapterVisited={};
+    setPlayerPos(22,26);
+    addOfficial('3장 보고서 제출 완료');
+    showScene('ch4Start');
+  }
+  window.startChapter4=startChapter4;
+
+  function consumeCh4(id){
+    const key='ch4_'+id;
+    if(state.chapterVisited[key]){toast('이미 확인한 자리다.');return false;}
+    state.chapterVisited[key]=true;
+    state.ch4DayActions++;
+    if(state.ch4DayActions>=state.maxCh4DayActions && !state.flags.ch4FirstMeetReady){
+      state.flags.ch4FirstMeetReady=true;
+      addUnofficial('검은 바위가 움직일 준비를 함');
+    }
+    refreshSide();
+    return true;
+  }
+  function startCh4Night(){
+    state.phase='ch4_night';
+    state.time='밤';
+    state.nightActionDone=false;
+    setPlayerPos(22,20);
+    showScene('ch4NightStart');
+  }
+  function ch4NightDone(){
+    state.nightActionDone=true;
+    state.phase='ch4_dawn';
+    state.time='새벽';
+    setPlayerPos(22,20);
+    showScene('ch4Dawn');
+  }
+
+  const oldOpenReportCh4 = openReport;
+  openReport = function(ch){
+    if(ch===3){
+      oldOpenReportCh4(ch);
+      dom.finishReport.onclick=()=>{
+        if(!state.report.cause||!state.report.measure||!state.report.missing){toast('모든 항목을 하나씩 선택하세요.');return}
+        addOfficial('3장 보고: '+state.report.cause+' / '+state.report.measure+' / '+state.report.missing);
+        dom.reportPanel.style.display='none';
+        state.flags.ch3Report=true;
+        startChapter4();
+      };
+      return;
+    }
+    if(ch!==4) return oldOpenReportCh4(ch);
+    state.report={cause:null,measure:null,missing:null};
+    dom.reportPanel.style.display='block';
+    dom.reportTitle.textContent='4장 보고서';
+    dom.reportIntro.textContent='검은등의 자리에서 본 것을 어떻게 남길지 정합니다.';
+    const groups=[
+      {key:'cause',title:'산군의 상태',items:['사람을 벌하는 영물','경계를 잃은 산의 주인','창귀와 결이 뒤섞인 존재','기록 불가']},
+      {key:'measure',title:'다음 조치',items:['마지막 산제 준비','도리 천도 우선','산군 봉인 준비','사량 제지 및 덫 회수']},
+      {key:'missing',title:'공식 기록 표현',items:['범 습격 지속','산길 폐쇄 필요','실종자 수색 지속','원인 불명']}
+    ];
+    dom.reportGroups.innerHTML='';
+    groups.forEach(g=>{const div=document.createElement('div');div.className='reportGroup';div.innerHTML='<b>'+g.title+'</b><div class="choices"></div>';const box=div.querySelector('.choices');g.items.forEach(item=>{const b=document.createElement('button');b.textContent=item;b.onclick=()=>{state.report[g.key]=item;[...box.children].forEach(x=>x.classList.remove('selected'));b.classList.add('selected')};box.appendChild(b)});dom.reportGroups.appendChild(div)});
+    dom.finishReport.onclick=()=>{
+      if(!state.report.cause||!state.report.measure||!state.report.missing){toast('모든 항목을 하나씩 선택하세요.');return}
+      addOfficial('4장 보고: '+state.report.cause+' / '+state.report.measure+' / '+state.report.missing);
+      dom.reportPanel.style.display='none';
+      state.flags.ch4Report=true;
+      showScene('ch4End');
+    };
+  };
+
+  const oldInteractCh4 = interact;
+  interact = function(){
+    const loc=nearbyLocation();
+    if(!loc)return;
+    if(loc.id==='toBlackrock' && state.chapter>=4){state.map='blackrock';setPlayerPos(22,26);return}
+    if(loc.id==='toForestFromRock'){state.map='forest';setPlayerPos(22,5.2);return}
+    if(state.phase==='ch4_day'){
+      if(loc.id==='rockCenter'){
+        if(state.ch4DayActions>=state.maxCh4DayActions) showScene('ch4FirstMeet');
+        else toast('검은 바위는 아직 대답하지 않는다. 주변 흔적을 더 확인하자.');
+        return;
+      }
+      if(state.ch4DayActions>=state.maxCh4DayActions){toast('조사는 충분하다. 검은 바위 앞으로 가자.');return;}
+      if(loc.id==='rockBones')showScene('ch4Bones');
+      else if(loc.id==='rockWater')showScene('ch4Water');
+      else if(loc.id==='rockFootprint')showScene('ch4Footprint');
+      else if(loc.id==='rockTooth')showScene('ch4Tooth');
+      else oldInteractCh4();
+      return;
+    }
+    if(state.phase==='ch4_night'){
+      if(state.nightActionDone){toast('오늘 밤 행동은 이미 끝났다.');return}
+      if(loc.id==='rockCenter')showScene('ch4NightRock');
+      else if(loc.id==='rockTooth')showScene('ch4NightDori');
+      else if(loc.id==='rockSaryang')showScene('ch4NightSaryang');
+      else toast('밤에는 검은 바위, 도리의 이름, 사량의 바위턱 중 하나를 골라야 한다.');
+      return;
+    }
+    if(state.phase==='ch4_dawn'){
+      if(loc.id==='rockCenter')showScene('ch4Dawn');
+      else toast('새벽의 기록은 검은 바위 앞에서 정리해야 한다.');
+      return;
+    }
+    return oldInteractCh4();
+  };
+  window.interact=interact;
+
+  Object.assign(scenes,{
+    ch4Start:{speaker:'4장: 검은등의 자리',text:'금지된 숲 너머, 검은 바위가 산등성이에 엎드려 있다.\n이곳은 산군을 만나는 곳이 아니라, 산군이 무엇을 잃었는지 확인하는 자리다.',options:[['검은 바위 주변을 조사한다',closeDialog]]},
+    ch4Bones:{speaker:'바위 아래 뼈더미',text:'오래된 뼈들이 흙과 섞여 있다. 어떤 것은 사람, 어떤 것은 짐승이다. 모두 한 방향, 검은 바위를 향해 놓여 있다.',options:[['사람 뼈를 먼저 확인한다',()=>{if(!consumeCh4('bones'))return;addClue('바위 아래 사람 뼈');stat('애도',1);showScene('ch4DayResult','뼈에는 물린 자국보다 끌린 자국이 많다. 잡아먹힌 흔적이라기보다 경계에 묶인 흔적이다.')}],['짐승 뼈를 확인한다',()=>{if(!consumeCh4('bones'))return;addClue('바위 아래 짐승 뼈');stat('조사',1);showScene('ch4DayResult','짐승 뼈도 사람 뼈와 같은 방향을 보고 있다. 검은등은 먹은 것을 버린 것이 아니라 길목에 세워 둔 듯하다.')}],['뼈의 이름 없는 자리를 기록한다',()=>{if(!consumeCh4('bones'))return;addOfficial('검은 바위 아래 미상 유골 다수');stat('기록',1);showScene('ch4DayResult','기록할 이름이 없다. 그러나 이름이 없다는 사실만은 남긴다.')}]]},
+    ch4Water:{speaker:'말라붙은 물길',text:'물은 없는데 물소리가 난다. 물길은 아래가 아니라 검은 바위 쪽으로 올라간다.',options:[['물소리가 멎을 때까지 기다린다',()=>{if(!consumeCh4('water'))return;stat('결이해',1);stat('경계',1);addRitual('검은 바위 물길 확인');showScene('ch4DayResult','기다리자 물소리가 한 겹 낮아진다. 이 물길은 산의 물이 아니라 죽은 길의 소리다.')}],['방앗간 돌확의 흔적과 대조한다',()=>{if(!consumeCh4('water'))return;addRitual('제물 씻는 물길과 검은 바위 연결');stat('조사',1);showScene('ch4DayResult','방앗간의 돌확, 물소리 골짜기, 이곳의 마른 물길이 하나의 의례 동선으로 이어진다.')}],['물소리를 따라 바위에 손을 댄다',()=>{if(!consumeCh4('water'))return;stat('한',1);addUnofficial('검은 바위 안쪽의 물소리');showScene('ch4DayResult','바위 안쪽에서 아주 낮은 숨소리가 난다. 해루가 한 걸음 물러난다.')}]]},
+    ch4Footprint:{speaker:'겹친 발자국',text:'큰 호랑이 발자국 안에 아이 발자국이 겹쳐 있다. 도리의 길과 검은등의 길이 이곳에서 합쳐졌다.',options:[['도리의 이름을 낮게 부른다',()=>{if(!consumeCh4('footprint'))return;addRitual('도리 이름: 산군 발자국 반응');stat('애도',1);showScene('ch4DayResult','발자국 안쪽에 맺힌 흙이 잠깐 흔들린다. 도리는 검은등에게 먹힌 것이 아니라, 그의 길 안에 걸려 있다.')}],['발자국의 방향을 기록한다',()=>{if(!consumeCh4('footprint'))return;addClue('검은등 발자국: 마을이 아니라 바위로 향함');stat('조사',1);showScene('ch4DayResult','발자국은 마을 쪽이 아니라 검은 바위 쪽으로 돌아온다. 검은등도 길을 찾고 있었다.')}],['사량에게 보이지 않게 덮는다',()=>{if(!consumeCh4('footprint'))return;stat('경계',1);addUnofficial('사량에게 숨긴 산군 발자국');showScene('ch4DayResult','이 흔적을 보면 사량은 화살을 놓을 것이다. 잠시 흙으로 덮어 둔다.')}]]},
+    ch4Tooth:{speaker:'이빨 사이의 이름',text:'바위 틈에서 도리의 목소리가 난다. “내 이름이 저 안에 걸렸어요.”',options:[['도리의 머리끈을 꺼낸다',()=>{if(!consumeCh4('tooth'))return;addRitual('도리 머리끈: 이름 회수 준비');stat('애도',1);showScene('ch4DayResult','머리끈이 바람 없이 흔들린다. 목소리가 잠깐 하나로 모인다.')}],['이름을 바로 부르지 않는다',()=>{if(!consumeCh4('tooth'))return;stat('결이해',1);addUnofficial('검은등의 숨과 도리 이름이 섞임');showScene('ch4DayResult','지금 부르면 도리가 아니라 검은등이 먼저 대답할 수 있다. 이름은 아직 잡아당기면 안 된다.')}],['바위 틈에 관아 표식을 새긴다',()=>{if(!consumeCh4('tooth'))return;stat('기록',1);stat('경계',-1);addOfficial('검은 바위 위치 표시');showScene('ch4DayResult','표식은 남았지만 바위가 조금 더 차가워진다. 기록은 길을 만들 수 있지만, 때로는 상처도 만든다.')}]]},
+    ch4DayResult:{speaker:'검은등의 자리 조사',text:'흔적을 정리했다. 검은 바위는 조금씩 바위가 아닌 것처럼 보인다.',options:[['계속 조사한다',closeDialog]]},
+    ch4FirstMeet:{speaker:'검은등 첫 대면',text:'바위가 움직인다. 거대한 호랑이는 울지 않는다. 다만 오래된 문처럼 낮게 숨을 쉰다.\n\n“길이 많아졌다.”\n“누가 산으로 오고, 누가 산에서 나가는지 모르겠다.”',options:[['옛 제문 일부를 들려준다',()=>{addRitual('산군에게 제문 일부 전달');stat('경계',1);showScene('ch4MeetResult','검은등의 눈이 잠깐 맑아진다. 그러나 곧 도리의 목소리가 그 눈 안쪽에서 다시 흔들린다.')}],['도리의 이름을 언급한다',()=>{addRitual('산군 이빨 사이의 도리 이름 확인');stat('애도',1);showScene('ch4MeetResult','“아이의 이름이 내 이빨 사이에 걸렸다.” 검은등은 그것이 자기 잘못인지도 모르는 듯하다.')}],['검은 물결을 바라본다',()=>{addUnofficial('검은등 눈 안쪽의 검은 물결');stat('결이해',2);stat('한',1);showScene('ch4MeetResult','그 눈 안쪽의 어둠은 산의 것이 아니다. 검은등은 잠식된 것이 아니라, 스며든 어둠을 자기 결로 착각하고 있다.')}],['뒤로 물러난다',()=>{stat('해루공포',-1);addOfficial('산군 직접 대면 회피');showScene('ch4MeetResult','물러서자 해루가 숨을 쉰다. 그러나 검은등의 숨은 여전히 등 뒤에서 이어진다.')}]]},
+    ch4MeetResult:{speaker:'검은등의 말',text:'검은등은 공격하지 않는다. 하지만 그가 숨을 쉴 때마다 산길과 저승길이 한 번씩 겹친다. 밤이 오기 전에 어떤 방식으로 마주할지 정해야 한다.',options:[['밤까지 검은 바위에 남는다',startCh4Night],['일단 물러나 기록을 정리한다',()=>{stat('기록',1);startCh4Night()}]]},
+    ch4NightStart:{speaker:'4장 밤',text:'검은등의 자리에서 밤을 맞는다. 오늘 밤은 한 가지 방식으로만 마주할 수 있다.\n\n검은 바위, 도리의 이름, 사량의 바위턱 중 하나를 택해야 한다.',options:[['움직인다',closeDialog]]},
+    ch4NightRock:{speaker:'밤의 검은 바위',text:'검은등이 바위처럼 웅크린 채 말한다.\n\n“문을 닫는 노래를 잊었다.”\n\n막례의 기억도 완전하지 않다. 그러나 조각들은 모였다.',options:[['모은 의례 조각을 맞춰 본다',()=>{addRitual('마지막 산제 준비: 조각 맞춤');stat('경계',2);ch4NightDone()}],['검은등에게 떠날 수 있느냐 묻는다',()=>{addUnofficial('검은등: 산을 떠나는 법을 모름');stat('결이해',1);ch4NightDone()}],['봉인할 자리를 표시한다',()=>{addRitual('산군 봉인 자리 표시');stat('기록',1);stat('경계',-1);ch4NightDone()}]]},
+    ch4NightDori:{speaker:'도리의 이름',text:'도리의 목소리가 검은등의 숨 사이에서 새어 나온다.\n\n“부르면 가고 싶은데, 산이 먼저 대답해요.”',options:[['이름을 부르되 당기지 않는다',()=>{addRitual('도리 이름 보존: 천도 준비');stat('애도',2);stat('한',-1);ch4NightDone()}],['월선에게 맡길 이름이라고 말한다',()=>{addRitual('도리 천도 조건: 월선의 이름 부름 필요');stat('결이해',1);ch4NightDone()}],['지금 끌어내려 한다',()=>{addUnofficial('도리 이름 강제 회수 실패');stat('한',2);stat('해루공포',1);ch4NightDone()}]]},
+    ch4NightSaryang:{speaker:'사량의 바위턱',text:'사량이 활을 든다. 화살촉은 검은등을 향하지만, 그의 손은 죽은 아내의 이름 쪽으로 떨린다.',options:[['사량의 화살을 막는다',()=>{addClue('사량 제지');stat('경계',1);stat('마을신뢰',-1);ch4NightDone()}],['한 발만 허락한다',()=>{addUnofficial('사량의 화살이 검은등을 상처냄');stat('한',1);stat('경계',-1);ch4NightDone()}],['연지의 진실을 묻는다',()=>{addClue('연지는 산의 경계 안에서 죽음');stat('애도',1);stat('조사',1);ch4NightDone()}]]},
+    ch4Dawn:{speaker:'4장 새벽',text:'새벽이 오자 검은등은 다시 바위처럼 웅크린다. 이제 분명하다.\n\n산군은 사람을 벌하는 적이 아니다. 경계를 지키던 주인이었고, 지금은 길을 구분하지 못한다.\n마지막 산제는 그를 되살리는 의식이 아니라, 남은 약속을 어떻게 끝낼지 정하는 의식이 될 것이다.',options:[['마지막 산제 준비를 기록한다',()=>{addRitual('5장 목표: 마지막 산제');openReport(4)}],['산군 봉인안을 작성한다',()=>{addOfficial('산군 봉인안 초안');openReport(4)}],['도리 천도를 우선 기록한다',()=>{addRitual('5장 목표: 도리 천도');openReport(4)}],['사량을 감시 대상으로 적는다',()=>{addOfficial('사량 감시 필요');openReport(4)}]]},
+    ch4End:{speaker:'4장 종료',text:'검은등은 쓰러뜨릴 괴물이 아니었다.\n그는 오래된 문이었고, 이제 문은 닫히는 법을 잊었다.\n\n다음 장은 마지막 산제다. 산제를 복원할지, 산군을 떠나보낼지, 봉인할지, 누군가를 희생시킬지 결정해야 한다.',options:[['현재 원형 종료',closeDialog]]}
+  });
+
+  const oldDrawPropsCh4 = drawProps;
+  drawProps = function(t){
+    if(state.map==='blackrock'){ drawBlackrockObjects(t); return; }
+    return oldDrawPropsCh4(t);
+  };
+  window.drawProps=drawProps;
+
+  const oldDrawPeopleCh4 = drawPeople;
+  drawPeople = function(t){
+    if(state.map==='blackrock'){
+      if(state.phase==='ch4_day'){
+        drawHuman(14.7,20.2,{name:'막례',color:'#5b596b',hair:'#d9d2b8'},t);
+        drawHuman(12.2,16.3,{name:'사량',color:'#6d4f3f',hair:'#251915'},t);
+      }
+      if(state.phase==='ch4_night'){
+        drawDoriRockShadow(t);
+        drawHuman(12.2,16.3,{name:'사량',color:'#5a3b33',hair:'#17110f'},t);
+      }
+      drawCompanion(t);drawPlayer(t);return;
+    }
+    return oldDrawPeopleCh4(t);
+  };
+  window.drawPeople=drawPeople;
+
+  function drawBlackrockObjects(t){
+    drawTrees([[7,7],[9,8],[36,8],[38,10],[6,22],[37,23],[11,26],[33,26],[15,10],[30,10],[12,14],[34,18],[17,5],[27,5],[8,18],[36,14],[15,24],[30,24]]);
+    drawRocks([[14,13],[31,20],[11,18],[34,13],[17,23],[28,23],[9,11],[36,16],[20,11],[25,12]]);
+    // central black rock / tiger back
+    const ox=18*TILE, oy=5*TILE;
+    ctx.fillStyle=rgba('#050403',.33); ctx.beginPath(); ctx.ellipse(ox+74,oy+92,112,20,0,0,Math.PI*2); ctx.fill();
+    cutPoly([[ox+10,oy+82],[ox+36,oy+30],[ox+86,oy+8],[ox+146,oy+22],[ox+176,oy+74],[ox+160,oy+106],[ox+58,oy+112]],state.phase==='ch4_night'?shade('#1c1713',-10):'#26221d',paperPal.ink,3);
+    cutPoly([[ox+72,oy+30],[ox+92,oy+18],[ox+116,oy+26],[ox+98,oy+42]],state.phase==='ch4_night'?'#060504':'#181512',paperPal.ink,1.4);
+    ctx.fillStyle=state.phase==='ch4_night'?rgba('#b64a3c',.55):rgba('#7b302a',.35);ctx.fillRect(ox+82,oy+50,7,4);ctx.fillRect(ox+122,oy+51,7,4);
+    ctx.strokeStyle=rgba('#d6c17c',state.phase==='ch4_night'?.28:.12);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ox+35,oy+112);ctx.bezierCurveTo(ox+66,oy+136,ox+120,oy+136,ox+150,oy+108);ctx.stroke();
+    drawBonePatch(15,20); drawDryStream(31,15,t); drawFootprints(18,13); drawToothCrack(28,10);
+  }
+  function drawBonePatch(x,y){const ox=x*TILE,oy=y*TILE;ctx.fillStyle=rgba('#0a0805',.2);ctx.beginPath();ctx.ellipse(ox+10,oy+13,34,10,0,0,Math.PI*2);ctx.fill();for(let i=0;i<9;i++){cutRect(ox-10+i*8,oy+8+(i%3)*4,12,4,'#b7aa8a',paperPal.ink,.7,.4)}}
+  function drawDryStream(x,y,t){const ox=x*TILE,oy=y*TILE;ctx.strokeStyle=rgba('#405c63',state.phase==='ch4_night'?.55:.32);ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(ox-35,oy+40);ctx.bezierCurveTo(ox+5,oy+18,ox+18,oy-20,ox+46,oy-42);ctx.stroke();ctx.strokeStyle=rgba('#d9c78b',.12+Math.sin(t/600)*.06);ctx.lineWidth=1;ctx.stroke()}
+  function drawFootprints(x,y){const ox=x*TILE,oy=y*TILE;for(let i=0;i<4;i++){ctx.fillStyle=rgba('#080604',.35);ctx.beginPath();ctx.ellipse(ox+i*12,oy+i*5,8,5,.35,0,Math.PI*2);ctx.fill();ctx.fillStyle=rgba('#1b1510',.4);ctx.beginPath();ctx.ellipse(ox+4+i*12,oy+2+i*5,3,2,.35,0,Math.PI*2);ctx.fill()}}
+  function drawToothCrack(x,y){const ox=x*TILE,oy=y*TILE;ctx.strokeStyle=rgba('#0a0805',.75);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+10,oy+18);ctx.lineTo(ox+4,oy+32);ctx.stroke();ctx.fillStyle=rgba('#d9c78b',.45);ctx.fillRect(ox+11,oy+18,4,12)}
+  function drawDoriRockShadow(t){const x=28*TILE+Math.sin(t/800)*10,y=10*TILE+Math.sin(t/500)*3;ctx.fillStyle=rgba('#050505',.55);ctx.beginPath();ctx.ellipse(x,y+12,5,2,0,0,Math.PI*2);ctx.fill();cutPoly([[x-5,y-4],[x+5,y-4],[x+4,y+9],[x-4,y+9]],'rgba(30,28,24,.62)',paperPal.ink,1);ctx.fillStyle='rgba(222,210,160,.24)';ctx.fillRect(x-2,y-7,4,3)}
+
+  const oldMapNameCh4=mapName;
+  mapName=function(){return state.map==='blackrock'?'검은등의 자리':oldMapNameCh4()}; window.mapName=mapName;
+  chapterName=function(){return state.chapter===1?'1장 무너울골 도착':state.chapter===2?'2장 끊긴 제사':state.chapter===3?'3장 금지된 숲':'4장 검은등의 자리'}; window.chapterName=chapterName;
+  phaseText=function(){const p=state.phase;if(p==='ch4_day')return'4장 검은등의 자리';if(p==='ch4_night')return'4장 밤';if(p==='ch4_dawn')return'4장 새벽 보고';return (p==='pass'?'짚신 조사':p==='ch1_day'?'1장 낮 조사':p==='ch1_night'?'1장 첫 밤':p==='ch1_dawn'?'1장 새벽 보고':p==='ch2_day'?'2장 낮 조사':p==='ch2_night'?'2장 밤':p==='ch2_dawn'?'2장 새벽 보고':p==='ch3_day'?'3장 숲 조사':p==='ch3_night'?'3장 숲의 밤':p==='ch3_dawn'?'3장 새벽 보고':p)}; window.phaseText=phaseText;
+  const oldUpdateHudCh4=updateHud;
+  updateHud=function(){
+    if(state.chapter!==4)return oldUpdateHudCh4();
+    const loc=nearbyLocation();
+    const dayInfo=state.phase==='ch4_day'?'4장 흔적 조사: '+(state.ch4DayActions||0)+'/'+(state.maxCh4DayActions||4):state.phase==='ch4_night'?'4장 밤 행동: '+(state.nightActionDone?'완료':'미완료'):'4장 새벽 보고';
+    dom.hud.innerHTML='<b>'+mapName()+'</b> · '+chapterName()+' · '+state.time+'<br>'+dayInfo+(loc?'<br>상호작용: '+loc.name:'');
+    dom.hint.innerHTML='WASD/방향키: 이동<br>Enter/Space/Z: 상호작용/컷신 다음<br>대화 선택: 숫자키 또는 클릭';
+  }; window.updateHud=updateHud;
+})();
+
+
+(function(){
+  // Chapter 5: 마지막 산제 + night visibility pass.
+  canvas.style.filter='saturate(1) contrast(1.04) brightness(1.08)';
+  const visualStyle=document.createElement('style');
+  visualStyle.textContent=`
+    .gamebox{box-shadow:0 10px 34px rgba(0,0,0,.50),inset 0 0 0 3px rgba(230,205,160,.075)}
+    .cutscene:before{background:radial-gradient(circle at var(--cx,50%) var(--cy,52%),rgba(245,218,160,.24) 0 9%,rgba(55,39,24,.18) 33%,rgba(6,4,3,.58) 80%)}
+    .cutscene:after{background:linear-gradient(transparent 0 70%,rgba(0,0,0,.50) 70% 100%),linear-gradient(rgba(255,244,210,.045),rgba(0,0,0,.035))}
+  `;
+  document.head.appendChild(visualStyle);
+
+  Object.assign(cutscenes,{
+    ch5Start:{title:'마지막 산제',text:'무너진 제단 위로 금줄이 다시 걸린다.\n막례는 제문을 들고, 월선은 도리의 이름을 붙잡고, 사량은 활을 내려놓지 못한다.\n오늘 밤, 산과 마을의 오래된 약속을 끝맺어야 한다.',cx:'50%',cy:'40%',pieces:[['dark',256,120,210,42],['red',318,98,12,82],['red',394,98,12,82],['rope',240,172,255,3],['blue',310,228,120,10]]},
+    ch5Makrye:{title:'막례의 마지막 제문',text:'막례의 손이 떨린다.\n글자는 남았지만 숨이 모자라다. 그녀는 제문을 읽는 것이 아니라 기억을 붙잡고 있다.',cx:'39%',cy:'45%',pieces:[['dark',250,180,90,48],['rope',235,218,120,3],['red',292,142,12,62]]},
+    ch5Wolseon:{title:'월선과 이름',text:'월선은 도리의 머리끈을 쥔다.\n이름을 부르고 싶어 하지만, 잘못 부르면 산이 먼저 대답한다는 것을 안다.',cx:'56%',cy:'48%',pieces:[['blue',356,192,60,34],['dark',390,218,24,30],['rope',324,236,130,3]]},
+    ch5Saryang:{title:'사량의 화살',text:'사량은 활을 낮춘다.\n검은등을 향한 분노는 아직 살아 있지만, 오늘은 화살보다 이름이 먼저다.',cx:'30%',cy:'52%',pieces:[['dark',170,222,110,20],['red',220,170,10,62],['rope',158,244,132,3]]},
+    ch5Rope:{title:'금줄을 다시 맨다',text:'끊어진 금줄 조각들이 하나로 이어진다.\n완전하지 않다. 그래도 경계는 완전함보다 기억을 필요로 한다.',cx:'50%',cy:'55%',pieces:[['rope',230,246,250,3],['rope',250,266,210,3],['red',298,214,12,64],['red',420,214,12,64]]},
+    ch5Basin:{title:'물길을 씻는다',text:'돌확의 물을 제단 홈에 따른다.\n방앗간, 물소리 골짜기, 검은 바위의 마른 물길이 한 번에 이어진다.',cx:'50%',cy:'48%',pieces:[['blue',300,210,170,12],['blue',334,238,118,10],['dark',380,176,42,45]]},
+    ch5Black:{title:'검은등이 내려온다',text:'검은 바위의 등줄기가 움직인다.\n검은등은 마을을 보지 않는다. 제단과 물길과 이름 사이에서 길을 찾는다.',cx:'50%',cy:'32%',pieces:[['dark',250,100,260,92],['red',336,128,12,20],['red',414,128,12,20],['rope',284,192,188,3]]},
+    ch5CeremonyStart:{title:'의례의 밤',text:'밤이지만 앞이 보인다.\n횃불과 창문 불빛, 금줄에 걸린 종이 조각들이 어둠을 잘라 낸다.\n이제 선택해야 한다. 남길 것인지, 떠나보낼 것인지, 묶을 것인지.',cx:'50%',cy:'40%',pieces:[['dark',246,112,268,82],['red',290,92,12,94],['red',430,92,12,94],['rope',222,190,280,3],['blue',304,226,142,10]]},
+    ch5Restore:{title:'산제를 복원한다',text:'제문이 끝나자 산길의 물소리가 낮아진다.\n검은등은 다시 경계를 알아본다. 그러나 마을은 다시 금기와 함께 살아야 한다.',cx:'50%',cy:'42%',pieces:[['dark',260,120,230,64],['rope',240,200,260,3],['blue',310,230,130,10]]},
+    ch5Farewell:{title:'산군을 떠나보낸다',text:'검은등은 깊은 산 쪽으로 몸을 돌린다.\n산제는 복원되지 않는다. 대신 오래된 약속은 끝났다고 말해진다.',cx:'54%',cy:'36%',pieces:[['dark',300,108,220,76],['rope',250,204,232,3],['blue',318,230,126,9]]},
+    ch5Seal:{title:'산군을 봉인한다',text:'금줄이 검은 바위 위로 감긴다.\n실종은 멈추겠지만, 산은 숨을 참는 자리로 남는다.',cx:'50%',cy:'34%',pieces:[['dark',260,104,246,88],['rope',248,154,260,3],['rope',260,186,220,3],['red',360,128,12,40]]},
+    ch5Sacrifice:{title:'막례가 길을 닫는다',text:'막례가 제문 끝에 자신의 이름을 넣는다.\n산과 저승길 사이의 틈이 닫히고, 그녀의 방울은 더 이상 울리지 않는다.',cx:'43%',cy:'42%',pieces:[['dark',275,176,86,48],['red',318,118,12,88],['rope',250,218,150,3]]},
+    ch5Record:{title:'기록상 종결',text:'제문은 끝까지 읽히지 않는다.\n관아 기록에는 범 습격과 산길 폐쇄만 남는다.\n그러나 우물 밑에서는 아직 작은 목소리가 늦게 돌아온다.',cx:'50%',cy:'55%',pieces:[['blue',330,226,58,18],['dark',360,248,28,28],['rope',300,272,160,3]]},
+    ch5Dawn:{title:'마지막 산제의 새벽',text:'새벽은 밝지 않다.\n하지만 길은 하나 줄었다. 산으로 가는 길, 저승으로 가는 길, 마을로 돌아오는 길이 더는 같은 소리로 들리지 않는다.',cx:'50%',cy:'46%',pieces:[['dark',265,130,220,54],['blue',305,222,142,10],['rope',248,196,242,3]]}
+  });
+
+  const oldActorCh5=actorDataForCutscene;
+  actorDataForCutscene=function(id){
+    const A={
+      ch5Start:[['player',250,285,315,236,0],['haeru',220,292,286,248,.12],['shaman',420,260,372,222,.22],['wolseon',470,265,410,232,.34],['hunter',160,280,225,240,.46],['shadow',440,140,398,150,.58]],
+      ch5Makrye:[['shaman',300,248,305,208,0],['player',230,278,285,238,.18],['haeru',206,286,260,252,.34]],
+      ch5Wolseon:[['wolseon',390,260,368,220,0],['child',432,202,400,202,.22],['player',285,286,334,240,.38]],
+      ch5Saryang:[['hunter',195,278,235,236,0],['player',340,284,296,242,.20],['haeru',368,292,322,254,.34]],
+      ch5Rope:[['player',250,282,315,238,0],['haeru',222,290,286,250,.14],['shaman',410,260,370,226,.28]],
+      ch5Basin:[['player',268,286,320,240,0],['shaman',420,250,376,218,.18],['child',438,206,400,204,.36]],
+      ch5Black:[['shadow',430,142,390,148,0],['player',270,284,324,240,.18],['haeru',238,292,292,254,.34],['wolseon',470,270,414,238,.46]],
+      ch5CeremonyStart:[['player',260,290,320,240,0],['haeru',232,296,292,252,.12],['shaman',430,260,376,224,.22],['wolseon',470,262,410,232,.32],['hunter',170,285,230,244,.42],['shadow',440,138,390,146,.56]],
+      ch5Restore:[['shaman',430,260,380,222,0],['shadow',440,142,400,148,.18],['player',260,288,322,240,.32],['wolseon',470,262,410,232,.44]],
+      ch5Farewell:[['shadow',420,142,490,128,0],['player',260,288,322,240,.22],['haeru',230,296,292,252,.34],['child',406,200,440,188,.48]],
+      ch5Seal:[['player',260,288,322,240,0],['hunter',190,284,230,244,.14],['shadow',440,142,390,148,.28],['shaman',430,260,376,224,.42]],
+      ch5Sacrifice:[['shaman',300,250,340,208,0],['player',240,286,306,240,.18],['haeru',210,294,278,252,.30],['shadow',430,142,392,148,.44]],
+      ch5Record:[['player',300,286,330,240,0],['haeru',270,294,302,252,.14],['child',408,204,386,204,.34]],
+      ch5Dawn:[['player',270,284,326,240,0],['haeru',238,292,296,252,.14],['wolseon',470,264,414,232,.28],['hunter',170,286,230,246,.38],['shadow',430,142,390,146,.50]]
+    };
+    return A[id]||oldActorCh5(id);
+  };
+
+  maps.finalrite=makeMap('.');
+  function buildFinalRite(){
+    const m=maps.finalrite;
+    fill(m,0,0,W-1,H-1,'h');
+    fill(m,7,6,37,27,'.');
+    fill(m,18,22,26,28,'p');
+    fill(m,13,18,31,22,'p');
+    fill(m,20,8,24,23,'p');
+    fill(m,16,12,28,16,'p');
+    [[9,7],[13,8],[33,8],[36,10],[8,22],[37,24],[11,26],[33,26],[14,14],[31,14],[13,20],[34,18],[18,6],[27,6],[7,17],[38,16]].forEach(([x,y])=>setp(m,x,y,'g'));
+    [[12,13],[32,20],[10,18],[35,13],[17,24],[28,24],[9,11],[36,16],[19,10],[26,11]].forEach(([x,y])=>setp(m,x,y,'r'));
+    border(m);
+  }
+  buildFinalRite();
+
+  locations.finalrite=[
+    {id:'riteExit',name:'검은등의 자리로 돌아가는 길',x:22,y:28,radius:1.5,phases:['ch5_prepare','ch5_night','ch5_dawn']},
+    {id:'riteCenter',name:'마지막 산제단',x:22,y:12,radius:2.4,phases:['ch5_prepare','ch5_night','ch5_dawn']},
+    {id:'riteMakrye',name:'막례의 제문',x:16,y:18,radius:2.0,phases:['ch5_prepare']},
+    {id:'riteWolseon',name:'월선과 도리의 이름',x:29,y:18,radius:2.0,phases:['ch5_prepare']},
+    {id:'riteSaryang',name:'사량의 화살',x:12,y:21,radius:2.0,phases:['ch5_prepare']},
+    {id:'riteRope',name:'끊긴 금줄',x:22,y:20,radius:2.0,phases:['ch5_prepare']},
+    {id:'riteBasin',name:'제물 씻는 돌확',x:31,y:13,radius:2.0,phases:['ch5_prepare']},
+    {id:'riteBlack',name:'검은등의 그림자',x:22,y:8,radius:2.2,phases:['ch5_prepare','ch5_night']}
+  ];
+
+  const oldCollidersCh5=colliders;
+  colliders=function(){
+    if(state.map!=='finalrite') return oldCollidersCh5();
+    const s=new Set(),m=maps.finalrite;
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(['h','w','g','r'].includes(m[y][x]))s.add(k(x,y));
+    block(s,18,7,9,3);
+    return s;
+  };
+
+  function startChapter5(){
+    state.chapter=5;
+    state.flags.ch5Started=true;
+    state.phase='ch5_prepare';
+    state.time='해질녘';
+    state.map='finalrite';
+    state.ch5PrepActions=0;
+    state.maxCh5PrepActions=3;
+    state.nightActionDone=false;
+    state.chapterVisited={};
+    setPlayerPos(22,26);
+    addOfficial('4장 보고서 제출 완료');
+    showScene('ch5Start');
+  }
+  window.startChapter5=startChapter5;
+
+  function consumeCh5(id){
+    const key='ch5_'+id;
+    if(state.chapterVisited[key]){toast('이미 준비한 일이다.');return false;}
+    state.chapterVisited[key]=true;
+    state.ch5PrepActions++;
+    if(state.ch5PrepActions>=state.maxCh5PrepActions&&!state.flags.ch5Ready){
+      state.flags.ch5Ready=true;
+      addUnofficial('마지막 산제를 시작할 만큼의 준비가 모임');
+      toast('준비가 모였다. 마지막 산제단으로 가자.');
+    }
+    refreshSide();
+    return true;
+  }
+  function startCh5Ceremony(){
+    state.phase='ch5_night';
+    state.time='밤';
+    state.nightActionDone=false;
+    setPlayerPos(22,22);
+    showScene('ch5CeremonyStart');
+  }
+  function finishCh5(ending){
+    state.ch5Ending=ending;
+    state.phase='ch5_dawn';
+    state.time='새벽';
+    setPlayerPos(22,22);
+    showScene('ch5Dawn');
+  }
+
+  const oldOpenReportCh5=openReport;
+  openReport=function(ch){
+    if(ch===4){
+      oldOpenReportCh5(ch);
+      dom.finishReport.onclick=()=>{
+        if(!state.report.cause||!state.report.measure||!state.report.missing){toast('모든 항목을 하나씩 선택하세요.');return}
+        addOfficial('4장 보고: '+state.report.cause+' / '+state.report.measure+' / '+state.report.missing);
+        dom.reportPanel.style.display='none';
+        state.flags.ch4Report=true;
+        startChapter5();
+      };
+      return;
+    }
+    if(ch!==5) return oldOpenReportCh5(ch);
+    state.report={cause:null,measure:null,missing:null};
+    dom.reportPanel.style.display='block';
+    dom.reportTitle.textContent='최종 보고서';
+    dom.reportIntro.textContent='마지막 산제를 관아 기록으로 남깁니다. 실제로 일어난 일과 기록은 다를 수 있습니다.';
+    const groups=[
+      {key:'cause',title:'사건 원인',items:['범 습격 및 산길 사고','마을 의례 붕괴와 산길 혼선','실종자 원인 불명','기록 불가한 현상']},
+      {key:'measure',title:'최종 조치',items:['산길 일부 폐쇄','마을 산제 제한적 허가','무당 의례 감시','실종자 수색 종료']},
+      {key:'missing',title:'남길 이름',items:['도리·마루·소미 이름 기재','사망 추정자 명단 보류','호적상 실종 처리','유족 진술 별첨']}
+    ];
+    dom.reportGroups.innerHTML='';
+    groups.forEach(g=>{const div=document.createElement('div');div.className='reportGroup';div.innerHTML='<b>'+g.title+'</b><div class="choices"></div>';const box=div.querySelector('.choices');g.items.forEach(item=>{const b=document.createElement('button');b.textContent=item;b.onclick=()=>{state.report[g.key]=item;[...box.children].forEach(x=>x.classList.remove('selected'));b.classList.add('selected')};box.appendChild(b)});dom.reportGroups.appendChild(div)});
+    dom.finishReport.onclick=()=>{
+      if(!state.report.cause||!state.report.measure||!state.report.missing){toast('모든 항목을 하나씩 선택하세요.');return}
+      addOfficial('최종 보고: '+state.report.cause+' / '+state.report.measure+' / '+state.report.missing);
+      dom.reportPanel.style.display='none';
+      state.flags.ch5Report=true;
+      showScene('ch5End');
+    };
+  };
+
+  const oldInteractCh5=interact;
+  interact=function(){
+    const loc=nearbyLocation();
+    if(!loc)return;
+    if(loc.id==='toBlackrock' && state.chapter>=4){state.map='blackrock';setPlayerPos(22,26);return}
+    if(loc.id==='riteExit'){state.map='blackrock';setPlayerPos(22,20);return}
+    if(state.phase==='ch5_prepare'){
+      if(loc.id==='riteCenter'){
+        if((state.ch5PrepActions||0)>=state.maxCh5PrepActions) startCh5Ceremony();
+        else toast('제문, 이름, 금줄, 물길 중 최소 세 가지를 준비해야 한다.');
+        return;
+      }
+      if((state.ch5PrepActions||0)>=state.maxCh5PrepActions){toast('준비는 충분하다. 마지막 산제단으로 가자.');return;}
+      if(loc.id==='riteMakrye')showScene('ch5Makrye');
+      else if(loc.id==='riteWolseon')showScene('ch5Wolseon');
+      else if(loc.id==='riteSaryang')showScene('ch5Saryang');
+      else if(loc.id==='riteRope')showScene('ch5Rope');
+      else if(loc.id==='riteBasin')showScene('ch5Basin');
+      else if(loc.id==='riteBlack')showScene('ch5Black');
+      else oldInteractCh5();
+      return;
+    }
+    if(state.phase==='ch5_night'){
+      if(loc.id==='riteCenter'||loc.id==='riteBlack')showScene('ch5FinalChoice');
+      else toast('마지막 선택은 산제단 앞에서 해야 한다.');
+      return;
+    }
+    if(state.phase==='ch5_dawn'){
+      if(loc.id==='riteCenter')openReport(5);
+      else toast('새벽의 기록은 산제단 앞에서 정리한다.');
+      return;
+    }
+    return oldInteractCh5();
+  };
+  window.interact=interact;
+
+  Object.assign(scenes,{
+    ch5Start:{speaker:'5장: 마지막 산제',text:'검은등의 자리에서 가져온 흔적들이 무너진 산제단에 모인다.\n산제를 되살리는 것이 목표가 아니다. 산과 마을 사이의 오래된 약속을 어떻게 끝낼지 정해야 한다.',options:[['마지막 준비를 시작한다',closeDialog]]},
+    ch5Makrye:{speaker:'막례의 제문',text:'막례는 제문을 펼치지만 숨이 짧다. 글자는 남았으나 순서가 흔들린다.',options:[['제문 조각을 당신이 대신 맞춘다',()=>{if(!consumeCh5('makrye'))return;addRitual('최종 제문 정렬');stat('결이해',1);showScene('ch5PrepResult','막례는 처음으로 당신을 제사 밖의 사람으로 보지 않는다. “이제 말은 이어졌다. 숨이 모자랄 뿐이다.”')}],['막례에게 끝까지 읽게 한다',()=>{if(!consumeCh5('makrye'))return;stat('막례신뢰',1);stat('한',1);addRitual('막례의 마지막 독송');showScene('ch5PrepResult','막례의 목소리가 갈라진다. 제문은 이어졌지만, 그녀의 몸이 그것을 감당하지 못한다.')}],['틀린 부분은 읽지 못하게 한다',()=>{if(!consumeCh5('makrye'))return;stat('기록',1);addUnofficial('제문 일부 생략');showScene('ch5PrepResult','안전하지만 빈자리가 남는다. 비어 있는 말은 밤에 다른 목소리가 채울 수 있다.')}]]},
+    ch5Wolseon:{speaker:'월선과 도리의 이름',text:'월선은 도리의 머리끈을 쥔다. 이름을 부르기 전, 그녀는 먼저 죽음을 받아들여야 한다.',options:[['도리의 이름을 함께 부르게 한다',()=>{if(!consumeCh5('wolseon'))return;addRitual('도리 천도: 월선의 이름 부름');stat('애도',2);stat('한',-1);showScene('ch5PrepResult','월선의 목소리는 흔들리지만 끊기지 않는다. 우물 밑에서 되돌아오던 이름이 오늘은 제단 위에 머문다.')}],['죽었다고 말하게 한다',()=>{if(!consumeCh5('wolseon'))return;addRitual('도리 죽음 인정');stat('애도',1);stat('한',-1);showScene('ch5PrepResult','월선은 무너진다. 그러나 무너진 뒤에도 이름을 놓지 않는다.')}],['이름 부르기를 막는다',()=>{if(!consumeCh5('wolseon'))return;stat('경계',1);stat('한',1);addUnofficial('월선의 이름 부름 차단');showScene('ch5PrepResult','안전은 얻었지만, 도리의 길은 더 멀어진다.')}]]},
+    ch5Saryang:{speaker:'사량의 화살',text:'사량은 산군을 쏘고 싶어 한다. 그러나 그는 도리보다 오래된 죽음, 연지의 이름에 묶여 있다.',options:[['화살을 내려놓게 한다',()=>{if(!consumeCh5('saryang'))return;addClue('사량이 화살을 거둠');stat('경계',1);stat('애도',1);showScene('ch5PrepResult','사량은 활을 놓지 못한다. 대신 시위를 풀어 둔다. 그것만으로도 오늘 밤은 달라진다.')}],['연지의 이름을 제문에 넣는다',()=>{if(!consumeCh5('saryang'))return;addRitual('연지의 이름을 함께 부름');stat('애도',2);showScene('ch5PrepResult','사량의 분노가 잠시 슬픔의 모양을 되찾는다. 그는 처음으로 산군이 아닌 아내의 이름을 부른다.')}],['덫을 마지막 방어로 남긴다',()=>{if(!consumeCh5('saryang'))return;addRitual('비상 봉인용 덫');stat('기록',1);stat('경계',-1);showScene('ch5PrepResult','덫은 안전장치가 될 수 있다. 동시에 의례를 배신하는 쇠 이빨이 될 수도 있다.')}]]},
+    ch5Rope:{speaker:'끊긴 금줄',text:'금줄 조각들이 서로 맞지 않는다. 세 해 동안 끊어졌던 것을 하룻밤에 되돌릴 수는 없다.',options:[['끊긴 부분을 그대로 드러내어 맨다',()=>{if(!consumeCh5('rope'))return;addRitual('불완전한 금줄');stat('결이해',1);stat('경계',1);showScene('ch5PrepResult','끊어진 자리를 숨기지 않자, 금줄은 더 약하지만 더 정직한 경계가 된다.')}],['관아 끈으로 보강한다',()=>{if(!consumeCh5('rope'))return;addOfficial('관아 끈으로 산제단 경계 보강');stat('기록',1);stat('경계',1);showScene('ch5PrepResult','인간 질서가 오래된 의례를 받친다. 어울리지 않지만, 오늘 밤에는 필요하다.')}],['금줄 없이 진행한다',()=>{if(!consumeCh5('rope'))return;stat('경계',-2);addUnofficial('금줄 없는 산제');showScene('ch5PrepResult','가장 빠른 길이다. 그러나 경계 없이 부르는 이름은 어디로 갈지 모른다.')}]]},
+    ch5Basin:{speaker:'제물 씻는 돌확',text:'방앗간 돌확의 절차와 검은 바위의 마른 물길이 이 자리에서 만난다.',options:[['돌확의 물을 제단 홈에 붓는다',()=>{if(!consumeCh5('basin'))return;addRitual('물길 연결 완료');stat('경계',1);stat('결이해',1);showScene('ch5PrepResult','물은 아래로 흐르지 않고 제단 안쪽으로 스며든다. 산길과 저승길이 잠시 갈라진다.')}],['피 흔적을 먼저 씻는다',()=>{if(!consumeCh5('basin'))return;addRitual('피 흔적 정화');stat('한',-1);showScene('ch5PrepResult','오래된 피가 다 지워지지는 않는다. 그래도 새 이름이 그 위에 덧씌워지지는 않는다.')}],['물을 쓰지 않는다',()=>{if(!consumeCh5('basin'))return;stat('기록',1);stat('결이해',-1);addUnofficial('물길 절차 생략');showScene('ch5PrepResult','의례는 짧아진다. 그만큼 길도 덜 갈라진다.')}]]},
+    ch5Black:{speaker:'검은등의 그림자',text:'검은등은 아직 완전히 내려오지 않았다. 그림자만 제단 위에 걸려 있다.',options:[['그림자에게 제문 첫 구절을 들려준다',()=>{if(!consumeCh5('black'))return;addRitual('검은등에게 첫 구절 전달');stat('경계',1);showScene('ch5PrepResult','그림자가 잠깐 바위의 모양으로 돌아간다. 검은등은 아직 말을 알아듣는다.')}],['검은 물결을 막으려 금줄을 던진다',()=>{if(!consumeCh5('black'))return;addRitual('검은 물결 차단 시도');stat('경계',1);stat('한',1);showScene('ch5PrepResult','금줄은 타지 않는다. 다만 검게 젖는다. 산이 아닌 어둠은 아직 멀리 있다.')}],['아무 말도 하지 않는다',()=>{if(!consumeCh5('black'))return;stat('결이해',1);addUnofficial('검은등의 침묵을 지켜봄');showScene('ch5PrepResult','침묵 속에서 검은등의 숨과 도리의 숨이 구분된다.')}]]},
+    ch5PrepResult:{speaker:'마지막 산제 준비',text:'준비 하나가 끝났다. 준비가 충분히 모이면 산제단 앞에서 마지막 밤을 시작할 수 있다.',options:[['계속 준비한다',closeDialog]]},
+    ch5CeremonyStart:{speaker:'의례의 밤',text:'밤이 내려온다. 그러나 이번 밤은 전보다 덜 어둡다.\n횃불과 금줄, 창문 불빛, 이름을 부르는 목소리가 어둠을 갈라 놓는다.\n\n이제 마지막 선택만 남았다.',options:[['마지막 선택을 한다',()=>showScene('ch5FinalChoice')],['아직 제단 주위를 둘러본다',closeDialog]]},
+    ch5FinalChoice:{speaker:'마지막 산제',text:'검은등은 산제단 앞에 웅크린다. 월선은 도리의 이름을 붙잡고, 막례는 마지막 숨을 고른다.\n\n무엇을 끝내고, 무엇을 하루 더 남길 것인가.',options:[['산제를 복원한다',()=>{addOfficial('산제 제한적 복원');addRitual('엔딩: 산제 복원');stat('경계',2);showScene('ch5RestoreResult')}],['산군을 떠나보낸다',()=>{addOfficial('산길 의례 종료');addRitual('엔딩: 산군 떠나보내기');stat('결이해',2);showScene('ch5FarewellResult')}],['산군을 봉인한다',()=>{addOfficial('산군 봉인 조치');addRitual('엔딩: 산군 봉인');stat('기록',2);stat('한',1);showScene('ch5SealResult')}],['막례가 자기 이름으로 길을 닫는다',()=>{addRitual('엔딩: 막례 희생');stat('막례신뢰',2);stat('한',-2);showScene('ch5SacrificeResult')}],['기록상으로만 종결한다',()=>{addOfficial('범 습격 및 산길 폐쇄로 종결');stat('기록',2);stat('한',2);showScene('ch5RecordResult')}]]},
+    ch5RestoreResult:{speaker:'엔딩: 산제를 복원한다',text:'산제는 다시 선다.\n마을은 당분간 보호받지만, 금지도 함께 돌아온다.\n젊은 사람들은 불만을 품고, 막례는 제문을 다음 사람에게 넘기지 못한 채 더 늙는다.',options:[['새벽을 맞는다',()=>finishCh5('산제 복원')]]},
+    ch5FarewellResult:{speaker:'엔딩: 산군을 떠나보낸다',text:'검은등은 깊은 산 쪽으로 사라진다.\n산제는 복원되지 않는다. 대신 마을은 오래된 약속이 끝났음을 배운다.\n도리의 이름은 월선의 목소리를 따라 저승길 쪽으로 한 걸음 옮겨 간다.',options:[['새벽을 맞는다',()=>finishCh5('산군 떠나보내기')]]},
+    ch5SealResult:{speaker:'엔딩: 산군을 봉인한다',text:'금줄과 관아 표식이 검은 바위 위로 감긴다.\n실종은 멈춘다. 그러나 산은 숨을 참는 자리처럼 조용해진다.\n언젠가 누군가 이 봉인을 다시 열 것이다.',options:[['새벽을 맞는다',()=>finishCh5('산군 봉인')]]},
+    ch5SacrificeResult:{speaker:'엔딩: 막례가 길을 닫는다',text:'막례는 제문 끝에 자기 이름을 넣는다.\n도리의 목소리는 멀어지고, 검은등은 잠깐 자기 자리를 기억한다.\n무당집의 방울은 다시 울리지 않는다.',options:[['새벽을 맞는다',()=>finishCh5('막례 희생')]]},
+    ch5RecordResult:{speaker:'엔딩: 기록상 종결',text:'관아 기록에는 범 습격과 산길 폐쇄가 남는다.\n마을은 겉으로 조용해진다.\n그러나 우물 밑에서는 이름이 아직 한 박자 늦게 돌아온다.',options:[['새벽을 맞는다',()=>finishCh5('기록상 종결')]]},
+    ch5Dawn:{speaker:'마지막 산제의 새벽',text:'새벽이 온다. 밝지는 않다.\n그러나 산으로 가는 길, 저승으로 가는 길, 마을로 돌아오는 길이 더는 같은 소리로 들리지 않는다.\n\n이 일을 어떻게 기록할지는 아직 남아 있다.',options:[['최종 보고서를 작성한다',()=>openReport(5)],['조금 더 제단 앞에 선다',closeDialog]]},
+    ch5End:{speaker:'완결: 마지막 산제',text:'보고서는 접힌다.\n공식 기록에는 충분한 말이 없고, 비공식 기록에는 너무 많은 말이 남았다.\n\n무너울골의 밤은 끝났다.\n하지만 이 세계에서 사라지는 것들은 앞으로도 이름을 남기려 할 것이다.',options:[['원형 종료',closeDialog]]}
+  });
+
+  const oldDrawPropsCh5=drawProps;
+  drawProps=function(t){
+    if(state.map==='finalrite'){drawFinalRiteObjects(t);return;}
+    return oldDrawPropsCh5(t);
+  };
+  window.drawProps=drawProps;
+
+  const oldDrawPeopleCh5=drawPeople;
+  drawPeople=function(t){
+    if(state.map==='finalrite'){
+      drawHuman(16,18,{name:'막례',color:'#5b596b',hair:'#d9d2b8'},t);
+      drawHuman(29,18,{name:'월선',color:'#76546e',hair:'#2c1e1d'},t);
+      drawHuman(12,21,{name:'사량',color:'#6d4f3f',hair:'#251915'},t);
+      if(state.phase==='ch5_night'||state.phase==='ch5_dawn')drawDoriRiteShadow(t);
+      drawCompanion(t);drawPlayer(t);return;
+    }
+    return oldDrawPeopleCh5(t);
+  };
+  window.drawPeople=drawPeople;
+
+  function drawFinalRiteObjects(t){
+    drawTrees([[9,7],[13,8],[33,8],[36,10],[8,22],[37,24],[11,26],[33,26],[14,14],[31,14],[13,20],[34,18],[18,6],[27,6],[7,17],[38,16]]);
+    drawRocks([[12,13],[32,20],[10,18],[35,13],[17,24],[28,24],[9,11],[36,16],[19,10],[26,11]]);
+    drawShrine(17,8);
+    drawFinalRopes();
+    drawRiteBasin(31,13,t);
+    drawRiteBlackShadow(22,8,t);
+    if(state.phase==='ch5_night')drawRiteTorches(t);
+  }
+  function drawFinalRopes(){
+    ctx.strokeStyle=state.phase==='ch5_night'?'#e5ce83':'#d9c780';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(18*TILE,20*TILE);ctx.lineTo(28*TILE,20*TILE);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(16*TILE,16*TILE);ctx.lineTo(29*TILE,16*TILE);ctx.stroke();
+    cutRect(18*TILE-2,16*TILE-4,5,28,state.phase==='ch5_night'?shade(paperPal.red,-8):paperPal.red,paperPal.ink,1,.5);
+    cutRect(28*TILE-2,16*TILE-4,5,28,state.phase==='ch5_night'?shade(paperPal.red,-8):paperPal.red,paperPal.ink,1,.5);
+  }
+  function drawRiteBasin(x,y,t){const ox=x*TILE,oy=y*TILE;cutRect(ox-6,oy+8,34,12,state.phase==='ch5_night'?'#65615a':'#837b6e',paperPal.ink,1.2);ctx.fillStyle=rgba('#4e6f7a',state.phase==='ch5_night'?.55:.35);ctx.fillRect(ox,oy+11,22,4);ctx.fillStyle=rgba('#e8d68d',.14+Math.sin(t/500)*.05);ctx.fillRect(ox+3,oy+12,14,1)}
+  function drawRiteBlackShadow(x,y,t){const ox=x*TILE,oy=y*TILE;ctx.fillStyle=rgba('#050403',state.phase==='ch5_night'?.42:.22);ctx.beginPath();ctx.ellipse(ox+8+Math.sin(t/900)*2,oy+4,62,18,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=rgba('#9e4037',state.phase==='ch5_night'?.38:.14);ctx.fillRect(ox-12,oy-2,5,3);ctx.fillRect(ox+24,oy-1,5,3)}
+  function drawRiteTorches(t){[[15,17],[29,17],[18,21],[26,21]].forEach(([x,y],i)=>{const ox=x*TILE,oy=y*TILE;cutRect(ox+7,oy+4,3,16,'#5a3422',paperPal.ink,.7,.4);ctx.fillStyle=rgba('#eec36b',.62+Math.sin(t/160+i)*.12);ctx.beginPath();ctx.ellipse(ox+8,oy+2,5,7,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=rgba('#f4d884',.08);ctx.beginPath();ctx.ellipse(ox+8,oy+4,30,20,0,0,Math.PI*2);ctx.fill()})}
+  function drawDoriRiteShadow(t){const x=23*TILE+Math.sin(t/700)*6,y=13*TILE+Math.sin(t/500)*2;ctx.fillStyle=rgba('#050505',.42);ctx.beginPath();ctx.ellipse(x,y+12,5,2,0,0,Math.PI*2);ctx.fill();cutPoly([[x-5,y-4],[x+5,y-4],[x+4,y+9],[x-4,y+9]],'rgba(35,33,28,.55)',paperPal.ink,1);ctx.fillStyle='rgba(235,220,164,.30)';ctx.fillRect(x-2,y-7,4,3)}
+
+  const oldDrawAtmosphereCh5=drawAtmosphere;
+  drawAtmosphere=function(t){
+    const night=state.phase.includes('night');
+    const dawn=state.phase.includes('dawn');
+    ctx.fillStyle=night?'rgba(18,12,8,.10)':dawn?'rgba(86,66,42,.09)':'rgba(116,87,50,.07)';
+    ctx.fillRect(0,0,VIEW_W,VIEW_H);
+    if(night){
+      const g=ctx.createRadialGradient(VIEW_W/2,VIEW_H/2,70,VIEW_W/2,VIEW_H/2,410);
+      g.addColorStop(0,'rgba(255,224,150,.055)');
+      g.addColorStop(.62,'rgba(20,12,8,.035)');
+      g.addColorStop(1,'rgba(5,4,3,.18)');
+      ctx.fillStyle=g;ctx.fillRect(0,0,VIEW_W,VIEW_H);
+    }
+    for(let i=0;i<60;i++){const x=(i*97+t*.004)%VIEW_W,y=(i*41+Math.sin(t/1500+i)*4)%VIEW_H;ctx.fillStyle=night?'rgba(226,205,150,.045)':'rgba(255,242,200,.035)';ctx.fillRect(Math.round(x),Math.round(y),1,1)}
+    ctx.fillStyle='rgba(26,15,8,.10)';for(let x=0;x<VIEW_W;x+=29)ctx.fillRect(x,0,1,VIEW_H);
+    ctx.fillStyle='rgba(238,210,160,.035)';for(let x=13;x<VIEW_W;x+=47)ctx.fillRect(x,0,1,VIEW_H);
+  };
+  window.drawAtmosphere=drawAtmosphere;
+
+  const oldMapNameCh5=mapName;
+  mapName=function(){return state.map==='finalrite'?'마지막 산제단':oldMapNameCh5()};window.mapName=mapName;
+  const oldChapterNameCh5=chapterName;
+  chapterName=function(){return state.chapter===5?'5장 마지막 산제':oldChapterNameCh5()};window.chapterName=chapterName;
+  const oldPhaseTextCh5=phaseText;
+  phaseText=function(){const p=state.phase;if(p==='ch5_prepare')return'5장 의례 준비';if(p==='ch5_night')return'5장 마지막 밤';if(p==='ch5_dawn')return'5장 새벽 보고';return oldPhaseTextCh5()};window.phaseText=phaseText;
+  const oldUpdateHudCh5=updateHud;
+  updateHud=function(){
+    if(state.chapter!==5)return oldUpdateHudCh5();
+    const loc=nearbyLocation();
+    const info=state.phase==='ch5_prepare'?'의례 준비: '+(state.ch5PrepActions||0)+'/'+(state.maxCh5PrepActions||3):state.phase==='ch5_night'?'마지막 선택':state.phase==='ch5_dawn'?'최종 보고':'진행';
+    dom.hud.innerHTML='<b>'+mapName()+'</b> · '+chapterName()+' · '+state.time+'<br>'+info+(loc?'<br>상호작용: '+loc.name:'');
+    dom.hint.innerHTML='WASD/방향키: 이동<br>Enter/Space/Z: 상호작용/컷신 다음<br>대화 선택: 숫자키 또는 클릭';
+  };window.updateHud=updateHud;
+})();
+
+refreshSide();showScene('intro');requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
