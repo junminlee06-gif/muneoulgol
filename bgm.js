@@ -26,6 +26,14 @@
     tooth: ['이빨 사이의 이름', '오른쪽 위']
   };
 
+  function fixedButtonStyle(bottom) {
+    return {
+      position: 'fixed', right: '14px', bottom, zIndex: '99999', background: 'rgba(31,25,20,.94)',
+      color: '#ded4c1', border: '1px solid #6e5a40', borderRadius: '8px', padding: '9px 12px',
+      font: '14px system-ui,-apple-system,Segoe UI,sans-serif', boxShadow: '0 6px 20px rgba(0,0,0,.45)'
+    };
+  }
+
   const musicBtn = document.createElement('button');
   musicBtn.textContent = '음악 켜기';
   Object.assign(musicBtn.style, fixedButtonStyle('14px'));
@@ -53,14 +61,6 @@
     .dialog button{scroll-margin:0!important;padding:6px 9px!important;font-size:13px!important;line-height:1.32!important;}
     @media(max-width:980px){.dialog{padding:10px!important}.dialog .text{font-size:13px!important}.dialog button{padding:6px 8px!important;font-size:13px!important}#muneoulgolCh4Guide{left:10px!important;right:10px!important;bottom:64px!important;width:auto!important}}
   `;
-
-  function fixedButtonStyle(bottom) {
-    return {
-      position: 'fixed', right: '14px', bottom, zIndex: '99999', background: 'rgba(31,25,20,.94)',
-      color: '#ded4c1', border: '1px solid #6e5a40', borderRadius: '8px', padding: '9px 12px',
-      font: '14px system-ui,-apple-system,Segoe UI,sans-serif', boxShadow: '0 6px 20px rgba(0,0,0,.45)'
-    };
-  }
 
   document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(style);
@@ -108,10 +108,64 @@
   };
   ['click','keydown','touchstart'].forEach(ev => window.addEventListener(ev, () => { if (musicOn) play(timeKind()); }, { passive:true }));
 
+  function setGameUnlocked() {
+    try {
+      Function("if (typeof state !== 'undefined') state.dialogOpen = false; if (typeof keysDown !== 'undefined') keysDown.clear();")();
+    } catch (e) {}
+  }
+
+  function hideEl(el) {
+    if (el) el.style.display = 'none';
+  }
+
+  function overlayCleanup() {
+    const h = hudText();
+    const cutscene = document.getElementById('cutscene');
+    const dialog = document.getElementById('dialog');
+    const report = document.getElementById('reportPanel');
+    const speaker = document.getElementById('speaker');
+    const reportTitle = document.getElementById('reportTitle');
+
+    const cutsceneOpen = cutscene && cutscene.style.display === 'block';
+    const reportOpen = report && report.style.display !== 'none';
+    const dialogOpen = dialog && dialog.style.display !== 'none';
+    const isChapter5 = h.includes('5장') || h.includes('마지막 산제단');
+    const stale4Dialog = speaker && /4장|검은등|밤의 검은 바위|도리의 이름|사량의 바위턱/.test(speaker.innerText || '');
+    const stale4Report = reportTitle && (reportTitle.innerText || '').includes('4장');
+
+    if (cutsceneOpen) {
+      hideEl(dialog);
+      hideEl(report);
+      hideEl(guide);
+      hideEl(ch4Btn);
+      setGameUnlocked();
+      return;
+    }
+
+    if (isChapter5) {
+      if (stale4Dialog) hideEl(dialog);
+      if (stale4Report) hideEl(report);
+      hideEl(guide);
+      hideEl(ch4Btn);
+      if ((dialogOpen && stale4Dialog) || (reportOpen && stale4Report)) setGameUnlocked();
+      return;
+    }
+
+    if (reportOpen && dialogOpen) {
+      hideEl(dialog);
+      setGameUnlocked();
+    }
+  }
+
   function anchorDialog() {
     const dialog = document.getElementById('dialog');
     const gamebox = document.querySelector('.gamebox');
+    const report = document.getElementById('reportPanel');
+    const cutscene = document.getElementById('cutscene');
     if (!dialog || !gamebox || dialog.style.display === 'none') return;
+    if (report && report.style.display !== 'none') return;
+    if (cutscene && cutscene.style.display === 'block') return;
+
     const r = gamebox.getBoundingClientRect();
     const margin = r.width < 520 ? 10 : 16;
     const pad = 8;
@@ -128,8 +182,8 @@
     if (text) text.style.maxHeight = `${Math.round(Math.min(count >= 4 ? 96 : 112, maxH * .34))}px`;
     if (opts) opts.style.maxHeight = `${Math.round(Math.min(count >= 4 ? 188 : count === 3 ? 150 : 120, maxH * .56))}px`;
     dialog.querySelectorAll('button').forEach(b => { b.style.fontSize = '13px'; b.style.lineHeight = '1.32'; });
-    const h = Math.min(dialog.offsetHeight || maxH, maxH);
-    dialog.style.top = `${Math.round(Math.max(pad, Math.min(r.bottom - h - margin, window.innerHeight - h - pad)))}px`;
+    const measured = Math.min(dialog.offsetHeight || maxH, maxH);
+    dialog.style.top = `${Math.round(Math.max(pad, Math.min(r.bottom - measured - margin, window.innerHeight - measured - pad)))}px`;
     dialog.style.bottom = 'auto';
     if (document.activeElement && dialog.contains(document.activeElement)) { try { document.activeElement.blur(); } catch(e) {} }
   }
@@ -148,8 +202,8 @@
   }
 
   function closeDialogDomOnly() {
-    const d = document.getElementById('dialog');
-    if (d) d.style.display = 'none';
+    hideEl(document.getElementById('dialog'));
+    setGameUnlocked();
   }
 
   function trackCh4DayOptions() {
@@ -186,23 +240,12 @@
     buttons.forEach(btn => {
       const original = btn.onclick;
       btn.onclick = function(ev) {
-        let ok = true;
-        try { if (typeof original === 'function') original.call(this, ev); } catch (e) { ok = false; console.warn(e); }
+        try { if (typeof original === 'function') original.call(this, ev); } catch (e) { console.warn(e); }
         setTimeout(() => {
-          if (speakerText().includes('밤의 검은 바위')) showNightFallback(ok ? '선택은 처리됐지만 화면 전환이 멈췄습니다.' : '선택 처리 중 오류가 났습니다.');
+          if (speakerText().includes('밤의 검은 바위')) showNightFallback('선택은 처리됐지만 화면 전환이 멈췄습니다.');
         }, 250);
       };
     });
-    const extra = document.createElement('button');
-    extra.textContent = '4장 새벽으로 진행한다';
-    extra.style.background = '#6b4e2f';
-    extra.style.borderColor = '#c39b62';
-    extra.onclick = () => {
-      const first = buttons[0];
-      if (first && typeof first.onclick === 'function') first.onclick.call(first, new Event('click'));
-      setTimeout(() => showNightFallback('새벽 진행 보조를 실행했습니다.'), 300);
-    };
-    opts.appendChild(extra);
   }
 
   function showNightFallback(msg) {
@@ -211,22 +254,12 @@
     const opts = optionBox();
     if (!s || !t || !opts) return;
     s.textContent = '4장 새벽 진행 안내';
-    t.textContent = `${msg}\n\n새벽 기록 화면으로 넘어가지 않으면, 오른쪽 아래의 “새벽으로 진행” 버튼을 눌러 기록 단계로 이동하세요.`;
+    t.textContent = `${msg}\n\n검은 바위 앞에서 다시 상호작용하거나, 진행 안내 버튼을 눌러 다음 단계로 이동하세요.`;
     opts.innerHTML = '';
     const b = document.createElement('button');
-    b.textContent = '닫고 새벽 진행 버튼을 누른다';
+    b.textContent = '닫는다';
     b.onclick = closeDialogDomOnly;
     opts.appendChild(b);
-    ch4Btn.textContent = '새벽으로 진행';
-    ch4Btn.style.display = 'block';
-    ch4Btn.onclick = () => {
-      // Prefer the original route if it is reachable through the visible scene buttons.
-      const fake = document.createElement('button');
-      fake.textContent = '새벽 기록으로 이동';
-      document.body.appendChild(fake);
-      fake.remove();
-      showTemporaryGuide('검은 바위 앞에서 새벽 기록을 정리하세요. 화면이 그대로면 검은 바위 앞에서 상호작용하세요.');
-    };
   }
 
   function currentInteractionLabel() {
@@ -269,7 +302,12 @@
     const first = opts.querySelector('button');
     if (!first || first.textContent === '5장으로 진행한다') return;
     first.textContent = '5장으로 진행한다';
-    first.onclick = () => callGlobal('startChapter5');
+    first.onclick = () => {
+      hideEl(document.getElementById('dialog'));
+      hideEl(document.getElementById('reportPanel'));
+      setGameUnlocked();
+      callGlobal('startChapter5');
+    };
   }
 
   function updateAssist() {
@@ -310,6 +348,7 @@
   }
 
   function tick() {
+    overlayCleanup();
     if (musicOn) play(timeKind());
     updateMusicLabel();
     trackCh4DayOptions();
@@ -320,5 +359,5 @@
     updateGuide();
   }
 
-  setInterval(tick, 200);
+  setInterval(tick, 120);
 })();
