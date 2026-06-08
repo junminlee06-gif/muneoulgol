@@ -189,7 +189,6 @@
       return;
     }
 
-    // 화면에는 아무 창도 없는데 내부 상태만 대화 중으로 남은 경우를 풀기 위한 안전장치.
     if (!dialogOpen && !reportOpen && !isCutsceneOpen()) {
       unlockBtn.style.display = 'none';
     }
