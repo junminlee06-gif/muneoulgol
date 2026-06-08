@@ -27,6 +27,7 @@
     .dialog .text{max-height:112px!important;overflow-y:auto!important;}
     .dialog .options{max-height:190px!important;overflow-y:auto!important;}
     .dialog button{font-size:13px!important;line-height:1.32!important;padding:6px 9px!important;}
+    #muneoulgolPad,#muneoulgolAction,#muneoulgolUnlock{display:none!important;pointer-events:none!important;}
     #muneoulgolMusic{position:fixed;right:18px;bottom:18px;z-index:99999;background:rgba(31,25,20,.94);color:#ded4c1;border:1px solid #6e5a40;border-radius:10px;padding:9px 12px;font:14px system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.42)}
     @media(max-width:980px){.dialog{left:10px!important;right:10px!important;bottom:10px!important;max-height:54vh!important}.dialog .text{max-height:17vh!important}.dialog .options{max-height:24vh!important}}
   `;
@@ -35,7 +36,15 @@
   button.id = 'muneoulgolMusic';
   button.textContent = '음악 켜기';
 
+  function removeOldControlOverlays() {
+    ['muneoulgolPad', 'muneoulgolAction', 'muneoulgolUnlock'].forEach(id => {
+      const node = document.getElementById(id);
+      if (node) node.remove();
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    removeOldControlOverlays();
     document.head.appendChild(style);
     document.body.appendChild(button);
     updateLabel();
@@ -99,6 +108,7 @@
   });
 
   setInterval(() => {
+    removeOldControlOverlays();
     if (enabled) play(timeKind());
     updateLabel();
   }, 1000);
