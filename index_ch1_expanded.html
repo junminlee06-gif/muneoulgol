@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>마지막 산제: 1장 확장 실험판</title>
+<style>
+:root{--bg:#070908;--panel:#101515;--line:#4a3b2c;--text:#ded4c1;--muted:#958c7e;--accent:#b7925d;--bad:#9b5955;--good:#6d8766}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0%,#2a2118,#100d0a 60%,#050403 100%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}.wrap{max-width:1220px;margin:0 auto;padding:18px;display:grid;grid-template-columns:720px 1fr;gap:16px}header{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px;align-items:end;border-bottom:1px solid var(--line);padding-bottom:10px}h1{margin:0;font-size:24px;letter-spacing:-.03em}.sub{font-size:13px;color:var(--muted)}.gamebox{position:relative;min-height:480px;background:#1a130d;border:1px solid var(--line);box-shadow:0 10px 34px rgba(0,0,0,.56),inset 0 0 0 3px rgba(230,205,160,.06);overflow:hidden}.gamebox:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.012) 50%,rgba(0,0,0,.06) 50%);background-size:100% 4px;mix-blend-mode:soft-light}.sceneArt{height:230px;position:relative;background:linear-gradient(#252016,#12100c);border-bottom:1px solid var(--line);overflow:hidden}.hill{position:absolute;left:-40px;right:-40px;bottom:0;height:130px;background:#25301f;clip-path:polygon(0 70%,15% 42%,28% 62%,43% 30%,60% 65%,74% 38%,100% 72%,100% 100%,0 100%)}.path{position:absolute;left:315px;top:78px;width:92px;height:210px;background:#8d724d;transform:skewX(-8deg);opacity:.82}.post{position:absolute;left:175px;top:82px;width:18px;height:108px;background:#493221;border:3px solid #1c120b}.post:before{content:"";position:absolute;left:-24px;top:-8px;width:66px;height:22px;background:#6b4a31;border:3px solid #1c120b}.water{position:absolute;right:0;top:92px;width:150px;height:150px;background:#314d58;clip-path:polygon(36% 0,100% 0,100% 100%,0 100%);opacity:.8}.paper{position:absolute;background:#c7aa72;border:2px solid #1b120b;box-shadow:5px 6px 0 rgba(0,0,0,.25);transform:rotate(-4deg)}.p1{left:70px;top:145px;width:52px;height:24px}.p2{right:170px;top:154px;width:44px;height:18px;background:#d8c08b}.shadow{position:absolute;right:104px;top:76px;width:44px;height:90px;background:#111610;border:2px solid #050403;opacity:.82;clip-path:polygon(50% 0,80% 36%,68% 100%,30% 100%,18% 35%)}.dialog{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(31,25,20,.97);border:2px solid #5b4a38;box-shadow:0 8px 0 rgba(0,0,0,.30),0 18px 34px rgba(0,0,0,.55);padding:14px;z-index:5}.speaker{font-weight:800;color:var(--accent);margin-bottom:6px}.text{white-space:pre-wrap;font-size:15px;margin-bottom:10px;max-height:128px;overflow:auto}.options{display:grid;gap:7px}button{font-family:inherit;color:var(--text);background:#35291f;border:1px solid #6e5a40;padding:8px 10px;text-align:left;cursor:pointer;font-size:14px}button:hover,button:focus{background:#493728;outline:1px solid var(--accent)}button.primary{background:#44382a;border-color:#85673b}.topBtns{display:flex;gap:8px;margin-top:8px}aside{display:flex;flex-direction:column;gap:12px}.card{background:rgba(28,23,18,.86);border:1px solid var(--line);padding:12px}.card h2{font-size:16px;margin:0 0 8px;color:var(--accent)}.small{font-size:12px;color:var(--muted)}ul{margin:6px 0 0 18px;padding:0}li{margin:3px 0;font-size:13px}.meters{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px}.meter{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:3px}.pill{display:inline-block;border:1px solid var(--line);padding:2px 6px;margin:2px 2px 0 0;font-size:12px;color:var(--muted)}.good{color:#9fbd91}.bad{color:#c9827e}@media(max-width:980px){.wrap{grid-template-columns:1fr}.sceneArt{height:190px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div><h1>마지막 산제: 1장 확장 실험판</h1><div class="sub">젖은 짚신 · 2일 구조 · 보고서 영향 테스트</div></div><div class="sub">선택: 클릭 또는 숫자키 · 원본 조작 버튼 추가 없음</div></header>
+<section class="gamebox"><div class="sceneArt"><div class="hill"></div><div class="path"></div><div class="water"></div><div class="post"></div><div class="paper p1"></div><div class="paper p2"></div><div class="shadow"></div></div><div class="dialog"><div class="speaker" id="speaker"></div><div class="text" id="text"></div><div class="options" id="options"></div><div class="topBtns"><button class="primary" onclick="restartGame()">처음부터</button><a href="index.html"><button>원본으로</button></a></div></div></section>
+<aside><div class="card"><h2>진행 상태</h2><div id="phaseText" class="small"></div><div class="meters" id="biasMeters"></div></div><div class="card"><h2>인물 반응</h2><div class="meters" id="trustMeters"></div></div><div class="card"><h2>공식 기록</h2><ul id="official"></ul></div><div class="card"><h2>비공식 기록</h2><ul id="unofficial"></ul></div><div class="card"><h2>단서</h2><div id="clues"></div></div></aside>
+</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const state={chapter:1,day:1,phase:'morning',investigationCount:0,maxInvestigationCount:3,lastReportId:null,visited:{},truthBias:{beast:0,human:0,ritual:0,conceal:0,unknown:0},trust:{wolseon:0,makrye:0,eulpa:0,hunter:0,office:0},flags:{hunterArrived:false,eulpaWatching:false,makryeCallsPlayer:false,storehouseLocked:false,childNameRecorded:false,shoeKeptAsEvidence:false,shoeForRitual:false,internalSuspicion:false,villageCalm:false,villageTension:0,unofficialFocus:false},official:[],unofficial:[],clues:[]};
+const reportNames={ch1_report_beast:'범의 습격 가능성',ch1_report_human:'사람이 아이를 데려간 흔적',ch1_report_ritual:'산제와 관련된 흔적',ch1_report_conceal:'마을 은폐 가능성',ch1_report_unknown:'판단 보류'};
+function esc(s){return String(s).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]))}
+function add(arr,v){if(v&&!arr.includes(v))arr.push(v)}
+function addOfficial(v){add(state.official,v)}function addUnofficial(v){add(state.unofficial,v)}function addClue(v){add(state.clues,v)}
+function inc(path,n){const [a,b]=path.split('.');state[a][b]=(state[a][b]||0)+n}
+function apply(e){if(!e)return;(e.bias||[]).forEach(([k,n])=>inc('truthBias.'+k,n));(e.trust||[]).forEach(([k,n])=>inc('trust.'+k,n));(e.flags||[]).forEach(([k,v])=>{state.flags[k]=v});if(e.tension)state.flags.villageTension+=e.tension;(e.clues||[]).forEach(addClue);(e.official||[]).forEach(addOfficial);(e.unofficial||[]).forEach(addUnofficial)}
+function choose(op){apply(op.effect);if(op.after)op.after();if(op.next)show(op.next)}
+function show(id){const sc=scenes[id];if(!sc){console.error('missing scene',id);return}state.current=id;refresh();$('speaker').textContent=sc.speaker;$('text').textContent=typeof sc.text==='function'?sc.text():sc.text;$('options').innerHTML='';sc.options().forEach((op,i)=>{const b=document.createElement('button');b.textContent=(i+1)+'. '+op.text;b.onclick=()=>choose(op);$('options').appendChild(b)});$('options').querySelector('button')?.focus({preventScroll:true})}
+function finishInvestigation(){state.investigationCount++;if(state.investigationCount>=state.maxInvestigationCount){if(state.day===1)show('ch1_d1_dusk_meeting');else show('ch1_d2_dusk_trust_choice')}else show(state.day===1?'ch1_d1_day_select_location':'ch1_d2_day_select_location')}
+function statusLine(){return `1장 ${state.day}일차 ${labelPhase(state.phase)} · 조사 ${state.investigationCount}/${state.maxInvestigationCount} · 긴장 ${state.flags.villageTension}`}
+function labelPhase(p){return {morning:'아침',day:'낮',dusk:'해질녘',night:'밤',report:'새벽 보고',dawn:'새벽'}[p]||p}
+function trustLabel(v){return v<=-3?'적대':v===-2?'경계':v===-1?'불신':v===0?'중립':v===1?'관심':v===2?'신뢰':'협력'}
+function refresh(){$('phaseText').textContent=statusLine();$('biasMeters').innerHTML=Object.entries(state.truthBias).map(([k,v])=>`<div class="meter"><span>${biasKo(k)}</span><b>${v}</b></div>`).join('');$('trustMeters').innerHTML=Object.entries(state.trust).map(([k,v])=>`<div class="meter"><span>${trustKo(k)}</span><b>${trustLabel(v)}</b></div>`).join('');$('official').innerHTML=state.official.map(v=>'<li>'+esc(v)+'</li>').join('')||'<li class="small">아직 없음</li>';$('unofficial').innerHTML=state.unofficial.map(v=>'<li>'+esc(v)+'</li>').join('')||'<li class="small">아직 없음</li>';$('clues').innerHTML=state.clues.map(v=>'<span class="pill">'+esc(v)+'</span>').join('')||'<span class="small">아직 없음</span>'}
+function biasKo(k){return {beast:'범/짐승',human:'사람',ritual:'산제',conceal:'은폐',unknown:'불명'}[k]}function trustKo(k){return {wolseon:'월선',makrye:'막례',eulpa:'을파',hunter:'사냥꾼',office:'관아'}[k]}
+function d1Loc(text,id){return {text,next:id,after:()=>{state.visited[id]=true}}}
+function d2Loc(text,id){return {text,next:id,after:()=>{state.visited[id]=true}}}
+function already(id){return !!state.visited[id]}
+const scenes={
+ch1_d1_morning_arrival:{speaker:'무너울골 입구',text:'젖은 산길 끝에 무너울골이 있었다.\n\n을파가 먼저 다가왔다.\n\n“멀리 오셨소. 관아에서 보낸 분이라 들었소.”\n“허나 크게 적을 일은 아닐 것이오. 아이 하나가 산짐승 길에 잘못 든 일이라.”\n\n관아 전령은 짧게 말했다.\n“실종 원인을 확인하고 보고하십시오. 마을이 흔들리지 않게 하는 것도 임무입니다.”',options:()=>[
+{text:'범의 흔적부터 확인하겠다.',effect:{bias:[['beast',1]],trust:[['eulpa',1],['office',1]]},next:'ch1_d1_day_select_location',after:()=>{state.phase='day'}},
+{text:'아이의 마지막 행적을 먼저 보겠다.',effect:{bias:[['human',1]],trust:[['wolseon',1]]},next:'ch1_d1_day_select_location',after:()=>{state.phase='day'}},
+{text:'마을에서 숨기는 것이 있는지 보겠다.',effect:{bias:[['conceal',1]],trust:[['eulpa',-1]]},next:'ch1_d1_day_select_location',after:()=>{state.phase='day'}},
+{text:'산제 이야기도 확인하겠다.',effect:{bias:[['ritual',1]],trust:[['makrye',1],['office',-1]]},next:'ch1_d1_day_select_location',after:()=>{state.phase='day'}},
+{text:'아직 아무것도 단정하지 않겠다.',effect:{bias:[['unknown',1]]},next:'ch1_d1_day_select_location',after:()=>{state.phase='day'}}]},
+ch1_d1_day_select_location:{speaker:'1일차 낮 조사',text:()=>`해가 완전히 기울기 전까지 세 곳을 조사할 수 있다.\n이미 조사한 곳은 다시 볼 수 없다.\n\n남은 조사 횟수: ${state.maxInvestigationCount-state.investigationCount}`,options:()=>[
+!already('ch1_d1_day_wolseon_house')&&d1Loc('월선의 집을 조사한다.','ch1_d1_day_wolseon_house'),!already('ch1_d1_day_jangseung')&&d1Loc('마을 입구 장승을 조사한다.','ch1_d1_day_jangseung'),!already('ch1_d1_day_well')&&d1Loc('우물가를 조사한다.','ch1_d1_day_well'),!already('ch1_d1_day_backyard')&&d1Loc('아이들 뒤꼍을 조사한다.','ch1_d1_day_backyard')].filter(Boolean)},
+ch1_d1_day_wolseon_house:{speaker:'월선의 집',text:'방 한쪽에 작은 짚신 한 짝이 뒤집혀 있었다. 바닥에 닿은 부분은 말라 있었지만, 끈 안쪽은 아직 축축했다.\n\n월선이 말했다.\n“그 아이가 신고 나간 겁니다. 그런데 밤이 지나고, 이 안에 있었습니다.”',options:()=>[
+{text:'아이가 급히 벗어 두고 나간 것이다.',effect:{bias:[['unknown',1]],trust:[['wolseon',-1]],clues:['아이의 짚신'],official:['짚신 한 짝이 집 안에서 발견됨']},after:finishInvestigation},
+{text:'누군가 짚신을 되가져온 것이다.',effect:{bias:[['human',1]],trust:[['wolseon',1]],clues:['아이의 짚신'],official:['짚신 한 짝이 집 안에서 발견됨'],unofficial:['짚신은 누군가 되가져온 물건처럼 보였다']},after:finishInvestigation},
+{text:'물가나 골짜기에서 젖은 뒤 옮겨졌다.',effect:{bias:[['ritual',1]],trust:[['wolseon',1]],clues:['아이의 짚신'],unofficial:['월선은 도리가 물소리를 무서워했다고 말했다']},after:finishInvestigation},
+{text:'누군가 일부러 남겨 둔 표식일 수 있다.',effect:{bias:[['conceal',1]],trust:[['wolseon',1]],tension:1,clues:['아이의 짚신'],unofficial:['짚신은 월선에게 보이도록 남겨진 표식일 수 있다']},after:finishInvestigation}]},
+ch1_d1_day_jangseung:{speaker:'마을 입구 장승',text:'장승의 배 부분에 깊은 흠이 네 줄 나 있었다. 짐승의 발톱이라기엔 너무 곧고, 칼자국이라기엔 너무 거칠었다.\n\n흠 사이에는 검은 털 몇 올이 말라붙어 있었고, 뒤편에는 거의 썩은 금줄 조각이 묶여 있었다.',options:()=>[
+{text:'범이 마을 입구까지 내려왔다.',effect:{bias:[['beast',1]],trust:[['eulpa',1]],clues:['검은 털'],official:['장승에서 짐승 발톱으로 보이는 흠과 검은 털 발견']},after:finishInvestigation},
+{text:'누군가 범의 흔적처럼 꾸민 것이다.',effect:{bias:[['human',1]],trust:[['eulpa',-1]],clues:['검은 털'],unofficial:['장승의 흠은 간격이 지나치게 일정했다']},after:finishInvestigation},
+{text:'장승에 의례 흔적이 남아 있다.',effect:{bias:[['ritual',1]],trust:[['makrye',1],['eulpa',-1]],clues:['검은 털','낡은 금줄 조각'],unofficial:['을파는 금줄 이야기를 피하려 했다']},after:finishInvestigation},
+{text:'마을이 이 흔적을 일부러 지우지 않았다.',effect:{bias:[['conceal',1]],tension:1,clues:['검은 털','낡은 금줄 조각'],unofficial:['장승의 흔적은 숨기기 쉬웠지만 아무도 가리지 않았다']},after:finishInvestigation}]},
+ch1_d1_day_well:{speaker:'우물가',text:'우물물은 고요했다. 그런데 물 흐르는 소리는 우물 안이 아니라 산 쪽에서 들려왔다.\n\n우물가에 앉아 있던 아이 하나가 그 소리를 듣고 어깨를 움츠렸다.',options:()=>[
+{text:'도리가 어디로 갔는지 말해라.',effect:{trust:[['wolseon',-1]],clues:['우물가 젖은 손자국'],unofficial:['아이는 겁에 질려 아무것도 못 봤다고 말했다']},after:finishInvestigation},
+{text:'괜찮다. 들은 소리만 말해도 된다.',effect:{trust:[['wolseon',1]],clues:['우물가 젖은 손자국'],official:['산 쪽에서 물소리가 들렸다는 아이 증언'],unofficial:['우물은 고요했으나 산 쪽에서 물소리가 났다']},after:finishInvestigation},
+{text:'어른들이 말하지 말라고 했느냐.',effect:{bias:[['conceal',1]],trust:[['eulpa',-1]],clues:['우물가 젖은 손자국'],unofficial:['아이들은 을파의 눈치를 보고 있었다']},after:finishInvestigation},
+{text:'그 소리가 산제 때도 들렸느냐.',effect:{bias:[['ritual',1]],trust:[['makrye',1]],clues:['우물가 젖은 손자국'],unofficial:['산제 밤에도 같은 물소리가 났다는 증언']},after:finishInvestigation}]},
+ch1_d1_day_backyard:{speaker:'아이들 뒤꼍',text:'뒤꼍의 흙은 이상하게 고르게 쓸려 있었다.\n\n담 밑에는 지워지지 않은 발끝 자국이 남아 있었다. 작은 발자국 옆에, 어른의 발자국이 반쯤 겹쳐 있었다.',options:()=>[
+{text:'어른이 아이를 데려갔다.',effect:{bias:[['human',2]],trust:[['wolseon',1]],clues:['어른 발자국','지워진 흙'],official:['아이들 뒤꼍에서 성인 발자국 확인']},after:finishInvestigation},
+{text:'지나가던 사람이 우연히 밟은 것이다.',effect:{bias:[['unknown',1]],clues:['어른 발자국','지워진 흙']},after:finishInvestigation},
+{text:'누군가 흔적을 지웠다.',effect:{bias:[['conceal',2]],trust:[['eulpa',-1]],tension:1,clues:['어른 발자국','지워진 흙'],unofficial:['흙은 비가 아니라 사람 손으로 지워진 듯했다']},after:finishInvestigation},
+{text:'아이의 발자국은 산 쪽으로 이어졌다.',effect:{bias:[['human',1],['ritual',1]],clues:['어른 발자국','지워진 흙']},after:finishInvestigation}]},
+ch1_d1_dusk_meeting:{speaker:'마을 공터',text:'해가 기울자 마을 사람들은 하나둘 공터에 모였다.\n\n을파가 말했다.\n“장승의 흠, 검은 털, 산길의 흔적. 이쯤이면 범이지.”\n\n월선이 앞으로 나왔다.\n“범이면 왜 짚신이 집 안에 있습니까?”',options:()=>[
+{text:'지금은 범의 가능성을 우선 보겠다.',effect:{bias:[['beast',1]],trust:[['eulpa',1],['office',1],['wolseon',-1]]},next:'ch1_d1_night_select_action',after:()=>{state.phase='night'}},
+{text:'짚신의 위치가 더 중요하다.',effect:{bias:[['human',1]],trust:[['wolseon',1]]},next:'ch1_d1_night_select_action',after:()=>{state.phase='night'}},
+{text:'마을 사람들이 말하지 않는 것이 있다.',effect:{bias:[['conceal',1]],trust:[['eulpa',-1]],tension:1},next:'ch1_d1_night_select_action',after:()=>{state.phase='night'}},
+{text:'산제 이야기를 피하는 이유가 무엇이냐.',effect:{bias:[['ritual',1]],trust:[['makrye',1],['eulpa',-1]]},next:'ch1_d1_night_select_action',after:()=>{state.phase='night'}},
+{text:'아직 단정하지 않겠다.',effect:{bias:[['unknown',1]],trust:[['office',-1]]},next:'ch1_d1_night_select_action',after:()=>{state.phase='night'}}]},
+ch1_d1_night_select_action:{speaker:'1일차 밤',text:'밤이 되자 마을은 너무 조용해졌다.\n\n대신 산 쪽에서 젖은 천을 끌고 가는 듯한 소리가 났다. 밤 행동은 한 번뿐이다.',options:()=>[
+{text:'짐승 흔적을 따라간다.',effect:{bias:[['beast',1]],clues:['물에 젖은 검은 털'],official:['산길 초입에서 검은 털 추가 확인'],unofficial:['검은 털은 물에 오래 잠긴 듯 무거웠다']},next:'ch1_d1_report_select',after:()=>{state.phase='report'}},
+{text:'작은 발자국을 따라간다.',effect:{bias:[['human',1]],trust:[['wolseon',1]],clues:['어른 발자국'],official:['아이 발자국이 산 초입에서 끊김'],unofficial:['그 뒤로는 어른 발자국만 남았다']},next:'ch1_d1_report_select',after:()=>{state.phase='report'}},
+{text:'물소리를 따라간다.',effect:{bias:[['ritual',1]],trust:[['makrye',1]],clues:['젖은 돌 조각'],unofficial:['물 없는 산길에서 물소리가 들렸다']},next:'ch1_d1_report_select',after:()=>{state.phase='report'}},
+{text:'마을 쪽 어른 발자국을 확인한다.',effect:{bias:[['conceal',1]],trust:[['eulpa',-1]],tension:1,clues:['헛간의 젖은 짚 냄새'],official:['성인 발자국이 헛간 방향으로 이어짐'],unofficial:['누군가 젖은 흔적을 숨기려 한 듯했다']},next:'ch1_d1_report_select',after:()=>{state.phase='report'}},
+{text:'더 들어가지 않고 표식을 남긴다.',effect:{bias:[['unknown',1]],trust:[['office',1]],official:['야간 추가 진입을 보류하고 산길 표식을 남김'],unofficial:['돌아서는 순간 물방울 떨어지는 소리가 들렸다']},next:'ch1_d1_report_select',after:()=>{state.phase='report'}}]},
+ch1_d1_report_select:{speaker:'첫 보고서',text:'새벽이 되었다.\n\n보고서는 단순한 정리가 아니다. 무엇을 공식 진실로 만들 것인지 정하는 일이다.',options:()=>Object.keys(reportNames).map(id=>({text:reportNames[id],after:()=>submitReport(id)}))},
+ch1_d2_morning_result:{speaker:'2일차 아침',text:()=>morningText(),options:()=>[{text:'둘째 날 낮 조사를 시작한다.',next:'ch1_d2_day_select_location',after:()=>{state.phase='day';state.day=2;state.investigationCount=0;state.maxInvestigationCount=2}}]},
+ch1_d2_day_select_location:{speaker:'2일차 낮 조사',text:()=>`어제의 보고서 때문에 열리는 문과 닫히는 문이 달라졌다.\n\n남은 조사 횟수: ${state.maxInvestigationCount-state.investigationCount}`,options:()=>unlockedD2().map(([text,id])=>d2Loc(text,id))},
+ch1_d2_day_entrance_recheck:{speaker:'마을 입구 재조사',text:'장승 아래의 흙은 밤새 더 젖어 있었다. 비는 오지 않았다. 그런데 산 쪽으로 난 좁은 길만 방금 누가 물을 끌고 지나간 듯 번들거렸다.',options:()=>[
+{text:'산길의 물기를 기록한다.',effect:{bias:[['ritual',1]],unofficial:['비가 오지 않았는데도 산길 초입의 흙이 젖어 있었다']},after:finishInvestigation},
+{text:'검은 털이 사라진 것을 기록한다.',effect:{bias:[['beast',1],['unknown',1]],unofficial:['어제 장승 아래 있던 검은 털이 사라졌다']},after:finishInvestigation},
+{text:'장승 뒤 금줄을 다시 확인한다.',effect:{bias:[['ritual',1]],trust:[['makrye',1]],clues:['금줄에 남은 젖은 먹물']},after:finishInvestigation},
+{text:'물기가 마을 쪽에서 시작됐는지 본다.',effect:{bias:[['conceal',1]],unofficial:['물기는 산에서 내려온 것인지 마을에서 올라간 것인지 불분명했다']},after:finishInvestigation}]},
+ch1_d2_day_wolseon_inner:{speaker:'월선의 안방',text:'월선은 작은 보자기를 풀었다. 그 안에는 짚신과 같은 풀로 엮은 매듭이 있었다.\n\n“도리가 겁날 때마다 쥐고 있던 겁니다. 그 애 이름은 도리입니다.”',options:()=>[
+{text:'도리의 이름을 공식 기록에 남기겠다.',effect:{trust:[['wolseon',2]],flags:[['childNameRecorded',true]],clues:['도리의 이름'],official:['실종 아동의 이름은 도리']},after:finishInvestigation},
+{text:'짚신은 증거로 보존하겠다.',effect:{trust:[['office',1],['wolseon',1]],flags:[['shoeKeptAsEvidence',true]],official:['아이의 짚신을 주요 증거로 보존']},after:finishInvestigation},
+{text:'짚신을 산길에 가져가 반응을 보겠다.',effect:{bias:[['ritual',1]],trust:[['wolseon',-1]],flags:[['shoeForRitual',true]],unofficial:['짚신을 산길 반응 확인용으로 보관했다']},after:finishInvestigation},
+{text:'이 물건은 기록하지 않고 숨기겠다.',effect:{trust:[['wolseon',1],['office',-1]],unofficial:['월선의 매듭은 비공식 기록에만 남겼다']},after:finishInvestigation}]},
+ch1_d2_day_makrye_yard:{speaker:'막례의 뒤뜰',text:'막례의 뒤뜰에는 말라붙은 풀과 젖은 돌이 함께 놓여 있었다.\n\n막례가 말했다.\n“산은 제물을 달라 하지 않는다. 다만 사람이 산의 이름을 빌려, 사람을 데려갈 때가 있지.”',options:()=>[
+{text:'산제가 아이 실종과 관련 있습니까?',effect:{bias:[['ritual',1]],trust:[['makrye',1]],unofficial:['막례는 산제와 실종 사이의 말을 아꼈다']},after:finishInvestigation},
+{text:'사람이 산제 이름을 이용했다는 뜻입니까?',effect:{bias:[['human',1]],trust:[['makrye',1]],unofficial:['사람이 산의 이름을 빌렸을 가능성']},after:finishInvestigation},
+{text:'이 말을 보고서에 남기겠습니다.',effect:{trust:[['office',-1],['makrye',1]],official:['막례 진술: 산제 이름이 실종에 이용됐을 가능성']},after:finishInvestigation},
+{text:'이 말은 비공식 기록에만 남기겠습니다.',effect:{trust:[['makrye',2]],unofficial:['산의 등은 검고, 물의 입은 닫히지 않는다']},after:finishInvestigation}]},
+ch1_d2_day_hunter_spot:{speaker:'사냥꾼 임시 자리',text:'사냥꾼은 장승 아래에 쪼그려 앉아 흙을 만지고 있었다.\n\n“범이면 발톱이 먼저 말합니다. 그런데 이놈은 발톱보다 물이 먼저 오더군요.”',options:()=>[
+{text:'검은 털을 범의 증거로 기록한다.',effect:{bias:[['beast',1]],trust:[['hunter',1],['office',1]],official:['검은 털을 범의 증거로 보존']},after:finishInvestigation},
+{text:'털에 묻은 물기를 따로 기록한다.',effect:{bias:[['ritual',1],['unknown',1]],unofficial:['사냥꾼은 검은 털의 물 냄새를 이상하게 여겼다']},after:finishInvestigation},
+{text:'밤에 동행해 달라고 한다.',effect:{trust:[['hunter',1]],unofficial:['사냥꾼이 밤 감시에 동행할 수 있다']},after:finishInvestigation},
+{text:'검은등이라는 이름을 묻는다.',effect:{unofficial:['마을 사람들은 그 존재를 검은등이라 부르는 듯하다']},after:finishInvestigation}]},
+ch1_d2_day_backyard_recheck:{speaker:'아이들 뒤꼍 재조사',text:'낮이 되자 지워진 흙은 더 분명해졌다. 담 밑에 남은 어른 발자국은 마을 안쪽을 향하고 있었다.',options:()=>[
+{text:'흙을 지운 도구를 찾는다.',effect:{bias:[['conceal',1]],unofficial:['흙을 지운 도구는 헛간 쪽에 있을 가능성이 높다']},after:finishInvestigation},
+{text:'어른 발자국의 방향을 기록한다.',effect:{bias:[['human',1]],official:['어른 발자국은 마을 안쪽으로 이어짐']},after:finishInvestigation},
+{text:'아이들에게 다시 묻는다.',effect:{trust:[['wolseon',1],['eulpa',-1]],unofficial:['아이들이 다시 어른들의 눈치를 보았다']},after:finishInvestigation},
+{text:'을파에게 바로 따진다.',effect:{trust:[['eulpa',-2]],tension:1,unofficial:['을파는 뒤꼍 이야기에 표정을 닫았다']},after:finishInvestigation}]},
+ch1_d2_dusk_trust_choice:{speaker:'2일차 해질녘',text:'마을은 다시 공터에 모였다.\n\n을파는 마을을 지키라 했다. 월선은 도리의 이름을 잊지 말라 했다. 막례는 산의 말을 함부로 문서에 적지 말라 했다. 사냥꾼은 검은등을 잡아야 한다고 했다.',options:()=>[
+{text:'을파의 설명을 따른다.',effect:{trust:[['eulpa',1],['wolseon',-1]],bias:[['beast',1]]},next:'ch1_d2_night_select_watch',after:()=>{state.phase='night'}},
+{text:'월선의 증언을 믿는다.',effect:{trust:[['wolseon',2]],bias:[['human',1]]},next:'ch1_d2_night_select_watch',after:()=>{state.phase='night'}},
+{text:'막례의 경고를 듣는다.',effect:{trust:[['makrye',2],['office',-1]],bias:[['ritual',1]]},next:'ch1_d2_night_select_watch',after:()=>{state.phase='night'}},
+{text:'사냥꾼과 산길을 본다.',effect:{trust:[['hunter',2]],bias:[['beast',1]]},next:'ch1_d2_night_select_watch',after:()=>{state.phase='night'}},
+{text:'누구도 완전히 믿지 않는다.',effect:{bias:[['unknown',1]],unofficial:['모든 증언은 서로 다른 방향을 가리켰다']},next:'ch1_d2_night_select_watch',after:()=>{state.phase='night'}}]},
+ch1_d2_night_select_watch:{speaker:'두 번째 밤',text:'마을의 모든 문이 닫혔지만, 산 쪽에서는 문이 열리는 소리가 났다.\n\n물소리는 어제보다 가까웠고, 장승 아래의 검은 털은 사라져 있었다.',options:()=>[
+{text:'장승 아래를 지킨다.',effect:{bias:[['beast',1],['ritual',1]],unofficial:['검은등으로 보이는 형체가 물소리 골짜기 쪽으로 사라졌다']},next:'ch1_d2_dawn_summary',after:()=>{state.phase='dawn'}},
+{text:'월선의 집 뒤를 지킨다.',effect:{bias:[['human',1],['conceal',1]],trust:[['wolseon',1]],unofficial:['월선의 집 뒤에 새 어른 발자국이 남았다']},next:'ch1_d2_dawn_summary',after:()=>{state.phase='dawn'}},
+{text:'막례가 말한 금줄 자리를 본다.',effect:{bias:[['ritual',1]],trust:[['makrye',1]],unofficial:['금줄에 젖은 종이 조각이 걸려 있었다. 글자는 등으로 읽혔다']},next:'ch1_d2_dawn_summary',after:()=>{state.phase='dawn'}},
+{text:'헛간 쪽을 살핀다.',effect:{bias:[['conceal',1]],trust:[['eulpa',-1]],flags:[['eulpaWatching',true]],tension:1,unofficial:['헛간 안에서 젖은 짚을 뒤집는 소리가 들렸다']},next:'ch1_d2_dawn_summary',after:()=>{state.phase='dawn'}},
+{text:'관아 지침대로 물러난다.',effect:{trust:[['office',1]],bias:[['unknown',1]],unofficial:['밤 조사는 중단했지만 산 쪽에서 아이 웃음소리 같은 것이 들렸다']},next:'ch1_d2_dawn_summary',after:()=>{state.phase='dawn'}}]},
+ch1_d2_dawn_summary:{speaker:'1장 종료',text:()=>`두 번째 새벽이 왔다.\n\n도리는 돌아오지 않았다. 그러나 이제 사라진 것은 아이 하나가 아니었다. 마을의 말, 산의 소리, 관아의 문장이 서로 다른 방향으로 걷기 시작했다.\n\n다음 조사 방향: ${ch2StartTypeText()}`,options:()=>[{text:'물소리 골짜기로 이어진다.',next:'ch1_end_to_ch2'}]},
+ch1_end_to_ch2:{speaker:'2장 시작 조건',text:()=>`1장 결과가 확정되었다.\n\n첫 보고서: ${reportNames[state.lastReportId]||'없음'}\n2장 시작 타입: ${ch2StartTypeText()}\n\n이 실험판은 여기서 멈춘다. 다음 적용 단계는 이 상태값을 원본 index.html의 마을 맵 이벤트에 연결하는 것이다.`,options:()=>[{text:'처음부터 다시 확인한다.',after:restartGame},{text:'원본 index.html로 돌아간다.',after:()=>{location.href='index.html'}}]}
+};
+function submitReport(id){state.lastReportId=id;addOfficial('1장 첫 보고: '+reportNames[id]);if(id==='ch1_report_beast'){apply({bias:[['beast',2]],trust:[['office',1],['eulpa',1],['wolseon',-1]],flags:[['hunterArrived',true],['villageCalm',true]],unofficial:['짚신의 습기와 사람 발자국은 보고서에서 약하게 처리되었다']})}if(id==='ch1_report_human'){apply({bias:[['human',2]],trust:[['wolseon',1],['eulpa',-1]],flags:[['internalSuspicion',true],['eulpaWatching',true]],unofficial:['월선은 도리가 혼자 밤길을 갈 아이가 아니라고 말했다']})}if(id==='ch1_report_ritual'){apply({bias:[['ritual',2]],trust:[['makrye',2],['office',-1],['eulpa',-1]],flags:[['makryeCallsPlayer',true]],unofficial:['장승의 금줄, 산 쪽 물소리, 젖은 돌 조각이 이어졌다']})}if(id==='ch1_report_conceal'){apply({bias:[['conceal',2]],trust:[['wolseon',1],['eulpa',-2]],flags:[['eulpaWatching',true],['storehouseLocked',true]],tension:1,unofficial:['을파는 지워진 흙과 헛간의 젖은 짚단을 설명하지 않았다']})}if(id==='ch1_report_unknown'){apply({bias:[['unknown',2]],trust:[['office',-1]],flags:[['unofficialFocus',true]],unofficial:['서로 맞지 않는 단서들을 삭제하지 않고 남겨 두었다']})}state.day=2;state.phase='morning';show('ch1_d2_morning_result')}
+function morningText(){const id=state.lastReportId;if(id==='ch1_report_beast')return '마을 사람들은 문을 조금 늦게 닫았다.\n\n범이라는 말은 사람을 겁주지만 동시에 안심시키기도 했다. 을파는 당신을 공터로 불렀고, 낯선 사냥꾼 하나가 장승 아래에 서 있었다.';if(id==='ch1_report_human')return '아침이 되었지만 마을의 문들은 열리지 않았다.\n\n사람이 아이를 데려갔다는 문장은 범보다 더 깊이 마을을 물었다. 월선은 당신을 기다리고 있었고, 을파는 멀리서 그 모습을 보고 있었다.';if(id==='ch1_report_ritual')return '마을은 조용했다. 그러나 조용한 것이 아니라, 누군가 소리를 덮어 누르고 있는 듯했다.\n\n막례가 장승 뒤에서 당신을 기다리고 있었다.';if(id==='ch1_report_conceal')return '당신이 공터에 나서자 말소리가 끊겼다.\n\n누군가 마을을 숨기고 있다는 문장은 마을 전체를 용의자로 만들었다. 을파는 웃지 않았고, 월선은 처음으로 당신 쪽으로 걸어왔다.';return '마을은 어제와 같아 보였다. 그러나 아무것도 달라지지 않았다는 사실이 오히려 불길했다.\n\n관아 전령은 다음 보고에는 원인이 있어야 한다고 말했다.'}
+function unlockedD2(){const list=[];if(!already('ch1_d2_day_entrance_recheck'))list.push(['마을 입구를 재조사한다.','ch1_d2_day_entrance_recheck']);if(!already('ch1_d2_day_wolseon_inner')&&(state.trust.wolseon>=1||state.lastReportId==='ch1_report_human'||state.lastReportId==='ch1_report_conceal'))list.push(['월선의 안방을 조사한다.','ch1_d2_day_wolseon_inner']);if(!already('ch1_d2_day_makrye_yard')&&(state.trust.makrye>=1||state.lastReportId==='ch1_report_ritual'))list.push(['막례의 뒤뜰을 조사한다.','ch1_d2_day_makrye_yard']);if(!already('ch1_d2_day_hunter_spot')&&state.flags.hunterArrived)list.push(['사냥꾼 임시 자리를 조사한다.','ch1_d2_day_hunter_spot']);if(!already('ch1_d2_day_backyard_recheck')&&(state.truthBias.human>=1||state.truthBias.conceal>=1||state.truthBias.unknown>=1))list.push(['아이들 뒤꼍을 재조사한다.','ch1_d2_day_backyard_recheck']);if(!list.length)list.push(['마을 입구를 재조사한다.','ch1_d2_day_entrance_recheck']);return list}
+function ch2StartTypeText(){if(state.flags.eulpaWatching||state.truthBias.conceal>=3)return '을파 감시 속에서 골짜기 진입';if(state.trust.makrye>=2||state.truthBias.ritual>=3)return '막례의 경고와 제문 중심 진입';if(state.trust.wolseon>=2||state.truthBias.human>=3)return '월선의 부탁과 도리 흔적 중심 진입';if(state.flags.hunterArrived||state.trust.hunter>=2||state.truthBias.beast>=3)return '사냥꾼과 함께 골짜기 초입 조사';return '혼자 진입, 비공식 기록 중심'}
+function restartGame(){location.reload()}
+window.restartGame=restartGame;document.addEventListener('keydown',e=>{if(e.key>='1'&&e.key<='9'){const btn=$('options').children[Number(e.key)-1];if(btn)btn.click()}});
+show('ch1_d1_morning_arrival');
+</script>
+</body>
+</html>
