@@ -11,6 +11,7 @@
   let enabled = false;
   let current = null;
   let lastKind = 'day';
+  let introRecovered = false;
 
   const style = document.createElement('style');
   style.textContent = `
@@ -48,6 +49,8 @@
     document.head.appendChild(style);
     document.body.appendChild(button);
     updateLabel();
+    setTimeout(recoverIntroIfNeeded, 450);
+    setTimeout(recoverIntroIfNeeded, 1200);
   });
 
   function text(id) {
@@ -107,8 +110,36 @@
     }, { passive: true });
   });
 
+  function recoverIntroIfNeeded() {
+    if (introRecovered) return;
+    const dialog = document.getElementById('dialog');
+    const report = document.getElementById('reportPanel');
+    const cutscene = document.getElementById('cutscene');
+    const hud = text('hud');
+    const speaker = text('speaker');
+
+    const dialogVisible = dialog && dialog.style.display !== 'none';
+    const reportVisible = report && report.style.display !== 'none';
+    const cutsceneVisible = cutscene && cutscene.style.display === 'block';
+
+    if (dialogVisible || reportVisible || cutsceneVisible) return;
+
+    const looksLikeFreshStart = !speaker && (!hud || hud.includes('남쪽 고갯길') || hud.includes('1장'));
+    if (!looksLikeFreshStart) return;
+
+    try {
+      const show = Function('return typeof showScene === "function" ? showScene : null')();
+      const st = Function('return typeof state !== "undefined" ? state : null')();
+      if (st && st.chapter === 1 && show) {
+        introRecovered = true;
+        show('intro');
+      }
+    } catch (e) {}
+  }
+
   setInterval(() => {
     removeOldControlOverlays();
+    recoverIntroIfNeeded();
     if (enabled) play(timeKind());
     updateLabel();
   }, 1000);
