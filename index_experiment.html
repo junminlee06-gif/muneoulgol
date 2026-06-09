@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무너울골 실험판 로더</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#050403;color:#ded4c1;font-family:system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden}
+.bar{position:fixed;left:0;right:0;top:0;height:42px;z-index:10;background:rgba(18,14,10,.96);border-bottom:1px solid #5b4a38;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 14px;font-size:13px}.bar b{color:#d3ad70}.bar a{color:#e6d4ad;text-decoration:none;border:1px solid #6e5a40;padding:4px 8px;border-radius:6px}iframe{position:fixed;left:0;top:42px;width:100%;height:calc(100% - 42px);border:0;background:#050403}
+</style>
+</head>
+<body>
+<div class="bar"><div><b>실험판</b> · 현재 index.html을 그대로 불러오는 복제 실험용 로더</div><div><a href="index.html" target="_blank">원본 열기</a></div></div>
+<iframe id="game" src="index.html?v=experiment-base"></iframe>
+<script>
+// 이 파일은 원본 index.html을 직접 훼손하지 않고 실험용 패치를 얹기 위한 로더입니다.
+// 다음 단계에서는 이 iframe 안의 원본 구조를 유지한 채 보고서/선택지 확장 스크립트를 주입합니다.
+</script>
+</body>
+</html>
