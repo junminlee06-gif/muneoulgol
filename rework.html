@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>마지막 산제 구조 개편판 - 1장 원형</title>
+<style>
+:root{--bg:#080706;--panel:#15110d;--panel2:#211911;--line:#594632;--text:#e5dac4;--muted:#a99b84;--accent:#d3ad70;--bad:#b96a5d;--good:#7f9b68}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#241b12,#090706 62%,#030302);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}.wrap{max-width:1180px;margin:0 auto;padding:18px;display:grid;grid-template-columns:minmax(0,720px) 1fr;gap:16px}header{grid-column:1/-1;border-bottom:1px solid var(--line);padding-bottom:10px}h1{margin:0;font-size:24px}.sub{color:var(--muted);font-size:13px}.game{position:relative;min-height:520px;border:1px solid var(--line);background:#17100b;box-shadow:0 10px 34px rgba(0,0,0,.55);overflow:hidden}.map{position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,235,180,.04) 1px,transparent 1px),linear-gradient(rgba(255,235,180,.035) 1px,transparent 1px),radial-gradient(circle at 50% 40%,#2f2617,#17100b 70%);background-size:36px 36px,36px 36px,auto}.place{position:absolute;border:2px solid #1a1009;background:#4b3623;color:#f2dfbd;padding:10px 12px;min-width:130px;text-align:center;box-shadow:6px 8px 0 rgba(0,0,0,.35);cursor:pointer}.place.done{opacity:.48}.place.locked{filter:grayscale(1);opacity:.45;cursor:not-allowed}.p1{left:70px;top:140px}.p2{left:292px;top:80px}.p3{left:500px;top:160px}.p4{left:285px;top:280px}.p5{left:510px;top:330px}.hud{position:absolute;left:12px;top:12px;background:rgba(20,15,10,.88);border:1px solid var(--line);padding:8px 10px;font-size:13px;z-index:2}.dialog{position:absolute;left:16px;right:16px;bottom:16px;background:rgba(31,25,20,.97);border:2px solid #6e5a40;padding:14px;z-index:4;box-shadow:0 8px 0 rgba(0,0,0,.28),0 18px 34px rgba(0,0,0,.55)}.speaker{color:var(--accent);font-weight:800;margin-bottom:6px}.text{white-space:pre-wrap}.options{display:grid;gap:7px;margin-top:10px}button{font:inherit;color:var(--text);background:#35291f;border:1px solid #6e5a40;padding:8px 10px;text-align:left;cursor:pointer}button:hover{background:#493728}.primary{background:#5a3f24;border-color:#c39b62}.report{position:absolute;inset:0;background:rgba(8,7,5,.96);z-index:5;padding:18px;overflow:auto}.report h2{color:var(--accent);margin-top:0}.reportGrid{display:grid;gap:10px}.choice{border:1px solid var(--line);background:#19130d;padding:12px}.choice b{color:var(--accent)}aside{display:flex;flex-direction:column;gap:12px}.card{border:1px solid var(--line);background:rgba(21,17,13,.93);padding:12px}.card h2{margin:0 0 8px;color:var(--accent);font-size:16px}.meter{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding:3px 0}.log{margin:0;padding-left:18px;font-size:13px}.tag{display:inline-block;border:1px solid var(--line);padding:2px 6px;margin:2px;color:var(--muted);font-size:12px}@media(max-width:980px){.wrap{grid-template-columns:1fr}.game{min-height:560px}.place{min-width:110px;font-size:13px}.p1{left:24px}.p2{left:190px}.p3{left:345px}.p4{left:172px}.p5{left:340px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>마지막 산제: 구조 개편판 1장</h1><div class="sub">선택지와 보고서가 다음 날 현실을 바꾸는 2일 구조 실험판 · 기존 index.html 보존</div></header>
+<section class="game">
+  <div class="map"></div>
+  <div class="hud" id="hud"></div>
+  <button class="place p1" id="well" onclick="visit('well')">우물가</button>
+  <button class="place p2" id="chief" onclick="visit('chief')">촌장집</button>
+  <button class="place p3" id="shaman" onclick="visit('shaman')">무당집</button>
+  <button class="place p4" id="mill" onclick="visit('mill')">방앗간</button>
+  <button class="place p5 locked" id="night" onclick="nightAction()">밤 행동</button>
+  <div class="dialog" id="dialog"><div class="speaker" id="speaker"></div><div class="text" id="text"></div><div class="options" id="options"></div></div>
+  <div class="report" id="report" style="display:none"><h2>1일차 보고서</h2><p class="sub">무엇을 공식 기록으로 올리느냐에 따라 2일차의 마을이 바뀐다.</p><div class="reportGrid" id="reportChoices"></div></div>
+</section>
+<aside>
+  <div class="card"><h2>진행 상태</h2><div id="stateBox"></div></div>
+  <div class="card"><h2>인물 신뢰</h2><div id="meters"></div></div>
+  <div class="card"><h2>공식 기록</h2><ul class="log" id="official"></ul></div>
+  <div class="card"><h2>비공식 기록</h2><ul class="log" id="unofficial"></ul></div>
+  <div class="card"><h2>보고서 결과</h2><div id="consequence" class="sub">아직 보고서가 제출되지 않았다.</div></div>
+</aside>
+</div>
+<script>
+const S={day:1,phase:'intro',visits:0,maxVisits:3,visited:{},report:null,stats:{을파:0,막례:0,월선:0,사량:0,관아:0},official:[],unofficial:[],flags:{}};
+const places={
+  well:{name:'우물가',speaker:'월선',text:'월선은 아이의 짚신을 보자 고개를 돌린다. “도리 것이 아닙니다. 그렇게 쓰지 마세요.”',opts:[['아이 이름부터 묻는다',()=>{addO('아이 이름: 도리');stat('월선',1);afterVisit('well','월선은 끝내 이름을 말한다. 이름을 기록하자 우물물이 잠깐 한쪽으로 흐른다.')}],['우물 밑을 본다',()=>{addU('우물 밑 이름패');stat('관아',-1);afterVisit('well','물 밑에는 작은 나무패가 있다. 공식 기록에는 쓰기 어려운 물건이다.')}],['소문을 모은다',()=>{addO('주민 진술: 범·무당·촌장 탓으로 갈림');afterVisit('well','사람들은 범을 말하지만 아이 이름은 말하지 않는다.')}]]},
+  chief:{name:'촌장집',speaker:'을파',text:'을파는 장부를 가지런히 덮는다. “범이면 산길만 닫으면 됩니다.”',opts:[['범 습격으로 볼 수 없다고 말한다',()=>{addU('을파가 범 습격을 먼저 단정');stat('을파',-1);afterVisit('chief','을파의 손이 장부 위에서 굳는다.')}],['장부를 베낀다',()=>{addO('벌목량 장부 사본');stat('을파',1);afterVisit('chief','산제 비용이 끊긴 자리 옆에 벌목량이 늘었다.')}],['실종자 명단을 요구한다',()=>{addO('실종자 셋의 이름');stat('관아',1);afterVisit('chief','도리의 이름을 말할 때만 을파의 목소리가 낮아진다.')}]]},
+  shaman:{name:'무당집',speaker:'막례',text:'막례는 찢어진 제문을 손으로 누른다. “믿지 말고 봐라. 기록은 산보다 늦다.”',opts:[['산제가 무엇인지 묻는다',()=>{addU('검은등이라는 산군 별칭');stat('막례',1);afterVisit('shaman','검은등은 이름이 아니라 별명이라고 막례가 말한다.')}],['증거 없이 믿을 수 없다고 한다',()=>{addO('무당 진술: 산길 이상 주장');stat('막례',-1);stat('관아',1);afterVisit('shaman','막례는 웃지 않는다. “그래서 관아 사람을 부른 게지.”')}],['찢어진 제문을 확인한다',()=>{addU('찢어진 제문 조각');stat('막례',1);afterVisit('shaman','제문은 닫는 의식에 가깝다. 부르는 의식이 아니다.')}]]},
+  mill:{name:'방앗간',speaker:'방앗간',text:'물레 옆에 아이의 머리끈이 걸려 있다. 물소리는 아래로 흐르지 않고 산 쪽으로 올라간다.',opts:[['머리끈을 챙긴다',()=>{addO('도리의 머리끈');afterVisit('mill','해루가 묻는다. “아이가 여기까지 혼자 온 겁니까?”')}],['젖은 발자국을 따라본다',()=>{addU('우물에서 방앗간으로 이어진 젖은 발자국');stat('월선',1);afterVisit('mill','발자국은 다시 물소리 골짜기 쪽으로 흐려진다.')}],['물레 소리를 기록한다',()=>{addU('산 쪽으로 올라가는 물소리');stat('막례',1);afterVisit('mill','물소리는 기계음이 아니라 노래처럼 끊겼다 이어진다.')}]]}
+};
+const reports={
+  beast:{title:'범 습격 가능성',body:'관아는 사냥꾼을 부른다. 사량이 2일차 낮에 등장한다. 막례는 입을 닫는다.',apply(){S.report='beast';stat('사량',1);stat('막례',-1);addO('1일차 보고: 범 습격 가능성');S.flags.saryang=true;}},
+  human:{title:'사람 개입 가능성',body:'을파는 경계하고, 관아 병졸이 마을 안쪽을 오간다. 장부 관련 질문이 열린다.',apply(){S.report='human';stat('을파',-2);stat('관아',1);addO('1일차 보고: 사람 개입 가능성');S.flags.soldiers=true;}},
+  rite:{title:'산제 관련성',body:'관아는 탐탁지 않아 하지만 막례가 제문 조각을 더 내놓는다.',apply(){S.report='rite';stat('막례',2);stat('관아',-1);addO('1일차 보고: 산제 관련성');S.flags.rite=true;}},
+  cover:{title:'마을 내부 은폐 가능성',body:'을파의 감시가 늘고, 월선이 밤에 몰래 찾아올 조건이 열린다.',apply(){S.report='cover';stat('을파',-1);stat('월선',2);addO('1일차 보고: 마을 내부 은폐 가능성');S.flags.cover=true;}}
+};
+function show(speaker,text,opts){speakerEl.textContent=speaker;textEl.textContent=text;optionsEl.innerHTML='';opts.forEach(([label,fn],i)=>{const b=document.createElement('button');b.textContent=(i+1)+'. '+label;b.onclick=fn;optionsEl.appendChild(b)});dialog.style.display='block'}
+function close(){dialog.style.display='none'}
+function visit(id){if(S.phase==='intro')return;if(S.day===1&&S.phase==='day1'){if(S.visited[id]){show('이미 조사한 곳',places[id].name+'은 오늘 이미 확인했다. 남은 장소를 조사하자.',[['돌아간다',close]]);return}const p=places[id];show(p.speaker,p.text,p.opts);return}if(S.day===2&&S.phase==='day2'){visitDay2(id);return}}
+function afterVisit(id,msg){S.visited[id]=true;S.visits++;document.getElementById(id).classList.add('done');show('조사 결과',msg,[[S.visits>=S.maxVisits?'보고서를 작성한다':'다른 곳을 더 조사한다',()=>{close(); if(S.visits>=S.maxVisits)openReport()}]]);render()}
+function openReport(){report.style.display='block';reportChoices.innerHTML='';Object.entries(reports).forEach(([key,r])=>{const div=document.createElement('div');div.className='choice';div.innerHTML='<b>'+r.title+'</b><p>'+r.body+'</p>';const b=document.createElement('button');b.className='primary';b.textContent='이 방향으로 제출한다';b.onclick=()=>{r.apply();startDay2(r.body)};div.appendChild(b);reportChoices.appendChild(div)})}
+function startDay2(result){report.style.display='none';S.day=2;S.phase='day2';S.visited={};S.visits=0;Object.keys(places).forEach(id=>document.getElementById(id).classList.remove('done'));night.classList.remove('locked');consequence.textContent=result;show('2일차 아침','보고서가 먼저 마을에 도착했다. 같은 장소라도 어제와 다른 얼굴로 당신을 맞는다.',[['2일차 조사를 시작한다',close]]);render()}
+function visitDay2(id){const branch=S.report;const base={well:'월선은 어제보다 먼저 말을 꺼낸다.',chief:'을파는 장부를 치우지 않는다. 숨기는 대신 버티기로 한 얼굴이다.',shaman:'막례는 제문 조각을 더듬는다.',mill:'방앗간의 물소리는 어제보다 낮다.'};let extra='';if(branch==='beast')extra=' 사량의 발자국이 주변을 맴돈다.';if(branch==='human')extra=' 관아 병졸이 지나간 뒤 말들이 끊긴다.';if(branch==='rite')extra=' 막례가 “이제 봤으니 늦었다”고 말한다.';if(branch==='cover')extra=' 월선이 남들이 보지 않는 쪽으로 눈짓한다.';show(places[id].name,base[id]+extra,[['이 반응을 기록한다',()=>{addU('2일차 '+places[id].name+' 반응: '+reports[branch].title);S.visited[id]=true;S.visits++;document.getElementById(id).classList.add('done');show('2일차 기록','보고서가 사건을 바꾸고 있다. 기록은 사실을 따라가는 것이 아니라, 사실이 지나갈 길을 만들고 있다.',[[S.visits>=2?'밤 행동으로 간다':'다른 반응을 더 본다',()=>{close(); if(S.visits>=2)S.phase='night';render()}]]);render()}]] )}
+function nightAction(){if(S.day<2||S.phase!=='night'){show('아직 이르다','2일차 낮에 두 곳 이상 반응을 본 뒤 밤 행동을 선택할 수 있다.',[['돌아간다',close]]);return}const branch=S.report;const text={beast:'사량이 활을 들고 산길을 본다. 범을 쫓는다는 명분은 이미 칼날이 되었다.',human:'관아 병졸의 횃불이 마을 사람들의 문을 두드린다. 사람 개입이라는 기록은 사람들을 서로 의심하게 만든다.',rite:'막례가 찢어진 제문을 다시 편다. 산제라는 말은 관아 문서에 들어간 순간 금기가 아니라 사건이 되었다.',cover:'월선이 몰래 찾아와 말한다. “도리 이름을 기록하지 말아 주세요. 이름이 가는 길이 있습니다.”'}[branch];show('2일차 밤',text,[['1장 개편판 결과를 본다',ending]])}
+function ending(){S.phase='done';addO('1장 종료: 보고서 결과가 2일차 현실에 반영됨');show('1장 개편판 종료','1장 실험판은 여기까지다. 다음 구현에서는 이 구조를 원본 이동 시스템과 2장에 연결한다.',[['닫기',close]]);render()}
+function stat(k,v){S.stats[k]=(S.stats[k]||0)+v;render()}function addO(x){if(!S.official.includes(x))S.official.push(x);render()}function addU(x){if(!S.unofficial.includes(x))S.unofficial.push(x);render()}
+function render(){hud.innerHTML='<b>'+S.day+'일차</b> · '+({intro:'도입',day1:'낮 조사',day2:'보고서 반영 조사',night:'밤 행동',done:'종료'}[S.phase]||S.phase)+'<br>조사 '+S.visits+'/'+(S.day===1?S.maxVisits:2);stateBox.innerHTML='<span class="tag">보고서: '+(S.report?reports[S.report].title:'미제출')+'</span><span class="tag">단계: '+S.phase+'</span>';meters.innerHTML=Object.entries(S.stats).map(([k,v])=>'<div class="meter"><span>'+k+'</span><b>'+v+'</b></div>').join('');official.innerHTML=S.official.map(x=>'<li>'+x+'</li>').join('');unofficial.innerHTML=S.unofficial.map(x=>'<li>'+x+'</li>').join('')}
+const speakerEl=document.getElementById('speaker'),textEl=document.getElementById('text'),optionsEl=document.getElementById('options');
+S.phase='intro';render();show('고연우','무너울골에 도착했다. 이번 개편판에서는 보고서가 다음 날의 현실을 바꾼다. 먼저 1일차 낮 조사를 시작한다.',[['1일차 낮 조사를 시작한다',()=>{S.phase='day1';close();render()}]]);
+</script>
+</body>
+</html>
