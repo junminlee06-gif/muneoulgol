@@ -10,6 +10,7 @@ function loadScript(src) {
   });
 }
 loadScript('bgm_core.js?v=20260611c')
+  .then(() => loadScript('chapter2_patch.js?v=20260611a'))
   .then(() => loadScript('chapter3.js?v=20260611a'))
   .then(() => loadScript('chapter3_patch.js?v=20260611b'))
   .catch(() => {
